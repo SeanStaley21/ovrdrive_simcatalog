@@ -1,0 +1,1 @@
+show results at the end of every completed task / change
