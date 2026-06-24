@@ -1,0 +1,21 @@
+@media(max-width:700px){
+}
+
+@media(max-width:700px){
+  nav{padding:0 0.7rem;gap:0.5rem;height:52px}
+  .brand{font-size:16.5pt;letter-spacing:3px}.tagline{font-size:5pt;letter-spacing:2px}
+  .top-tab{font-size:9pt;padding:4px 10px;letter-spacing:1px}
+  .sidebar{width:140px;padding:0.6rem 0.3rem}
+  .nav-btn{font-size:9pt;padding:6px 8px}
+  .grid{grid-template-columns:1fr;padding:0 0.4rem}
+  .ce:nth-child(even){border-left:none}
+  .sec-header,.az-header{padding:1rem 0.4rem 0.8rem}
+  .sec-header h2,.az-header h1{font-size:18pt;letter-spacing:3px}
+  .bdiv{font-size:9.5pt}.cn{font-size:13pt}
+}
+
+@media(max-width:700px){
+  #trk-modal{top:auto;bottom:0;left:0;right:0;transform:none;width:100%;border-radius:12px 12px 0 0;border-top:3px solid var(--C);max-height:92vh;min-height:0}
+  .trk-stat-val{font-size:11pt}
+  .trk-record-val{font-size:10.5pt}
+}
