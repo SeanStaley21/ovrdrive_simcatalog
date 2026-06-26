@@ -14,7 +14,7 @@ nav{
 .brand{font-size:22pt;font-weight:700;letter-spacing:5px;flex-shrink:0;line-height:1;text-shadow:0 0 20px rgba(0,174,239,0.3);font-family:"Barlow Condensed",Arial,sans-serif;display:flex;flex-direction:column;gap:1px}
 .tagline{font-size:6pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.45);font-family:"Oswald",Arial,sans-serif;line-height:1;margin-top:2px}
 .brand .ovr{color:var(--W)}.brand .drv{color:var(--C)}
-.top-tabs{display:flex;gap:6px;margin-left:auto}
+.top-tabs{display:flex;gap:6px;position:absolute;left:50%;transform:translateX(-50%)}
 .top-tab{
   background:transparent;border:1px solid rgba(255,255,255,0.1);
   color:rgba(255,255,255,0.45);
