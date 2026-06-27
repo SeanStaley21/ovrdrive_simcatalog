@@ -38,6 +38,25 @@
 }
 
 @media(max-width:700px){
+  .ce[data-car]{height:185px}
+  .car-card-name{font-size:8.5pt;letter-spacing:1px}
+  .car-diff-badge{font-size:4.5pt;padding:1px 5px}
+  .car-card-stats{font-size:7pt;gap:3px}
+  .car-card-info{padding:0.35rem 0.5rem 0.4rem}
+  .car-card-img-wrap{padding:0.5rem 0.4rem 0.2rem}
+}
+
+@media(max-width:700px){
+  .trk-section .grid{grid-template-columns:1fr 1fr;gap:1px}
+  .ce[data-tname]{height:200px}
+  .trk-card-name{font-size:9.5pt;letter-spacing:1px}
+  .trk-card-country{font-size:5.5pt;padding:1px 5px}
+  .trk-card-stats{font-size:7pt;margin-bottom:4px}
+  .trk-card-outline{width:70%;max-height:90px}
+  .trk-card-info{padding:0.4rem 0.55rem 0.5rem}
+}
+
+@media(max-width:700px){
   .mobile-close-btn{
     font-size:26pt!important;
     padding:4px 14px!important;

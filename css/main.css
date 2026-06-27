@@ -141,3 +141,118 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 }
 .brand-btn:hover{color:var(--C);border-color:rgba(0,174,239,0.35);}
 .brand-btn.active{color:#0a0a0a;background:var(--C);border-color:var(--C);}
+
+/* ===== CAR CARD REDESIGN ===== */
+.section:not(.trk-section) .grid{gap:2px;background:#111}
+.ce[data-car]{
+  display:flex;flex-direction:column;
+  padding:0;height:250px;border-bottom:none;
+  background:#0d0d0d;cursor:pointer;
+}
+.ce[data-car]::before{display:none}
+.ce[data-car]:nth-child(even){border-left:none}
+.ce[data-car]:hover{background:#111}
+.car-card-img-wrap{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:0.75rem 0.6rem 0.3rem;overflow:hidden;
+  background:linear-gradient(180deg,#131313 0%,#0d0d0d 100%);
+}
+.car-card-img{
+  max-width:100%;max-height:100%;object-fit:contain;
+  transition:transform .3s ease;
+  filter:drop-shadow(0 4px 14px rgba(0,0,0,0.7));
+}
+.ce[data-car]:hover .car-card-img{transform:scale(1.05);}
+.car-card-info{
+  padding:0.5rem 0.75rem 0.6rem;
+  border-top:1px solid rgba(0,174,239,0.12);
+  background:#0a0a0a;flex-shrink:0;
+}
+.car-card-row1{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:6px;margin-bottom:5px;
+}
+.car-card-name{
+  font-size:10.5pt;font-weight:700;color:#fff;
+  letter-spacing:1.5px;text-transform:uppercase;line-height:1.2;
+  font-family:"Oswald",Arial,sans-serif;word-break:break-word;
+}
+.car-diff-badge{
+  font-size:7.5pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:3px 10px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px;
+  font-family:"Oswald",Arial,sans-serif;
+}
+.car-diff-beg{background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.35);}
+.car-diff-int{background:rgba(234,179,8,0.12);color:#fbbf24;border:1px solid rgba(234,179,8,0.35);}
+.car-diff-pro{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.35);}
+.car-card-stats{
+  font-size:8pt;font-weight:600;letter-spacing:1px;
+  color:rgba(255,255,255,0.4);text-transform:uppercase;
+  display:flex;gap:5px;align-items:center;
+  font-family:"Oswald",Arial,sans-serif;
+}
+.car-stat-sep{color:rgba(0,174,239,0.4);}
+#ovr-diff,#ovr-sheet-diff{font-size:9pt;padding:4px 12px;}
+
+/* ===== TRACK CARD REDESIGN ===== */
+.trk-section .grid{padding:0;gap:2px;background:#050505}
+.ce[data-tname]{
+  position:relative;height:290px;padding:0;overflow:hidden;
+  background:#0a0a0a;cursor:pointer;border-bottom:none;min-height:0;
+}
+.ce[data-tname]::before{display:none}
+.ce[data-tname]:nth-child(even){border-left:none}
+.trk-card-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  filter:brightness(0.32);transition:filter .35s ease;
+}
+.ce[data-tname]:hover .trk-card-bg{filter:brightness(0.52);}
+.trk-card-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.18) 38%,rgba(0,0,0,0.8) 65%,rgba(0,0,0,0.97) 100%);
+}
+.trk-card-outline{
+  position:absolute;
+  top:44%;left:50%;transform:translate(-50%,-50%);
+  width:64%;max-height:148px;object-fit:contain;
+  filter:invert(1) brightness(1.8) drop-shadow(0 0 6px rgba(255,255,255,0.2));
+  transition:filter .35s ease,transform .35s ease;pointer-events:none;
+}
+.ce[data-tname]:hover .trk-card-outline{
+  filter:invert(1) brightness(2.4) drop-shadow(0 0 10px rgba(0,174,239,0.55));
+  transform:translate(-50%,-50%) scale(1.05);
+}
+.trk-card-info{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:0.6rem 0.9rem 0.75rem;
+}
+.trk-card-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:8px;margin-bottom:3px;
+}
+.trk-card-name{
+  font-size:13pt;font-weight:700;color:#fff;letter-spacing:2px;
+  text-transform:uppercase;line-height:1.15;font-family:"Oswald",Arial,sans-serif;
+}
+.trk-card-country{
+  font-size:6.5pt;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);
+  text-transform:uppercase;border:1px solid rgba(255,255,255,0.25);
+  padding:2px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:3px;
+}
+.trk-card-stats{
+  font-size:8pt;font-weight:600;letter-spacing:0.5px;color:var(--C);
+  text-transform:uppercase;margin-bottom:6px;font-family:"Oswald",Arial,sans-serif;
+}
+.trk-card-rec{color:rgba(255,255,255,0.55)}
+.trk-card-diff-label{
+  font-size:6.5pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.32);
+  text-transform:uppercase;margin-bottom:4px;
+}
+.trk-card-diff-bar{display:flex;gap:3px;}
+.trk-cd-seg{flex:1;height:3px;background:rgba(255,255,255,0.1);border-radius:1px;}
+.trk-cd-seg.on-1{background:#22c55e;}
+.trk-cd-seg.on-2{background:#84cc16;}
+.trk-cd-seg.on-3{background:#eab308;}
+.trk-cd-seg.on-4{background:#f97316;}
+.trk-cd-seg.on-5{background:#ef4444;}
