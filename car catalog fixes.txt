@@ -1,0 +1,10 @@
+car catalog fixes
+~~~~~~~~~~~~~~~~~
+
+difficulties on tracks:
+ex: rainbow road -> hard
+
+difficulties on cars:
+fill in real stats for each car
+need to be adjusted in terms of their stats and how hard they will be to drive
+
