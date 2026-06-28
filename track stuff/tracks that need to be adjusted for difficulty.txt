@@ -1,0 +1,81 @@
+~~~~~~~~~~~~~~~~~~~~~~
+Road Courses to adjust
+~~~~~~~~~~~~~~~~~~~~~~
+tracks to change to easy:
+magione
+Yoshi falls
+lime rock park
+redbull ring short
+
+
+tracks to change to moderate:
+Daytona international speedway (roadcourse / moto)
+riverside
+monza 1966 historic
+le mans 1967 historic
+willow springs
+vallelunga
+tsukubai circuit
+rockingham speedway
+redbull ring (regular layout)
+Okayama
+
+tracks to change to challenging:
+barcelona-catalunya
+brands hatch
+imola
+laguna seca
+mid ohio
+Oulton park
+road atlanta
+Watkins glen
+
+tracks to change to hard:
+port Newark
+yas marina day / night (need to group these together like normal layouts are)
+
+tracks to change to extreme:
+zandvoort
+
+~~~~~~~~~~~~~~~~~~~~~~
+ovals / nascar to adjust
+~~~~~~~~~~~~~~~~~~~~~~
+tracks to change to easy:
+Indianapolis motor speedway
+daytona
+
+tracks to change to moderate:
+
+
+tracks to change to challenging:
+new Hampshire motor speedway
+
+
+tracks to change to hard:
+Pocono
+sportsdrome figure 8 (both layouts need to be grouped together)
+Martinsville speedway
+Bristol
+sportsdrome speedway (oval)
+
+tracks to change to extreme:
+
+~~~~~~~~~~~~~~~~~~~~~~
+fun and street race
+~~~~~~~~~~~~~~~~~~~~~~
+tracks to change to easy:
+
+
+tracks to change to moderate:
+
+
+tracks to change to challenging:
+royal raceway
+Yoshi's village
+California highway
+
+tracks to change to hard:
+toilet bowl
+
+tracks to change to extreme:
+topanga canyon

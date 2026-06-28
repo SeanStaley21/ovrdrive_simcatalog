@@ -129,7 +129,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 .sidebar-toggle{cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
 .stoggle-arr{font-size:9pt;transition:transform .25s;display:inline-block;opacity:0.5;}
 .stoggle-arr.coll{transform:rotate(-90deg);}
-#cat-list.coll,#brand-list.coll{display:none;}
+#cat-list.coll,#brand-list.coll,#car-diff-list.coll,#trk-cat-list.coll,#trk-country-list.coll,#trk-diff-list.coll{display:none;}
 /* Brand filter buttons */
 .brand-btn{
   background:transparent;border:1px solid transparent;
