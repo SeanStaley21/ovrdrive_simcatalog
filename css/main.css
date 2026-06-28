@@ -129,7 +129,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 .sidebar-toggle{cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
 .stoggle-arr{font-size:9pt;transition:transform .25s;display:inline-block;opacity:0.5;}
 .stoggle-arr.coll{transform:rotate(-90deg);}
-#cat-list.coll,#brand-list.coll,#car-diff-list.coll,#trk-cat-list.coll,#trk-country-list.coll,#trk-diff-list.coll{display:none;}
+#cat-list.coll,#brand-list.coll,#car-diff-list.coll,#car-drive-list.coll,#trk-cat-list.coll,#trk-country-list.coll,#trk-diff-list.coll{display:none;}
 /* Brand filter buttons */
 .brand-btn{
   background:transparent;border:1px solid transparent;
@@ -214,8 +214,8 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 }
 .trk-card-outline{
   position:absolute;
-  top:44%;left:50%;transform:translate(-50%,-50%);
-  width:64%;max-height:148px;object-fit:contain;
+  top:42%;left:50%;transform:translate(-50%,-50%);
+  width:82%;max-height:175px;object-fit:contain;
   filter:invert(1) brightness(1.8) drop-shadow(0 0 6px rgba(255,255,255,0.2));
   transition:filter .35s ease,transform .35s ease;pointer-events:none;
 }
