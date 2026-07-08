@@ -178,6 +178,13 @@
     <div id="trk-country-list"></div>
   </aside>
 <main>
+<div class="search-wrap">
+  <div class="search-box">
+    <svg class="search-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input type="text" id="catalog-search" class="search-input" autocomplete="off" spellcheck="false" aria-label="Search" placeholder="Search cars… try &ldquo;Porsche 911&rdquo;">
+    <button type="button" id="search-clear-btn" class="search-clear" aria-label="Clear search" style="display:none">&times;</button>
+  </div>
+</div>
 <section id="sec-all" class="section active">
   <div class="az-header">
     <h1>All Cars A–Z</h1>
@@ -389,6 +396,8 @@ document.querySelectorAll('.brand-btn').forEach(function(btn){
     document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
     document.getElementById('sec-all').classList.add('active');
     document.querySelector('.nav-btn[data-sec="all"]').classList.add('active');
+    activeCarSection='all';
+    applyCarFilters();
     filterByBrand(activeBrand);
   });
 });
@@ -481,18 +490,74 @@ function updateCarDiffBtns(){
     });
   });
 }
+// ── Search state ──
+var activePage='cars';
+var carSearchQuery='';
+var trkSearchQuery='';
+function _matchesSearch(name,query){
+  if(!query)return true;
+  var words=name.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  var tokens=query.toLowerCase().split(/\s+/).filter(Boolean);
+  return tokens.every(function(tok){
+    return words.some(function(w){return w.indexOf(tok)===0;});
+  });
+}
+function _toggleEmptyMsg(grid,show,text){
+  if(!grid)return;
+  var m=grid.querySelector(':scope > .empty-msg-dyn');
+  if(!m){
+    m=document.createElement('div');
+    m.className='empty-msg empty-msg-dyn';
+    grid.appendChild(m);
+  }
+  if(text)m.textContent=text;
+  m.style.display=show?'':'none';
+}
+function _updateCountHeader(sec,count){
+  var el=sec&&sec.querySelector('.car-count');
+  if(el)el.textContent=el.textContent.replace(/^\d+/,count);
+}
+
 function applyCarFilters(){
+  var q=carSearchQuery;
+  var sec=document.getElementById('sec-'+activeCarSection);
+  var visCount=0;
   _getActiveSectionCards().forEach(function(el){
     var matchDiff=activeCarDiff==='__all__'||String(el.dataset.diff)===String(activeCarDiff);
     var matchDrive=activeCarDrive==='__all__'||el.dataset.drive===activeCarDrive;
-    el.style.display=(matchDiff&&matchDrive)?'':'none';
+    var matchSearch=_matchesSearch(el.dataset.car,q);
+    var show=matchDiff&&matchDrive&&matchSearch;
+    el.style.display=show?'':'none';
+    if(show)visCount++;
   });
+  if(sec){
+    sec.querySelectorAll('.bdiv').forEach(function(b){
+      var count=0,n=b.nextElementSibling;
+      while(n&&!n.classList.contains('bdiv')){
+        if(n.matches('.ce[data-car]')&&n.style.display!=='none')count++;
+        n=n.nextElementSibling;
+      }
+      b.style.display=count>0?'':'none';
+      var countEl=b.querySelector('.bdiv-count');
+      if(countEl)countEl.textContent=count;
+    });
+    _toggleEmptyMsg(sec.querySelector('.grid'),visCount===0,'No cars match your filters.');
+    _updateCountHeader(sec,visCount);
+  }
 }
 
 // Top Cars / Tracks tab switcher
 document.querySelectorAll('.top-tab').forEach(function(tab){
   tab.addEventListener('click',function(){
     var page=this.dataset.page;
+    // Reset & restore any in-progress search before switching pages
+    if(trkSearchQuery){trkSearchQuery='';applyTrkFilters();}
+    if(carSearchQuery){carSearchQuery='';applyCarFilters();}
+    var _si=document.getElementById('catalog-search'),_scb=document.getElementById('search-clear-btn');
+    if(_si)_si.value='';
+    if(_scb)_scb.style.display='none';
+    activePage=page;
+    if(typeof updateSearchPlaceholder==='function')updateSearchPlaceholder();
     document.querySelectorAll('.top-tab').forEach(function(t){t.classList.remove('active');});
     this.classList.add('active');
     if(page==='cars'){
@@ -524,6 +589,31 @@ document.querySelectorAll('.top-tab').forEach(function(tab){
     window.scrollTo(0,0);
   });
 });
+
+// ── Search box wiring ──
+var searchInput=document.getElementById('catalog-search');
+var searchClearBtn=document.getElementById('search-clear-btn');
+function updateSearchPlaceholder(){
+  if(!searchInput)return;
+  searchInput.placeholder=activePage==='cars'?'Search cars… try “Porsche 911”':'Search tracks… try “Spa-Francorchamps”';
+}
+if(searchInput){
+  searchInput.addEventListener('input',function(){
+    var q=this.value.trim().toLowerCase();
+    if(searchClearBtn)searchClearBtn.style.display=q?'':'none';
+    if(activePage==='cars'){carSearchQuery=q;applyCarFilters();}
+    else{trkSearchQuery=q;applyTrkFilters();}
+  });
+}
+if(searchClearBtn){
+  searchClearBtn.addEventListener('click',function(){
+    searchInput.value='';
+    searchInput.dispatchEvent(new Event('input'));
+    searchInput.focus();
+  });
+}
+updateSearchPlaceholder();
+
 // Track category buttons
 document.querySelectorAll('.trk-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
@@ -641,6 +731,8 @@ function _buildLayoutCards(sec){
     if(activeTrkCountry!=='__all__'&&d.country!==activeTrkCountry)return;
     // Diff filter
     if(activeTrkDiff!=='__all__'&&String(d.diff)!==String(activeTrkDiff))return;
+    // Search filter
+    if(!_matchesSearch(tname,trkSearchQuery))return;
     cards.push({tname:tname,layout:layout,d:d,tcat:(_trackToCat[tname]||['road'])[0]});
   });
   cards.sort(function(a,b){
@@ -687,16 +779,26 @@ function applyTrkFilters(){
     _saveGrid(activeSection);
     _inLayoutView[activeSection.id]=true;
     _buildLayoutCards(activeSection);
-  } else if(activeTrkCountry!=='__all__'){
-    // Country-only filter: show/hide original track cards
+    _updateCountHeader(activeSection,activeSection.querySelectorAll('.grid .ce[data-tname]').length);
+  } else if(activeTrkCountry!=='__all__'||trkSearchQuery){
+    // Country and/or search filter: show/hide original track cards
     if(_inLayoutView[activeSection.id])_restoreGrid(activeSection);
+    var visCount=0;
     activeSection.querySelectorAll('.ce[data-tname]').forEach(function(el){
-      el.style.display=(el.dataset.country===activeTrkCountry)?'':'none';
+      var matchCountry=activeTrkCountry==='__all__'||el.dataset.country===activeTrkCountry;
+      var matchSearch=_matchesSearch(el.dataset.tname,trkSearchQuery);
+      var show=matchCountry&&matchSearch;
+      el.style.display=show?'':'none';
+      if(show)visCount++;
     });
+    _toggleEmptyMsg(activeSection.querySelector('.grid'),visCount===0,'No tracks match your filters.');
+    _updateCountHeader(activeSection,visCount);
   } else {
     // No filter: restore originals
     if(_inLayoutView[activeSection.id])_restoreGrid(activeSection);
     activeSection.querySelectorAll('.ce[data-tname]').forEach(function(el){el.style.display='';});
+    _toggleEmptyMsg(activeSection.querySelector('.grid'),false);
+    _updateCountHeader(activeSection,activeSection.querySelectorAll('.ce[data-tname]').length);
   }
 }
 function filterTrkCountry(country){activeTrkCountry=country;applyTrkFilters();}

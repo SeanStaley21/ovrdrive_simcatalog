@@ -12,6 +12,9 @@
   .sec-header,.az-header{padding:1rem 0.4rem 0.8rem}
   .sec-header h2,.az-header h1{font-size:18pt;letter-spacing:3px}
   .bdiv{font-size:9.5pt}.cn{font-size:13pt}
+  .search-wrap{top:52px;padding:0.6rem 0.4rem}
+  .search-box{max-width:none;padding:0.5rem 0.75rem}
+  .search-input{font-size:10pt}
 }
 
 @media(max-width:700px){
