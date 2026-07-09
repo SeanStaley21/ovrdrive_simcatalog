@@ -12,8 +12,8 @@
   .sec-header,.az-header{padding:1rem 0.4rem 0.8rem}
   .sec-header h2,.az-header h1{font-size:18pt;letter-spacing:3px}
   .bdiv{font-size:9.5pt}.cn{font-size:13pt}
-  .search-wrap{top:52px;padding:0.6rem 0.4rem}
-  .search-box{max-width:none;padding:0.5rem 0.75rem}
+  .search-wrap{top:52px;padding:0.6rem 0.4rem;display:flex;align-items:center;gap:0.5rem}
+  .search-box{max-width:none;padding:0.5rem 0.75rem;flex:1;min-width:0}
   .search-input{font-size:10pt}
 }
 
@@ -69,4 +69,22 @@
     align-items:center;
     justify-content:center;
   }
+}
+
+@media(max-width:700px){
+  .sidebar-toggle-btn{display:inline-flex}
+  body.sidebar-open .sidebar-toggle-btn{border-color:var(--C);color:var(--C)}
+
+  /* Hide the active sidebar unless explicitly opened; !important overrides
+     the inline style set by the Cars/Tracks tab-switch JS */
+  body:not(.sidebar-open) .sidebar{display:none!important}
+
+  /* Scale car/track cards up when the sidebar is hidden */
+  body:not(.sidebar-open) .ce[data-car]{height:230px}
+  body:not(.sidebar-open) .ce[data-tname]{height:230px}
+  body:not(.sidebar-open) .trk-card-outline{width:75%;max-height:105px}
+}
+
+@media(min-width:480px) and (max-width:700px){
+  body:not(.sidebar-open) .grid{grid-template-columns:1fr 1fr}
 }

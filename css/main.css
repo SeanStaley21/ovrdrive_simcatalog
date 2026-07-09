@@ -84,6 +84,15 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   font-size:16pt;line-height:1;padding:0 0 2px;flex-shrink:0;transition:color .15s ease;
 }
 .search-clear:hover{color:var(--C)}
+.sidebar-toggle-btn{
+  display:none;
+  align-items:center;gap:5px;flex-shrink:0;
+  background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:6px;
+  color:rgba(255,255,255,0.65);font-family:"Oswald",Arial,sans-serif;
+  font-size:9pt;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:0.5rem 0.65rem;cursor:pointer;transition:all .18s ease;
+}
+.sidebar-toggle-btn:hover{border-color:var(--C);color:var(--C);background:rgba(0,174,239,0.08)}
 .empty-msg-dyn{grid-column:1/-1;text-align:center}
 .sec-header,.az-header{padding:1.4rem 0.5in 1rem;position:relative;overflow:hidden}
 .sec-header::after,.az-header::after{

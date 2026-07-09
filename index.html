@@ -179,6 +179,10 @@
   </aside>
 <main>
 <div class="search-wrap">
+  <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-expanded="false">
+    <svg class="filter-ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="18" x2="14" y2="18"></line></svg>
+    Filters <span class="stoggle-arr coll" id="sidebar-toggle-arr">&#9660;</span>
+  </button>
   <div class="search-box">
     <svg class="search-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     <input type="text" id="catalog-search" class="search-input" autocomplete="off" spellcheck="false" aria-label="Search" placeholder="Search cars… try &ldquo;Porsche 911&rdquo;">
@@ -369,6 +373,16 @@ document.getElementById('car-drive-toggle').addEventListener('click',function(){
   document.getElementById('car-drive-list').classList.toggle('coll');
   document.getElementById('car-drive-arr').classList.toggle('coll');
 });
+
+// ── Mobile: whole-sidebar collapse toggle ──
+var sidebarToggleBtn=document.getElementById('sidebar-toggle-btn');
+if(sidebarToggleBtn){
+  sidebarToggleBtn.addEventListener('click',function(){
+    var open=document.body.classList.toggle('sidebar-open');
+    document.getElementById('sidebar-toggle-arr').classList.toggle('coll',!open);
+    sidebarToggleBtn.setAttribute('aria-expanded',open?'true':'false');
+  });
+}
 
 // ── Brand filter ──
 var activeBrand='__all__';
