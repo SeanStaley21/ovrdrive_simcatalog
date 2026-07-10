@@ -24,3 +24,5 @@ npx serve .
 ## Updating data
 
 Car and track entries live directly inside `index.html` (search for `carStats`). There's no separate database — edit the JS object literals and drop the corresponding image into `cars/` or `tracks/`.
+
+See `claude-instructions.md` for the full add/edit workflow, and `deriving-car-track-stats.md` for how to pull real stat values out of raw Assetto Corsa car/track content folders.

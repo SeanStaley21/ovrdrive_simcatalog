@@ -1,5 +1,7 @@
 # Claude Instructions — OVRDRIVE Sim Catalog
 
+If the user hands you a path to a raw Assetto Corsa car/track content folder (usually on a flash drive) and wants stats derived from it, see `deriving-car-track-stats.md` first — it covers where the real numbers live in that source data and how to convert them. This file covers what to do with those values once you have them.
+
 There is no build step and no generator script. `index.html` is hand-edited directly, and it holds data in **two different places** that both have to be kept in sync by hand:
 
 1. Two JS objects near the bottom of `index.html` (inside `<script>` tags) — the actual data (stats, images, difficulty).
