@@ -7,8 +7,8 @@
 <title>Sim Catalog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css?v=20261005">
-  <link rel="stylesheet" href="css/mobile.css?v=20261005">
+  <link rel="stylesheet" href="css/main.css?v=20261006">
+  <link rel="stylesheet" href="css/mobile.css?v=20261006">
 </head>
 <body>
 <nav>
@@ -268,6 +268,13 @@
 </section>
 </main>
 <aside class="queue-panel" id="queue-panel">
+  <div class="preset-wrap" id="preset-wrap">
+    <button type="button" class="preset-toggle" id="preset-toggle" onclick="togglePresetMenu()">Presets <span class="preset-caret">&#9662;</span></button>
+    <div class="preset-menu" id="preset-menu" style="display:none">
+      <button type="button" class="preset-save-btn" onclick="savePreset()">+ Save current race</button>
+      <div id="preset-list"></div>
+    </div>
+  </div>
   <div class="queue-header">Your Race</div>
   <div class="queue-slot" id="queue-slot-car" data-kind="car">
     <div class="queue-empty">No car selected<br>Open a car and press Select</div>
@@ -1280,8 +1287,102 @@ function renderQueue(){
   });
   updateSelectButtons();
 }
+// ----- Saved presets (separate localStorage key so queue changes never touch them) -----
+var racePresets=[];
+function loadPresets(){
+  try{
+    var saved=JSON.parse(localStorage.getItem('ovrRacePresets'));
+    if(Array.isArray(saved)) racePresets=saved.filter(function(p){return p && typeof p.name==='string';});
+  }catch(e){}
+}
+function savePresets(){
+  try{ localStorage.setItem('ovrRacePresets',JSON.stringify(racePresets)); }catch(e){}
+}
+function togglePresetMenu(force){
+  var m=document.getElementById('preset-menu');
+  var open=(typeof force==='boolean')?force:m.style.display==='none';
+  m.style.display=open?'block':'none';
+  document.getElementById('preset-toggle').classList.toggle('open',open);
+}
+function savePreset(){
+  if(!raceQueue.car && !raceQueue.track){ alert('Select a car and/or track first, then save it as a preset.'); return; }
+  var name=prompt('Name this preset:');
+  if(name===null) return;
+  name=name.trim();
+  if(!name) return;
+  var entry={
+    id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    name:name,
+    car:raceQueue.car,
+    track:raceQueue.track?{name:raceQueue.track.name,cat:raceQueue.track.cat,layout:raceQueue.track.layout}:null
+  };
+  var idx=racePresets.findIndex(function(p){return p.name.toLowerCase()===name.toLowerCase();});
+  if(idx>=0){
+    if(!confirm('A preset named "'+racePresets[idx].name+'" already exists. Overwrite it?')) return;
+    entry.id=racePresets[idx].id;
+    racePresets[idx]=entry;
+  } else racePresets.push(entry);
+  savePresets();
+  renderPresets();
+}
+function loadPreset(id){
+  var p=racePresets.find(function(x){return x.id===id;});
+  if(!p) return;
+  raceQueue={car:p.car||null,track:p.track?{name:p.track.name,cat:p.track.cat,layout:p.track.layout}:null};
+  saveQueue();
+  renderQueue();
+  togglePresetMenu(false);
+}
+function deletePreset(id){
+  var p=racePresets.find(function(x){return x.id===id;});
+  if(!p || !confirm('Delete preset "'+p.name+'"?')) return;
+  racePresets=racePresets.filter(function(x){return x.id!==id;});
+  savePresets();
+  renderPresets();
+}
+function renderPresets(){
+  var list=document.getElementById('preset-list');
+  list.textContent='';
+  if(!racePresets.length){
+    var e=document.createElement('div');
+    e.className='preset-empty';
+    e.textContent='No saved presets yet';
+    list.appendChild(e);
+    return;
+  }
+  racePresets.forEach(function(p){
+    var row=document.createElement('div');
+    row.className='preset-item';
+    var main=document.createElement('button');
+    main.type='button';
+    main.className='preset-item-main';
+    var n=document.createElement('div');
+    n.className='preset-item-name';
+    n.textContent=p.name;
+    var s=document.createElement('div');
+    s.className='preset-item-sub';
+    s.textContent=[p.car,p.track&&p.track.name].filter(Boolean).join(' · ');
+    main.appendChild(n); main.appendChild(s);
+    main.onclick=function(){ loadPreset(p.id); };
+    var del=document.createElement('button');
+    del.type='button';
+    del.className='preset-item-del';
+    del.title='Delete preset';
+    del.innerHTML='&times;';
+    del.onclick=function(){ deletePreset(p.id); };
+    row.appendChild(main); row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+document.addEventListener('click',function(e){
+  var w=document.getElementById('preset-wrap');
+  // a clicked button may already be re-rendered away (e.g. delete); that's not an outside click
+  if(w && document.contains(e.target) && !w.contains(e.target)) togglePresetMenu(false);
+});
 loadQueue();
 renderQueue();
+loadPresets();
+renderPresets();
 </script>
 
 </body>

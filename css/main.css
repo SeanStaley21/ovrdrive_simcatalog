@@ -344,6 +344,42 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 }
 .queue-clear-btn:hover{border-color:#ef4444;color:#f87171;background:rgba(239,68,68,0.08)}
 
+/* Saved presets dropdown (above "Your Race") */
+.preset-wrap{position:relative}
+.preset-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  background:transparent;border:1.5px solid var(--C);border-radius:3px;
+  color:var(--C);font-family:"Oswald",Arial,sans-serif;font-size:10pt;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;padding:10px 12px;cursor:pointer;transition:all .18s ease;
+}
+.preset-toggle:hover,.preset-toggle.open{background:rgba(0,174,239,0.1)}
+.preset-caret{font-size:9pt;transition:transform .18s ease}
+.preset-toggle.open .preset-caret{transform:rotate(180deg)}
+.preset-menu{
+  margin-top:6px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.12);border-radius:4px;
+  max-height:300px;overflow-y:auto;
+}
+.preset-save-btn{
+  width:100%;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,0.1);
+  color:var(--C);font-family:"Oswald",Arial,sans-serif;font-size:9pt;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;padding:10px 12px;cursor:pointer;text-align:left;
+}
+.preset-save-btn:hover{background:rgba(0,174,239,0.1)}
+.preset-empty{padding:12px;color:rgba(255,255,255,0.3);font-size:8.5pt;letter-spacing:0.5px;text-transform:uppercase;font-weight:600}
+.preset-item{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.05)}
+.preset-item:last-child{border-bottom:0}
+.preset-item-main{
+  flex:1;min-width:0;background:transparent;border:0;text-align:left;cursor:pointer;
+  font-family:"Oswald",Arial,sans-serif;padding:9px 12px;
+}
+.preset-item-main:hover{background:rgba(0,174,239,0.1)}
+.preset-item-name{font-size:10pt;font-weight:600;color:#fff;letter-spacing:0.4px;word-break:break-word}
+.preset-item-sub{font-size:7.5pt;color:rgba(255,255,255,0.4);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preset-item-del{
+  background:transparent;border:0;color:rgba(255,255,255,0.35);font-size:13pt;padding:0 12px;cursor:pointer;
+}
+.preset-item-del:hover{color:#f87171;background:rgba(239,68,68,0.08)}
+
 /* Select buttons inside the car/track modals (only where the queue panel is visible) */
 .queue-select-btn{
   display:none;width:100%;margin-top:4px;
