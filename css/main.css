@@ -363,3 +363,14 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   .queue-panel{display:flex}
   .queue-select-btn{display:block}
 }
+
+/* Desktop only: keep the car popup inside short viewports (mouse/trackpad devices, not touch) */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  #ovr-modal{max-height:94vh;overflow-y:auto;overscroll-behavior:contain}
+}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) and (max-height:900px){
+  #ovr-img{height:140px !important}
+}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) and (max-height:760px){
+  #ovr-img{height:110px !important}
+}
