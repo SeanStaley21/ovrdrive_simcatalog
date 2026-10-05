@@ -108,6 +108,10 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   .page-layout{max-width:1360px}
   .grid{grid-template-columns:repeat(3,1fr)}
 }
+/* Extra-wide desktop: make room for the race queue panel on the right */
+@media(min-width:1280px){
+  .page-layout{max-width:1560px}
+}
 .bdiv{
   grid-column:1/-1;display:flex;align-items:center;gap:0.6rem;
   font-size:9.5pt;font-weight:700;color:rgba(255,255,255,0.35);
@@ -292,3 +296,70 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 .trk-cd-seg.on-3{background:#eab308;}
 .trk-cd-seg.on-4{background:#f97316;}
 .trk-cd-seg.on-5{background:#ef4444;}
+/* ===== RACE QUEUE PANEL ===== */
+.queue-panel{
+  display:none;flex-direction:column;gap:14px;
+  width:250px;flex-shrink:0;margin-left:1.2rem;
+  position:sticky;top:78px;
+  background:#0f0f0f;border:1px solid rgba(255,255,255,0.07);border-top:2px solid var(--C);
+  border-radius:5px;padding:16px 16px 18px;
+}
+.queue-header{
+  font-size:10pt;font-weight:700;letter-spacing:3px;color:#fff;text-transform:uppercase;
+}
+.queue-slot{
+  position:relative;min-height:84px;
+  background:#0a0a0a;border:1px dashed rgba(255,255,255,0.15);border-radius:4px;
+  padding:10px;display:flex;align-items:center;
+}
+.queue-slot.filled{
+  border-style:solid;border-color:rgba(0,174,239,0.3);cursor:pointer;
+  background:linear-gradient(180deg,#121212 0%,#0a0a0a 100%);
+}
+.queue-slot.filled:hover{border-color:var(--C)}
+.queue-empty{
+  color:rgba(255,255,255,0.3);font-size:8.5pt;letter-spacing:0.5px;line-height:1.5;
+  text-transform:uppercase;font-weight:600;
+}
+.queue-item{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
+.queue-item-img{
+  width:48px;height:48px;flex-shrink:0;object-fit:contain;border-radius:3px;
+  background:#000;
+}
+.queue-item-body{min-width:0;flex:1}
+.queue-item-kind{font-size:7pt;font-weight:700;letter-spacing:2px;color:var(--C);text-transform:uppercase;opacity:0.8}
+.queue-item-name{font-size:10.5pt;font-weight:600;color:#fff;letter-spacing:0.4px;line-height:1.25;word-break:break-word;margin-top:1px}
+.queue-item-sub{font-size:7.5pt;color:rgba(255,255,255,0.4);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase}
+.queue-remove{
+  position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
+  background:rgba(180,30,30,0.9);border:1px solid rgba(255,80,80,0.4);color:#fff;
+  font-size:11pt;line-height:1;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s ease;z-index:2;
+}
+.queue-remove:hover{background:rgba(220,40,40,1)}
+.queue-clear-btn{
+  background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:3px;
+  color:rgba(255,255,255,0.6);font-family:"Oswald",Arial,sans-serif;font-size:9pt;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;padding:9px 0;cursor:pointer;transition:all .18s ease;
+}
+.queue-clear-btn:hover{border-color:#ef4444;color:#f87171;background:rgba(239,68,68,0.08)}
+
+/* Select buttons inside the car/track modals (only where the queue panel is visible) */
+.queue-select-btn{
+  display:none;width:100%;margin-top:4px;
+  background:transparent;border:1.5px solid var(--C);border-radius:3px;
+  color:var(--C);font-family:"Oswald",Arial,sans-serif;font-size:10pt;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;padding:11px 0;cursor:pointer;transition:all .18s ease;
+}
+.queue-select-btn:hover{background:rgba(0,174,239,0.1)}
+.queue-select-btn.selected{background:var(--C);border-color:var(--C);color:#03242e}
+.queue-select-btn.selected:hover{background:var(--C)}
+
+/* Highlight whichever car/track card is currently queued */
+.ce.queued{outline:2px solid var(--C);outline-offset:-2px}
+
+/* Show the race queue panel + its Select buttons only when there's room (desktop) */
+@media(min-width:1280px){
+  .queue-panel{display:flex}
+  .queue-select-btn{display:block}
+}
