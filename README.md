@@ -4,15 +4,18 @@ A single-page catalog of every car and track available in OVRDRIVE's racing simu
 
 ## Running it
 
-Just open `index.html` in a browser, or serve the folder with any static file server, e.g.:
+Serve the folder with any static file server, e.g.:
 
 ```
 npx serve .
 ```
 
+The catalog loads its data with `fetch()`, so opening `index.html` directly (`file://`) will not work — use a local server. GitHub Pages is unaffected.
+
 ## Structure
 
-- `index.html` — the entire app: markup, styles hooks, and JS. Car and track data is embedded inline as JS objects (`carStats`, etc.), each entry pointing at an image file.
+- `index.html` — the app: markup, style hooks, and JS. Cards, brand dividers and counts are rendered at load time from the JSON data files.
+- `data/cars.json`, `data/tracks.json` — all car and track data (stats, categories, brands, images, layouts, variant groups).
 - `css/main.css`, `css/mobile.css` — desktop and mobile styles.
 - `cars/` — car photos referenced by the catalog data.
 - `tracks/` — track layout images (each track has a filled and an outline version per layout).
@@ -23,6 +26,6 @@ npx serve .
 
 ## Updating data
 
-Car and track entries live directly inside `index.html` (search for `carStats`). There's no separate database — edit the JS object literals and drop the corresponding image into `cars/` or `tracks/`.
+Car and track entries live in `data/cars.json` and `data/tracks.json`. Edit the JSON and drop the corresponding image into `cars/` or `tracks/`; cards, brand dividers and counts update automatically. A new brand also needs a sidebar button in `index.html`.
 
 See `claude-instructions.md` for the full add/edit workflow, and `deriving-car-track-stats.md` for how to pull real stat values out of raw Assetto Corsa car/track content folders.
