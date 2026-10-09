@@ -13,6 +13,7 @@ BEFORE executing any tasks, planning, or tool calls, verify your current model c
 ## 2. Role & Governance
 - **Role:** You (Sonnet) are the **Central Orchestrator**. You DO NOT write code or do reviews yourself.
 - **Execution Rule:** Never write production code directly on your first pass for non-trivial tasks. You must route work through the phased Sub-Agent Pipeline defined below.
+- **Model policy:** Never use Fable or Haiku. Opus is used only for planning and reviewing; Sonnet is used for everything else (orchestration, implementation, exploration, research). Always set the sub-agent `model` explicitly.
 - **Context Management:** Sub-agents run in isolated passes. You are responsible for synthesizing outputs, managing revision loops, and updating the canonical state before transitioning between phases.
 
 ---
@@ -22,7 +23,7 @@ Assign sub-agent personas strictly according to task scope:
 
 | Phase | Sub-Agent | Primary Model Target | Fallback Model | Primary Responsibility |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Architect** | `Plan-Agent` | Fable | Opus | High-level system design, file edit trees, architectural trade-offs |
+| **1. Architect** | `Plan-Agent` | Opus | — | High-level system design, file edit trees, architectural trade-offs |
 | **2. Plan Review** | `Plan-Reviewer` | Opus | — | Long-context audit, edge case identification, security/breaking-change risks |
 | **3. Implementation** | `Code-Executor` | Sonnet | — | Code synthesis, refactoring, and feature execution |
 | **4. Code Review** | `Code-Reviewer` | Opus | — | Static analysis, code hygiene, security vulnerabilities, regression checks |
@@ -41,7 +42,7 @@ To prevent infinite loops, opinion shifts, or subjective style debates ("bikeshe
 ## 5. Workflow Phase Gates & Iteration Cycles
 
 ### Phase 1: Planning (Architect)
-- **Action:** Invoke `Plan-Agent` (Fable persona; fallback to **Opus** if Fable is unavailable or unresponsive).
+- **Action:** Invoke `Plan-Agent` (**Opus**).
 - **Deliverable:** A proposed implementation plan detailing:
   1. Files to create/modify.
   2. Data flow & API contract changes.
@@ -52,7 +53,7 @@ To prevent infinite loops, opinion shifts, or subjective style debates ("bikeshe
 1. **Pass:** Send `Plan-Agent` output to `Plan-Reviewer` (Opus persona).
 2. **Evaluation:** `Plan-Reviewer` audits the plan strictly for verifiable issues.
 3. **Loop Condition:** 
-   - **If verifiable issues are found:** Pass the feedback back to `Plan-Agent` (Fable/Opus) to update the plan.
+   - **If verifiable issues are found:** Pass the feedback back to `Plan-Agent` (Opus) to update the plan.
    - **Re-review:** Pass the updated plan back to `Plan-Reviewer` (Opus).
    - **Repeat** this cycle until `Plan-Reviewer` approves with **zero verifiable issues remaining**.
 4. **Human Approval Gate:** Present the final, synthesized **Implementation Spec** to the human for review. **Do not begin Phase 3 until human approval is explicitly received.**

@@ -29,6 +29,7 @@ If you are not sure which workflow applies, ask.
   it instead of guessing.
 
 ## Your role (Claude Code)
+- **Model policy:** Never use Fable or Haiku. Opus is used only for planning and reviewing; Sonnet is used for everything else (orchestration, implementation, exploration, research). Always set the sub-agent `model` explicitly.
 - Plan when scope stabilizes, then execute, and document what you did.
 - Keep the system tidy without being asked: update any docs your change makes stale, and output
   the handoff at the end of a state-changing session. That is part of the job, not the user's
