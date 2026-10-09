@@ -1342,6 +1342,7 @@ function writeHash(push){
   var s=p.toString();
   var h=s?'#/'+s:'';
   if(h===location.hash||(!h&&!location.hash))return;
+  hideCopyUrls();
   history[push?'pushState':'replaceState'](null,'',h||location.pathname+location.search);
   curHash=location.hash;
 }
@@ -1355,6 +1356,7 @@ function applyHash(isBoot){
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
   hashRestoring=true;
+  hideCopyUrls();
   try{
     var landing=document.getElementById('landing');
     if(raw&&landing.style.display!=='none')showCatalog();
@@ -1430,9 +1432,24 @@ document.addEventListener('click',function(e){
     btn.textContent=text;
     setTimeout(function(){btn.textContent=label;},1500);
   }
-  if(!navigator.clipboard){flash('Copy failed');return;}
-  navigator.clipboard.writeText(location.href).then(function(){flash('Copied');},function(){flash('Copy failed');});
+  function showUrl(){
+    hideCopyUrls();
+    var field=document.createElement('input');
+    field.type='text';
+    field.readOnly=true;
+    field.className='copy-link-url';
+    field.setAttribute('aria-label','Link to copy');
+    field.value=location.href;
+    btn.parentNode.insertAdjacentElement('afterend',field);
+    field.focus();
+    field.select();
+  }
+  if(!navigator.clipboard){showUrl();return;}
+  navigator.clipboard.writeText(location.href).then(function(){flash('Copied');},showUrl);
 });
+function hideCopyUrls(){
+  document.querySelectorAll('.copy-link-url').forEach(function(el){el.remove();});
+}
 </script>
 <script type="text/app">
 function lookupCar(name) {

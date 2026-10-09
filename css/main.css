@@ -458,4 +458,8 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   letter-spacing:1.5px;text-transform:uppercase;padding:6px 10px;margin-right:0.6rem;flex-shrink:0;
   transition:color .15s ease,border-color .15s ease;
 }
+.copy-link-url{
+  display:block;box-sizing:border-box;width:calc(100% - 2rem);margin:8px 1rem;padding:6px 8px;
+  background:#0a0a0a;border:1px solid var(--C);border-radius:2px;color:#fff;font:9pt Oswald,Arial,sans-serif;
+}
 .copy-link-btn:hover{color:var(--C);border-color:var(--C)}
