@@ -437,3 +437,18 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 @media (min-width:1024px) and (hover:hover) and (pointer:fine) and (max-height:760px){
   #ovr-img{height:110px !important}
 }
+
+/* ===== FAVORITES ===== */
+.fav-toggle{margin-bottom:0.6rem}
+.fav-star{
+  background:transparent;border:none;cursor:pointer;padding:0;
+  color:rgba(255,255,255,0.55);font-family:Arial,sans-serif;line-height:1;
+  transition:color .15s ease,transform .15s ease;
+}
+.fav-star:hover{color:var(--C);transform:scale(1.15)}
+.fav-star.is-fav{color:var(--C);text-shadow:0 0 8px rgba(0,174,239,0.6)}
+.ce>.fav-star{
+  position:absolute;top:6px;right:6px;z-index:3;width:30px;height:30px;font-size:18pt;
+  background:rgba(0,0,0,0.45);border-radius:50%;
+}
+.fav-star-lg{font-size:20pt;width:36px;height:36px;margin-right:0.6rem;flex-shrink:0}
