@@ -276,9 +276,11 @@
     </div>
   </div>
   <div class="queue-header">Your Race</div>
+  <div class="queue-section-title">Car</div>
   <div class="queue-slot" id="queue-slot-car" data-kind="car">
     <div class="queue-empty">No car selected<br>Open a car and press Select</div>
   </div>
+  <div class="queue-section-title">Track</div>
   <div class="queue-slot" id="queue-slot-track" data-kind="track">
     <div class="queue-empty">No track selected<br>Open a track and press Select</div>
   </div>
@@ -1239,16 +1241,19 @@ function updateSelectButtons(){
     tb.classList.toggle('selected',tSel);
   }
 }
+function qEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function renderQueue(){
   var carSlot=document.getElementById('queue-slot-car');
   var cd=raceQueue.car?carStats[raceQueue.car]:null;
   if(raceQueue.car && cd){
+    var dcls=cd.diff>=3?'pro':cd.diff===2?'int':'beg';
     var dt=cd.diff>=3?'PRO':cd.diff===2?'INTERMEDIATE':'BEGINNER';
     carSlot.className='queue-slot filled';
     carSlot.innerHTML='<div class="queue-remove" data-kind="car" title="Remove car">&times;</div>'+
-      '<div class="queue-item"><img class="queue-item-img" src="'+cd.img+'" alt=""><div class="queue-item-body">'+
-      '<div class="queue-item-kind">Car</div><div class="queue-item-name">'+raceQueue.car+'</div>'+
-      '<div class="queue-item-sub">'+dt+' &middot; '+cd.drive+'</div></div></div>';
+      '<div class="queue-card"><img class="queue-card-img" src="'+cd.img+'" alt="">'+
+      '<div class="queue-card-body"><div class="queue-card-name">'+qEsc(raceQueue.car)+'</div>'+
+      '<div class="queue-card-tags"><span class="car-diff-badge car-diff-'+dcls+'">'+dt+'</span>'+
+      '<span class="queue-drive-pill">'+qEsc(cd.drive)+'</span></div></div></div>';
   } else {
     raceQueue.car=null;
     carSlot.className='queue-slot';
@@ -1257,12 +1262,16 @@ function renderQueue(){
   var trkSlot=document.getElementById('queue-slot-track');
   var t=raceQueue.track, td=t?trackData[t.name+'::'+t.layout]:null;
   if(t && td){
-    var sub=(t.layout && t.layout.toLowerCase()!==t.name.toLowerCase())?(t.layout+' &middot; '):'';
+    var showLayout=(t.layout && t.layout.toLowerCase()!==t.name.toLowerCase());
+    var segs='';for(var i=1;i<=5;i++)segs+='<span class="trk-cd-seg'+(i<=td.diff?' on-'+td.diff:'')+'"></span>';
     trkSlot.className='queue-slot filled';
     trkSlot.innerHTML='<div class="queue-remove" data-kind="track" title="Remove track">&times;</div>'+
-      '<div class="queue-item"><img class="queue-item-img" src="'+td.img+'" alt=""><div class="queue-item-body">'+
-      '<div class="queue-item-kind">Track</div><div class="queue-item-name">'+t.name+'</div>'+
-      '<div class="queue-item-sub">'+sub+(diffText[td.diff]||'')+'</div></div></div>';
+      '<div class="queue-card"><div class="queue-card-imgwrap"><img class="queue-card-img" src="'+td.img+'" alt="">'+
+      (td.outline?'<img class="queue-card-outline" src="'+td.outline+'" alt="">':'')+'</div>'+
+      '<div class="queue-card-body"><div class="queue-card-name">'+qEsc(t.name)+'</div>'+
+      (showLayout?'<div class="queue-card-sub">'+qEsc(t.layout)+'</div>':'')+
+      '<div class="queue-card-sub">'+(td.length?qEsc(td.length)+' &middot; ':'')+(diffText[td.diff]||'')+'</div>'+
+      '<div class="queue-card-bar">'+segs+'</div></div></div>';
   } else {
     raceQueue.track=null;
     trkSlot.className='queue-slot';
