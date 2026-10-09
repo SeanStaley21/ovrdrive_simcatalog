@@ -1400,16 +1400,16 @@ function applyHash(isBoot){
     updateSortUI();
     _reapplySort();
     var car=p.get('car'),trk=p.get('trk');
-    if(car&&lookupCar(car)){
+    if(car&&Object.prototype.hasOwnProperty.call(carStats,car)){
       if(_popupOpen('trk-modal'))closeTrk();
       var carOpen=_popupOpen('ovr-modal')||_popupOpen('ovr-sheet');
       if(!carOpen||window._curCarName!==car)openStats(car,lookupCar(car));
-    } else if(trk&&_trackToCat[trk]){
+    } else if(trk&&Object.prototype.hasOwnProperty.call(_trackToCat,trk)){
       var layout=p.get('layout');
-      if(!trackData[trk+'::'+layout])layout=undefined;
+      if(!Object.prototype.hasOwnProperty.call(trackData,trk+'::'+layout))layout=undefined;
       if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet'))closeStats();
       var trkOpen=_popupOpen('trk-modal')&&window._trkName===trk&&(!layout||window._trkLayout===layout);
-      if(!trkOpen)openTrk(trk,p.get('tcat')||_trackToCat[trk][0],layout);
+      if(!trkOpen)openTrk(trk,_trackToCat[trk].indexOf(p.get('tcat'))>=0?p.get('tcat'):_trackToCat[trk][0],layout);
     } else {
       if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet'))closeStats();
       if(_popupOpen('trk-modal'))closeTrk();
@@ -1572,7 +1572,6 @@ function buildCarCards(){
 buildCarCards();
 updateCarDiffBtns();
 updateCarDriveBtns();
-applyHash(true);
 </script>
 
 
@@ -1802,6 +1801,7 @@ loadQueue();
 renderQueue();
 loadPresets();
 renderPresets();
+applyHash(true);
 </script>
 
 </body>
