@@ -310,6 +310,7 @@
         <div id="trk-modal-layout-nav" class="trk-layout-nav" style="display:none;margin-top:8px"></div>
       </div>
       <button type="button" class="fav-star fav-star-lg" data-kind="tracks" aria-pressed="false"></button>
+      <button type="button" class="copy-link-btn">Copy link</button>
       <button onclick="closeTrk()" class="mobile-close-btn" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;margin-left:1rem;flex-shrink:0;transition:all .15s;backdrop-filter:blur(4px)" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button>
     </div>
     <!-- Spacer — track outline centered here -->
@@ -345,8 +346,8 @@
   </div>
 </div>
 <div id="ovr-backdrop" onclick="closeStats()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)"></div>
-<div id="ovr-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(640px,92vw);background:#111;border:1px solid rgba(0,174,239,0.4);border-radius:4px;box-shadow:0 0 40px rgba(0,174,239,0.2);font-family:Oswald,Arial,sans-serif"><div style="display:flex;align-items:flex-start;justify-content:space-between;padding:1.3rem 1.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="flex:1;padding-right:1rem"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div id="ovr-name" style="font-size:20pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.25"></div><span id="ovr-diff"></span></div><div id="ovr-variant-nav" class="trk-layout-nav" style="display:none;margin-top:8px;flex-wrap:wrap;gap:5px"></div></div><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button onclick="closeStats()" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button></div><div style="padding:0;display:flex;flex-direction:column"><img id="ovr-img" src="" alt="" style="display:none;width:100%;height:200px;object-fit:contain;object-position:center;background:#0a0a0a"><div style="padding:1.2rem 1.6rem 1.3rem;display:flex;flex-direction:column;gap:1.1rem"><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Horsepower</div><div style="display:flex;align-items:center;gap:0.6rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:8px;overflow:hidden"><div id="ovr-hp-bar" style="height:100%;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,0.5);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-hp-val" style="font-size:15pt;font-weight:700;color:#fff;min-width:88px;text-align:right"></div></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Torque (ft-lbs)</div><div style="display:flex;align-items:center;gap:0.6rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:8px;overflow:hidden"><div id="ovr-tq-bar" style="height:100%;background:rgba(255,200,0,0.85);box-shadow:0 0 8px rgba(255,200,0,0.4);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-tq-val" style="font-size:15pt;font-weight:700;color:#fff;min-width:88px;text-align:right"></div></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Drivetrain</div><div id="ovr-drive" style="margin-top:4px;display:inline-block;padding:4px 16px;border-radius:2px;background:rgba(0,174,239,0.12);border:1px solid rgba(0,174,239,0.4);color:#00AEEF;font-size:12pt;font-weight:700;letter-spacing:2px"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Grip</div><div id="ovr-df" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Top Speed</div><div id="ovr-ts" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Braking</div><div id="ovr-br" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px">Best For</div><div id="ovr-tracks" style="display:flex;flex-wrap:wrap;gap:8px"></div></div></div><button id="ovr-select-btn" class="queue-select-btn" onclick="toggleCarSelect()"></button></div></div>
-<div id="ovr-sheet" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:501;background:#111;border-top:2px solid #00AEEF;border-radius:12px 12px 0 0;font-family:Oswald,Arial,sans-serif"><div style="display:flex;align-items:flex-start;justify-content:space-between;padding:1rem 1.2rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="flex:1;padding-right:1rem"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div id="ovr-sheet-name" style="font-size:14pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.25"></div><span id="ovr-sheet-diff"></span></div><div id="ovr-sheet-variant-nav" class="trk-layout-nav" style="display:none;margin-top:8px;flex-wrap:wrap;gap:5px"></div></div><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button onclick="closeStats()" class="mobile-close-btn" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button></div><div style="padding:0;display:flex;flex-direction:column"><img id="ovr-sheet-img" src="" alt="" style="display:none;width:100%;height:160px;object-fit:contain;object-position:center;background:#0a0a0a"><div style="padding:1rem 1.2rem 1.4rem;display:flex;flex-direction:column;gap:0.9rem"><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Horsepower</div><div style="display:flex;align-items:center;gap:0.5rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:6px;overflow:hidden"><div id="ovr-sheet-hp-bar" style="height:100%;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,0.5);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-sheet-hp-val" style="font-size:12pt;font-weight:700;color:#fff;min-width:72px;text-align:right"></div></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Torque (ft-lbs)</div><div style="display:flex;align-items:center;gap:0.5rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:6px;overflow:hidden"><div id="ovr-sheet-tq-bar" style="height:100%;background:rgba(255,200,0,0.85);box-shadow:0 0 8px rgba(255,200,0,0.4);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-sheet-tq-val" style="font-size:12pt;font-weight:700;color:#fff;min-width:72px;text-align:right"></div></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Drivetrain</div><div id="ovr-sheet-drive" style="margin-top:4px;display:inline-block;padding:3px 12px;border-radius:2px;background:rgba(0,174,239,0.12);border:1px solid rgba(0,174,239,0.4);color:#00AEEF;font-size:9pt;font-weight:700;letter-spacing:2px"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Grip</div><div id="ovr-sheet-df" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Top Speed</div><div id="ovr-sheet-ts" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Braking</div><div id="ovr-sheet-br" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Best For</div><div id="ovr-sheet-tracks" style="display:flex;flex-wrap:wrap;gap:6px"></div></div></div></div>
+<div id="ovr-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(640px,92vw);background:#111;border:1px solid rgba(0,174,239,0.4);border-radius:4px;box-shadow:0 0 40px rgba(0,174,239,0.2);font-family:Oswald,Arial,sans-serif"><div style="display:flex;align-items:flex-start;justify-content:space-between;padding:1.3rem 1.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="flex:1;padding-right:1rem"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div id="ovr-name" style="font-size:20pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.25"></div><span id="ovr-diff"></span></div><div id="ovr-variant-nav" class="trk-layout-nav" style="display:none;margin-top:8px;flex-wrap:wrap;gap:5px"></div></div><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="copy-link-btn">Copy link</button><button onclick="closeStats()" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button></div><div style="padding:0;display:flex;flex-direction:column"><img id="ovr-img" src="" alt="" style="display:none;width:100%;height:200px;object-fit:contain;object-position:center;background:#0a0a0a"><div style="padding:1.2rem 1.6rem 1.3rem;display:flex;flex-direction:column;gap:1.1rem"><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Horsepower</div><div style="display:flex;align-items:center;gap:0.6rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:8px;overflow:hidden"><div id="ovr-hp-bar" style="height:100%;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,0.5);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-hp-val" style="font-size:15pt;font-weight:700;color:#fff;min-width:88px;text-align:right"></div></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Torque (ft-lbs)</div><div style="display:flex;align-items:center;gap:0.6rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:8px;overflow:hidden"><div id="ovr-tq-bar" style="height:100%;background:rgba(255,200,0,0.85);box-shadow:0 0 8px rgba(255,200,0,0.4);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-tq-val" style="font-size:15pt;font-weight:700;color:#fff;min-width:88px;text-align:right"></div></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Drivetrain</div><div id="ovr-drive" style="margin-top:4px;display:inline-block;padding:4px 16px;border-radius:2px;background:rgba(0,174,239,0.12);border:1px solid rgba(0,174,239,0.4);color:#00AEEF;font-size:12pt;font-weight:700;letter-spacing:2px"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Grip</div><div id="ovr-df" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Top Speed</div><div id="ovr-ts" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Braking</div><div id="ovr-br" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px">Best For</div><div id="ovr-tracks" style="display:flex;flex-wrap:wrap;gap:8px"></div></div></div><button id="ovr-select-btn" class="queue-select-btn" onclick="toggleCarSelect()"></button></div></div>
+<div id="ovr-sheet" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:501;background:#111;border-top:2px solid #00AEEF;border-radius:12px 12px 0 0;font-family:Oswald,Arial,sans-serif"><div style="display:flex;align-items:flex-start;justify-content:space-between;padding:1rem 1.2rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="flex:1;padding-right:1rem"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div id="ovr-sheet-name" style="font-size:14pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.25"></div><span id="ovr-sheet-diff"></span></div><div id="ovr-sheet-variant-nav" class="trk-layout-nav" style="display:none;margin-top:8px;flex-wrap:wrap;gap:5px"></div></div><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="copy-link-btn">Copy link</button><button onclick="closeStats()" class="mobile-close-btn" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button></div><div style="padding:0;display:flex;flex-direction:column"><img id="ovr-sheet-img" src="" alt="" style="display:none;width:100%;height:160px;object-fit:contain;object-position:center;background:#0a0a0a"><div style="padding:1rem 1.2rem 1.4rem;display:flex;flex-direction:column;gap:0.9rem"><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Horsepower</div><div style="display:flex;align-items:center;gap:0.5rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:6px;overflow:hidden"><div id="ovr-sheet-hp-bar" style="height:100%;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,0.5);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-sheet-hp-val" style="font-size:12pt;font-weight:700;color:#fff;min-width:72px;text-align:right"></div></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Torque (ft-lbs)</div><div style="display:flex;align-items:center;gap:0.5rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:6px;overflow:hidden"><div id="ovr-sheet-tq-bar" style="height:100%;background:rgba(255,200,0,0.85);box-shadow:0 0 8px rgba(255,200,0,0.4);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-sheet-tq-val" style="font-size:12pt;font-weight:700;color:#fff;min-width:72px;text-align:right"></div></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Drivetrain</div><div id="ovr-sheet-drive" style="margin-top:4px;display:inline-block;padding:3px 12px;border-radius:2px;background:rgba(0,174,239,0.12);border:1px solid rgba(0,174,239,0.4);color:#00AEEF;font-size:9pt;font-weight:700;letter-spacing:2px"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Grip</div><div id="ovr-sheet-df" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Top Speed</div><div id="ovr-sheet-ts" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Braking</div><div id="ovr-sheet-br" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Best For</div><div id="ovr-sheet-tracks" style="display:flex;flex-wrap:wrap;gap:6px"></div></div></div></div>
 
 <script>
 // Data loader: fetches data/cars.json and data/tracks.json, renders the card grids,
@@ -418,6 +419,7 @@ function showCatalog(){
   document.getElementById('landing').style.display='none';
   document.getElementById('page-layout').style.display='flex';
 }
+var hashRestoring=true;
 
 // ── Favorites ──
 var favorites={cars:[],tracks:[]};
@@ -729,6 +731,7 @@ function applyCarFilters(){
     _toggleEmptyMsg(sec.querySelector('.grid'),visCount===0,'No cars match your filters.');
     _updateCountHeader(sec,visCount);
   }
+  writeHash();
 }
 
 // Top Cars / Tracks tab switcher
@@ -994,6 +997,7 @@ function applyTrkFilters(){
     _updateCountHeader(activeSection,activeSection.querySelectorAll('.ce[data-tname]').length);
   }
   _sortTrkSection(activeSection);
+  writeHash();
 }
 function filterTrkCountry(country){activeTrkCountry=country;applyTrkFilters();}
 function filterTrkDiff(diff){activeTrkDiff=diff;applyTrkFilters();}
@@ -1104,6 +1108,7 @@ function openTrk(tname,tcat,startLayout){
   document.getElementById('trk-modal').style.display='block';
   document.getElementById('trk-backdrop').style.display='block';
   document.body.style.overflow='hidden';
+  writeHash(true);
 }
 function loadTrkLayout(layout){
   var key=window._trkName+'::'+layout;
@@ -1127,12 +1132,14 @@ function loadTrkLayout(layout){
   for(var i=1;i<=5;i++){var seg=document.createElement('div');seg.className='diff-seg'+(i<=d.diff?' on-'+d.diff:'');diffEl.appendChild(seg);}
   document.getElementById('trk-modal-diff-text').textContent=diffText[d.diff]||'';
   if(typeof updateSelectButtons==='function')updateSelectButtons();
+  writeHash();
 }
 function switchTrkLayout(layout){loadTrkLayout(layout);}
 function closeTrk(){
   document.getElementById('trk-modal').style.display='none';
   document.getElementById('trk-backdrop').style.display='none';
   document.body.style.overflow='';
+  writeHash(true);
 }
 document.querySelectorAll('.ce[data-tname]').forEach(function(el){
   el.addEventListener('click',function(){openTrk(this.dataset.tname,this.dataset.tcat);});
@@ -1295,6 +1302,137 @@ document.getElementById('sort-dir-btn').addEventListener('click',function(){
 });
 updateSortUI();
 applyCarFilters();
+
+// ── Shareable URL (hash state) ──
+// The hash mirrors the view as URL params after "#/". Only non-default values are written.
+// Cars: page, sec, brand, diff, drive, q, favs, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, favs, sort, dir.
+// Popup: car=<name>, or trk=<name>&tcat=<category>&layout=<layout>.
+var curHash='';
+function _popupOpen(id){return document.getElementById(id).style.display==='block';}
+function writeHash(push){
+  if(hashRestoring)return;
+  var p=new URLSearchParams();
+  var tracks=activePage==='tracks';
+  if(tracks){
+    p.set('page','tracks');
+    if(activeTrkCat!=='all')p.set('cat',activeTrkCat);
+    if(activeTrkCountry!=='__all__')p.set('country',activeTrkCountry);
+    if(activeTrkDiff!=='__all__')p.set('tdiff',activeTrkDiff);
+  } else {
+    if(activeCarSection!=='all')p.set('sec',activeCarSection);
+    if(activeBrand!=='__all__')p.set('brand',activeBrand);
+    if(activeCarDiff!=='__all__')p.set('diff',activeCarDiff);
+    if(activeCarDrive!=='__all__')p.set('drive',activeCarDrive);
+  }
+  var q=tracks?trkSearchQuery:carSearchQuery;
+  if(q)p.set('q',q);
+  if(tracks?favsOnlyTracks:favsOnlyCars)p.set('favs','1');
+  var st=sortState[activePage];
+  if(st.key!=='default'){
+    p.set('sort',st.key);
+    if(st.dir==='desc')p.set('dir','desc');
+  }
+  if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet')){
+    p.set('car',window._curCarName);
+  } else if(_popupOpen('trk-modal')){
+    p.set('trk',window._trkName);
+    p.set('tcat',window._trkCat);
+    p.set('layout',window._trkLayout);
+  }
+  var s=p.toString();
+  var h=s?'#/'+s:'';
+  if(h===location.hash||(!h&&!location.hash))return;
+  history[push?'pushState':'replaceState'](null,'',h||location.pathname+location.search);
+  curHash=location.hash;
+}
+function _clickIf(sel,test){
+  var el=Array.prototype.find.call(document.querySelectorAll(sel),test);
+  if(el)el.click();
+  return !!el;
+}
+function applyHash(isBoot){
+  var raw=location.hash.replace(/^#\/?/,'');
+  if(isBoot&&!raw){hashRestoring=false;return;}
+  var p=new URLSearchParams(raw);
+  hashRestoring=true;
+  try{
+    var landing=document.getElementById('landing');
+    if(raw&&landing.style.display!=='none')showCatalog();
+    var page=p.get('page')==='tracks'?'tracks':'cars';
+    if(page!==activePage)document.querySelector('.top-tab[data-page="'+page+'"]').click();
+    var q=(p.get('q')||'').trim().toLowerCase();
+    searchInput.value=q;
+    searchClearBtn.style.display=q?'':'none';
+    if(page==='cars'){
+      carSearchQuery=q;
+      var sec=p.get('sec')||'all';
+      if(sec!==activeCarSection)_clickIf('.nav-btn',function(b){return b.dataset.sec===sec;});
+      var brand=p.get('brand')||'__all__';
+      if(brand!==activeBrand){
+        if(brand==='__all__'||!_clickIf('#brand-list .brand-btn',function(b){return b.dataset.brand===brand;})){
+          activeBrand='__all__';
+          document.querySelectorAll('#brand-list .brand-btn').forEach(function(b){
+            if(b.dataset.brand)b.classList.toggle('active',b.dataset.brand==='__all__');
+          });
+        }
+      }
+      activeCarDiff=p.get('diff')||'__all__';
+      activeCarDrive=p.get('drive')||'__all__';
+      updateCarDiffBtns();
+      updateCarDriveBtns();
+      if(favsOnlyCars!==(p.get('favs')==='1'))document.getElementById('fav-only-cars').click();
+    } else {
+      trkSearchQuery=q;
+      var cat=p.get('cat')||'all';
+      if(cat!==activeTrkCat){
+        _clickIf('.trk-btn',function(b){return (b.dataset.trk==='all'?'all':(trkCatMap[b.dataset.trk]||b.dataset.trk))===cat;});
+      }
+      activeTrkCountry=p.get('country')||'__all__';
+      activeTrkDiff=p.get('tdiff')||'__all__';
+      updateCountryBtns();
+      updateDiffBtns();
+      if(favsOnlyTracks!==(p.get('favs')==='1'))document.getElementById('fav-only-tracks').click();
+    }
+    var sk=p.get('sort');
+    sortState[page].key=_validSortKey(page,sk)?sk:'default';
+    sortState[page].dir=p.get('dir')==='desc'?'desc':'asc';
+    saveSortState();
+    updateSortUI();
+    _reapplySort();
+    var car=p.get('car'),trk=p.get('trk');
+    if(car&&lookupCar(car)){
+      if(_popupOpen('trk-modal'))closeTrk();
+      var carOpen=_popupOpen('ovr-modal')||_popupOpen('ovr-sheet');
+      if(!carOpen||window._curCarName!==car)openStats(car,lookupCar(car));
+    } else if(trk&&_trackToCat[trk]){
+      var layout=p.get('layout');
+      if(!trackData[trk+'::'+layout])layout=undefined;
+      if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet'))closeStats();
+      var trkOpen=_popupOpen('trk-modal')&&window._trkName===trk&&(!layout||window._trkLayout===layout);
+      if(!trkOpen)openTrk(trk,p.get('tcat')||_trackToCat[trk][0],layout);
+    } else {
+      if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet'))closeStats();
+      if(_popupOpen('trk-modal'))closeTrk();
+    }
+  } finally {
+    hashRestoring=false;
+    curHash=location.hash;
+  }
+}
+function _onHashNav(){if(location.hash!==curHash)applyHash(false);}
+window.addEventListener('popstate',_onHashNav);
+window.addEventListener('hashchange',_onHashNav);
+document.addEventListener('click',function(e){
+  var btn=e.target.closest&&e.target.closest('.copy-link-btn');
+  if(!btn)return;
+  var label='Copy link';
+  function flash(text){
+    btn.textContent=text;
+    setTimeout(function(){btn.textContent=label;},1500);
+  }
+  if(!navigator.clipboard){flash('Copy failed');return;}
+  navigator.clipboard.writeText(location.href).then(function(){flash('Copied');},function(){flash('Copy failed');});
+});
 </script>
 <script type="text/app">
 function lookupCar(name) {
@@ -1365,6 +1503,7 @@ function buildVariantNav(navId,grp,activeIdx){
       nav.querySelectorAll('.trk-layout-btn').forEach(function(b,i){b.classList.toggle('active',i===vidx);});
       window._curCarName=vname;
       if(typeof updateSelectButtons==='function')updateSelectButtons();
+      writeHash();
     };})(vn,idx);
     nav.appendChild(btn);
   });
@@ -1389,10 +1528,12 @@ function openStats(name,d){
   document.getElementById('ovr-backdrop').style.display='block';
   document.body.style.overflow='hidden';
   if(typeof updateSelectButtons==='function')updateSelectButtons();
+  writeHash(true);
 }
 function closeStats(){
   ['ovr-backdrop','ovr-modal','ovr-sheet'].forEach(function(id){document.getElementById(id).style.display='none';});
   document.body.style.overflow='';
+  writeHash(true);
 }
 // keydown handled above
 document.querySelectorAll('.ce[data-car]').forEach(function(el){
@@ -1431,6 +1572,7 @@ function buildCarCards(){
 buildCarCards();
 updateCarDiffBtns();
 updateCarDriveBtns();
+applyHash(true);
 </script>
 
 

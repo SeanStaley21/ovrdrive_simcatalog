@@ -452,3 +452,10 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   background:rgba(0,0,0,0.45);border-radius:50%;
 }
 .fav-star-lg{font-size:20pt;width:36px;height:36px;margin-right:0.6rem;flex-shrink:0}
+.copy-link-btn{
+  background:transparent;border:1px solid rgba(255,255,255,0.25);border-radius:2px;cursor:pointer;
+  color:rgba(255,255,255,0.7);font-family:Oswald,Arial,sans-serif;font-size:8pt;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;padding:6px 10px;margin-right:0.6rem;flex-shrink:0;
+  transition:color .15s ease,border-color .15s ease;
+}
+.copy-link-btn:hover{color:var(--C);border-color:var(--C)}
