@@ -7,8 +7,8 @@
 <title>Sim Catalog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css?v=20261006">
-  <link rel="stylesheet" href="css/mobile.css?v=20261006">
+  <link rel="stylesheet" href="css/main.css?v=20261009b">
+  <link rel="stylesheet" href="css/mobile.css?v=20261009b">
 </head>
 <body>
 <nav>
@@ -191,6 +191,10 @@
     <svg class="search-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     <input type="text" id="catalog-search" class="search-input" autocomplete="off" spellcheck="false" aria-label="Search" placeholder="Search cars… try &ldquo;Porsche 911&rdquo;">
     <button type="button" id="search-clear-btn" class="search-clear" aria-label="Clear search" style="display:none">&times;</button>
+  </div>
+  <div class="sort-box">
+    <select id="sort-key" class="sort-select" aria-label="Sort by"></select>
+    <button type="button" id="sort-dir-btn" class="sort-dir"></button>
   </div>
 </div>
 <section id="sec-all" class="section active">
@@ -478,15 +482,22 @@ var activeBrand='__all__';
 function filterByBrand(brand){
   var navH=(document.querySelector('nav')||{offsetHeight:60}).offsetHeight;
   if(brand==='__all__'){window.scrollTo({top:0,behavior:'smooth'});return;}
-  var bdivs=document.querySelectorAll('#sec-all .bdiv');
-  for(var i=0;i<bdivs.length;i++){
-    var label=bdivs[i].textContent.replace(/\d/g,'').trim().toUpperCase();
-    if(label===brand.toUpperCase()){
-      var top=bdivs[i].getBoundingClientRect().top+window.pageYOffset-navH-8;
-      window.scrollTo({top:top,behavior:'smooth'});
-      return;
+  var target=null;
+  if(sortState.cars.key==='default'){
+    var bdivs=document.querySelectorAll('#sec-all .bdiv');
+    for(var i=0;i<bdivs.length;i++){
+      var label=bdivs[i].textContent.replace(/\d/g,'').trim().toUpperCase();
+      if(label===brand.toUpperCase()){target=bdivs[i];break;}
     }
+  } else {
+    target=Array.prototype.find.call(document.querySelectorAll('#sec-all .ce[data-car]'),function(el){
+      return (el.dataset.brand||'').toUpperCase()===brand.toUpperCase()&&el.style.display!=='none';
+    })||null;
   }
+  if(!target||target.offsetParent===null)return;
+  var searchH=document.querySelector('.search-wrap').getBoundingClientRect().height;
+  var top=target.getBoundingClientRect().top+window.pageYOffset-navH-searchH-8;
+  window.scrollTo({top:top,behavior:'smooth'});
 }
 document.querySelectorAll('.brand-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
@@ -511,6 +522,7 @@ document.querySelectorAll('.brand-btn').forEach(function(btn){
   var navH=(document.querySelector('nav')||{offsetHeight:60}).offsetHeight;
   var bdivs=document.querySelectorAll('#sec-all .bdiv');
   function updateActiveBrand(){
+    if(sortState.cars.key!=='default')return;
     if(!document.getElementById('sec-all').classList.contains('active'))return;
     var best=null,bestTop=Infinity;
     bdivs.forEach(function(el){
@@ -625,6 +637,7 @@ function applyCarFilters(){
   var q=carSearchQuery;
   var sec=document.getElementById('sec-'+activeCarSection);
   var visCount=0;
+  if(sec)_sortCarSection(sec);
   _getActiveSectionCards().forEach(function(el){
     var matchDiff=activeCarDiff==='__all__'||String(el.dataset.diff)===String(activeCarDiff);
     var matchDrive=activeCarDrive==='__all__'||el.dataset.drive===activeCarDrive;
@@ -640,7 +653,7 @@ function applyCarFilters(){
         if(n.matches('.ce[data-car]')&&n.style.display!=='none')count++;
         n=n.nextElementSibling;
       }
-      b.style.display=count>0?'':'none';
+      b.style.display=count>0&&sortState.cars.key==='default'?'':'none';
       var countEl=b.querySelector('.bdiv-count');
       if(countEl)countEl.textContent=count;
     });
@@ -690,6 +703,8 @@ document.querySelectorAll('.top-tab').forEach(function(tab){
       else{document.getElementById('trk-'+trkId).style.display='block';}
     }
     window.scrollTo(0,0);
+    updateSortUI();
+    if(page==='cars')applyCarFilters();else applyTrkFilters();
   });
 });
 
@@ -739,6 +754,7 @@ document.querySelectorAll('.trk-btn').forEach(function(btn){
     document.querySelectorAll('.trk-section').forEach(function(s){delete _origGrid[s.id];_inLayoutView[s.id]=false;});
     updateCountryBtns();
     updateDiffBtns();
+    applyTrkFilters();
     window.scrollTo(0,0);
   });
 });
@@ -903,6 +919,7 @@ function applyTrkFilters(){
     _toggleEmptyMsg(activeSection.querySelector('.grid'),false);
     _updateCountHeader(activeSection,activeSection.querySelectorAll('.ce[data-tname]').length);
   }
+  _sortTrkSection(activeSection);
 }
 function filterTrkCountry(country){activeTrkCountry=country;applyTrkFilters();}
 function filterTrkDiff(diff){activeTrkDiff=diff;applyTrkFilters();}
@@ -1046,13 +1063,104 @@ function closeTrk(){
 document.querySelectorAll('.ce[data-tname]').forEach(function(el){
   el.addEventListener('click',function(){openTrk(this.dataset.tname,this.dataset.tcat);});
 });
+// ── Sort ──
+var SORT_OPTIONS={
+  cars:[['default','Default'],['name','Name'],['hp','Horsepower'],['tq','Torque'],['ts','Top Speed'],['df','Grip'],['br','Braking'],['diff','Difficulty']],
+  tracks:[['default','Default'],['name','Name'],['length','Length'],['diff','Difficulty'],['record','Record (coming soon)',true]]
+};
+function _validSortKey(page,key){
+  return (SORT_OPTIONS[page]||[]).some(function(o){return o[0]===key&&!o[2];});
+}
+var sortState={cars:{key:'default',dir:'asc'},tracks:{key:'default',dir:'asc'}};
+try{
+  var _savedSort=JSON.parse(sessionStorage.getItem('ovrSort'));
+  ['cars','tracks'].forEach(function(p){
+    var e=_savedSort&&_savedSort[p];
+    if(e&&_validSortKey(p,e.key)){sortState[p].key=e.key;sortState[p].dir=e.dir==='desc'?'desc':'asc';}
+  });
+}catch(e){}
+function saveSortState(){
+  try{ sessionStorage.setItem('ovrSort',JSON.stringify(sortState)); }catch(e){}
+}
+function _lenMiles(s){return parseFloat(s);}
+function _trkCardData(el){
+  var tname=el.dataset.tname,layout=el.dataset.layout;
+  if(layout)return trackData[tname+'::'+layout]||null;
+  var _lays=(trackLayouts[el.dataset.tcat]||{})[tname]||[];
+  var dKey=_lays.length?tname+'::'+_lays[0]:Object.keys(trackData).find(function(k){return k.split('::')[0]===tname;});
+  return dKey&&trackData[dKey]?trackData[dKey]:null;
+}
+function _sortGrid(grid,key,getVal,dir){
+  if(!grid)return;
+  var kids=Array.prototype.slice.call(grid.children);
+  var msg=grid.querySelector(':scope > .empty-msg-dyn');
+  if(key==='default'){
+    kids=kids.filter(function(k){return k!==msg;});
+    kids.sort(function(a,b){
+      var oa=parseInt(a.dataset.order,10),ob=parseInt(b.dataset.order,10);
+      return isNaN(oa)||isNaN(ob)?0:oa-ob;
+    });
+  } else {
+    var sign=dir==='desc'?-1:1;
+    kids=kids.filter(function(k){return k.classList.contains('ce');});
+    var vals=new Map();
+    kids.forEach(function(k){vals.set(k,getVal(k,key));});
+    var missing=function(v){return v==null||(typeof v==='number'&&isNaN(v));};
+    kids.sort(function(a,b){
+      var va=vals.get(a),vb=vals.get(b),ma=missing(va),mb=missing(vb),c=0;
+      if(ma!==mb)return ma?1:-1;
+      if(!ma){
+        c=key==='name'?va.localeCompare(vb):va-vb;
+        if(c)return c*sign;
+      }
+      c=(a.dataset.car||a.dataset.tname||'').localeCompare(b.dataset.car||b.dataset.tname||'');
+      if(c)return c;
+      var oa=parseInt(a.dataset.order,10),ob=parseInt(b.dataset.order,10);
+      return isNaN(oa)||isNaN(ob)?0:oa-ob;
+    });
+  }
+  kids.forEach(function(k){grid.appendChild(k);});
+  if(msg)grid.appendChild(msg);
+}
+function _carSortVal(el,key){
+  if(key==='name')return el.dataset.car;
+  var s=carStats[el.dataset.car];
+  if(!s)return null;
+  return key==='tq'&&s.tq===0?null:s[key];
+}
+function _trkSortVal(el,key){
+  if(key==='name')return el.dataset.tname;
+  var d=_trkCardData(el);
+  if(!d)return null;
+  return key==='length'?_lenMiles(d.length):d[key];
+}
+function _sortCarSection(sec){
+  _sortGrid(sec.querySelector('.grid'),sortState.cars.key,_carSortVal,sortState.cars.dir);
+}
+function _sortTrkSection(sec){
+  _sortGrid(sec.querySelector('.grid'),sortState.tracks.key,_trkSortVal,sortState.tracks.dir);
+}
+function updateSortUI(){
+  var sel=document.getElementById('sort-key'),btn=document.getElementById('sort-dir-btn');
+  var st=sortState[activePage];
+  sel.innerHTML=SORT_OPTIONS[activePage].map(function(o){
+    return '<option value="'+o[0]+'"'+(o[2]?' disabled':'')+'>'+o[1]+'</option>';
+  }).join('');
+  sel.value=st.key;
+  btn.textContent=st.dir==='desc'?'\u2193':'\u2191';
+  var label=st.dir==='desc'?'Descending, switch to ascending':'Ascending, switch to descending';
+  btn.setAttribute('aria-label',label);
+  btn.title=label;
+  btn.disabled=st.key==='default';
+}
+function _reapplySort(){
+  if(activePage==='cars')applyCarFilters();else applyTrkFilters();
+}
 function buildTrackCards(){
   document.querySelectorAll('.ce[data-tname]').forEach(function(el){
-    var tname=el.dataset.tname, tcat=el.dataset.tcat;
-    var _lays=(trackLayouts[tcat]||{})[tname]||[];
-    var dKey=_lays.length?tname+'::'+_lays[0]:Object.keys(trackData).find(function(k){return k.split('::')[0]===tname;});
-    if(!dKey||!trackData[dKey])return;
-    var d=trackData[dKey];
+    var tname=el.dataset.tname;
+    var d=_trkCardData(el);
+    if(!d)return;
     el.dataset.diff=d.diff||1;
     var recTime=d.record?d.record.split(' ')[0]:'';
     var segs='';
@@ -1091,6 +1199,27 @@ buildTrackCards();
     cards.forEach(function(c){grid.appendChild(c);});
   });
 })();
+
+// Remember each card's original position, then wire the sort controls
+document.querySelectorAll('.section .grid').forEach(function(g){
+  Array.prototype.forEach.call(g.children,function(el,i){el.dataset.order=i;});
+});
+document.getElementById('sort-key').addEventListener('change',function(){
+  var k=this.value;
+  sortState[activePage].key=_validSortKey(activePage,k)?k:'default';
+  saveSortState();
+  updateSortUI();
+  _reapplySort();
+});
+document.getElementById('sort-dir-btn').addEventListener('click',function(){
+  var st=sortState[activePage];
+  st.dir=st.dir==='desc'?'asc':'desc';
+  saveSortState();
+  updateSortUI();
+  _reapplySort();
+});
+updateSortUI();
+applyCarFilters();
 </script>
 <script type="text/app">
 function lookupCar(name) {
