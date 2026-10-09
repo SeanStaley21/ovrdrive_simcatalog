@@ -95,3 +95,8 @@
 @media(min-width:480px) and (max-width:700px){
   body:not(.sidebar-open) .grid{grid-template-columns:1fr 1fr}
 }
+
+@media(max-width:700px){
+  .ce>.fav-star{width:44px;height:44px;top:2px;right:2px}
+  .fav-star-lg{width:44px;height:44px}
+}
