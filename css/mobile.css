@@ -15,6 +15,13 @@
   .search-wrap{top:52px;padding:0.6rem 0.4rem;display:flex;align-items:center;gap:0.5rem}
   .search-box{max-width:none;padding:0.5rem 0.75rem;flex:1;min-width:0}
   .search-input{font-size:10pt}
+  .sort-select{padding:0.5rem 0.5rem}
+}
+
+@media(max-width:480px){
+  .search-wrap{flex-wrap:wrap}
+  .sort-box{flex-basis:100%}
+  .sort-select{flex:1;min-width:0;font-size:16px}
 }
 
 @media(max-width:700px){
