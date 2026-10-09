@@ -1305,8 +1305,10 @@ applyCarFilters();
 
 // ── Shareable URL (hash state) ──
 // The hash mirrors the view as URL params after "#/". Only non-default values are written.
-// Cars: page, sec, brand, diff, drive, q, favs, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, favs, sort, dir.
+// Cars (no page param): sec, brand, diff, drive, q, favs, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, favs, sort, dir.
 // Popup: car=<name>, or trk=<name>&tcat=<category>&layout=<layout>.
+// Opening a popup pushes a history entry whose state is {popup:true}; closing that popup goes back
+// one entry. A popup that was restored from the URL is closed by rewriting the current entry.
 var curHash='';
 function _popupOpen(id){return document.getElementById(id).style.display==='block';}
 function writeHash(push){
@@ -1339,11 +1341,19 @@ function writeHash(push){
     p.set('tcat',window._trkCat);
     p.set('layout',window._trkLayout);
   }
+  var popupNow=p.has('car')||p.has('trk');
+  if(push&&!popupNow&&history.state&&history.state.popup){
+    hideCopyUrls();
+    history.back();
+    return;
+  }
   var s=p.toString();
   var h=s?'#/'+s:'';
   if(h===location.hash||(!h&&!location.hash))return;
   hideCopyUrls();
-  history[push?'pushState':'replaceState'](null,'',h||location.pathname+location.search);
+  var url=h||location.pathname+location.search;
+  if(push&&popupNow)history.pushState({popup:true},'',url);
+  else history.replaceState(history.state,'',url);
   curHash=location.hash;
 }
 function _clickIf(sel,test){
@@ -1599,6 +1609,8 @@ updateCarDriveBtns();
     document.getElementById('landing').style.display='';
     var pl=document.getElementById('page-layout'); if(pl)pl.style.display='none';
     var tt=document.getElementById('top-tabs'); if(tt)tt.style.display='none';
+    history.replaceState(null,'',location.pathname+location.search);
+    curHash='';
     window.scrollTo(0,0);
   }
   function showCatalog(){
