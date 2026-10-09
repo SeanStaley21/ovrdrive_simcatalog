@@ -1307,9 +1307,10 @@ applyCarFilters();
 // The hash mirrors the view as URL params after "#/". Only non-default values are written.
 // Cars (no page param): sec, brand, diff, drive, q, favs, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, favs, sort, dir.
 // Popup: car=<name>, or trk=<name>&tcat=<category>&layout=<layout>.
-// Opening a popup pushes a history entry whose state is {popup:true}; closing that popup goes back
-// one entry. A popup that was restored from the URL is closed by rewriting the current entry.
+// Opening a popup pushes a history entry and sets popupPushed; closing that popup goes back one entry.
+// A popup restored from the URL, or opened by an earlier document, is closed by rewriting the current entry.
 var curHash='';
+var popupPushed=false;
 function _popupOpen(id){return document.getElementById(id).style.display==='block';}
 function writeHash(push){
   if(hashRestoring)return;
@@ -1342,7 +1343,8 @@ function writeHash(push){
     p.set('layout',window._trkLayout);
   }
   var popupNow=p.has('car')||p.has('trk');
-  if(push&&!popupNow&&history.state&&history.state.popup){
+  if(push&&!popupNow&&popupPushed){
+    popupPushed=false;
     hideCopyUrls();
     history.back();
     return;
@@ -1352,8 +1354,12 @@ function writeHash(push){
   if(h===location.hash||(!h&&!location.hash))return;
   hideCopyUrls();
   var url=h||location.pathname+location.search;
-  if(push&&popupNow)history.pushState({popup:true},'',url);
-  else history.replaceState(history.state,'',url);
+  if(push&&popupNow){
+    history.pushState(null,'',url);
+    popupPushed=true;
+  } else {
+    history.replaceState(null,'',url);
+  }
   curHash=location.hash;
 }
 function _clickIf(sel,test){
@@ -1366,6 +1372,7 @@ function applyHash(isBoot){
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
   hashRestoring=true;
+  popupPushed=false;
   hideCopyUrls();
   try{
     var landing=document.getElementById('landing');
@@ -1373,7 +1380,7 @@ function applyHash(isBoot){
     var page=p.get('page')==='tracks'?'tracks':'cars';
     if(page!==activePage)document.querySelector('.top-tab[data-page="'+page+'"]').click();
     var q=(p.get('q')||'').trim().toLowerCase();
-    searchInput.value=q;
+    if(searchInput.value.trim().toLowerCase()!==q)searchInput.value=q;
     searchClearBtn.style.display=q?'':'none';
     if(page==='cars'){
       carSearchQuery=q;
@@ -1617,6 +1624,7 @@ updateCarDriveBtns();
     document.getElementById('landing').style.display='none';
     var pl=document.getElementById('page-layout'); if(pl)pl.style.display='';
     var tt=document.getElementById('top-tabs'); if(tt)tt.style.display='';
+    writeHash();
     window.scrollTo(0,0);
   }
   // Entering via the Cars/Tracks tabs should also leave the landing page
