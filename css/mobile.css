@@ -120,3 +120,21 @@
   .cmp-tray-hint{display:none}
   .cmp-clear,.cmp-go{min-height:44px;padding:0 10px}
 }
+
+@media(max-width:700px){
+  #cmp-modal{
+    top:auto;bottom:0;left:0;right:0;transform:none;width:100%;max-height:96vh;
+    border-radius:12px 12px 0 0;
+  }
+  .cmp-title{font-size:13pt}
+  .cmp-grid{grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+  .cmp-corner{display:none}
+  .cmp-label{grid-column:1/-1;padding:0.5rem 0.6rem;font-size:8pt}
+  .cmp-col-head{padding:0.6rem 0.3rem}
+  .cmp-open{min-height:44px}
+  .cmp-open img{height:90px}
+  .cmp-name{font-size:8.5pt;letter-spacing:1px}
+  .cmp-remove{width:44px;height:44px;top:0;right:0;font-size:16pt}
+  .cmp-cell{min-height:44px;padding:0.5rem 0.3rem;font-size:11pt}
+  .cmp-col-head .car-diff-badge,.cmp-cell .car-diff-badge{font-size:6pt;padding:2px 5px;letter-spacing:1px}
+}
