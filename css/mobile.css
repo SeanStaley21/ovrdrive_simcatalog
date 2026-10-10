@@ -117,7 +117,7 @@
   body.cmp-tray-on{padding-bottom:68px}
   .cmp-tray-items{gap:6px}
   .cmp-thumb{width:48px;height:36px}
-  .cmp-thumb-x::after{content:'';position:absolute;inset:-12px}
+  .cmp-thumb-x::after{content:'';position:absolute;inset:0 -12px -24px -12px}
   .cmp-tray-hint{display:none}
   .cmp-clear,.cmp-go{min-height:44px;padding:0 8px;letter-spacing:1px}
 }
