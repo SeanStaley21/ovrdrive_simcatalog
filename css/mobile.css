@@ -106,3 +106,8 @@
   .sheet-head>div:first-child{flex:1 1 100%;padding-right:0!important}
   .sheet-head .mobile-close-btn{margin-left:auto!important}
 }
+
+@media(max-width:700px){
+  .ce>.cmp-check{min-height:44px;min-width:44px;padding:0 10px;display:flex;align-items:center;top:2px;left:2px}
+  .ce>.cmp-check input{width:18px;height:18px}
+}

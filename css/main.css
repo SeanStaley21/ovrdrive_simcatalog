@@ -463,3 +463,14 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   background:#0a0a0a;border:1px solid var(--C);border-radius:2px;color:#fff;font:9pt Oswald,Arial,sans-serif;
 }
 .copy-link-btn:hover{color:var(--C);border-color:var(--C)}
+
+/* ===== CAR COMPARE ===== */
+.ce>.cmp-check{
+  position:absolute;top:6px;left:6px;z-index:3;display:flex;align-items:center;gap:5px;
+  padding:3px 8px;background:rgba(0,0,0,0.45);border-radius:12px;cursor:pointer;
+  color:rgba(255,255,255,0.75);font-family:Oswald,Arial,sans-serif;font-size:8pt;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.ce>.cmp-check input{margin:0;accent-color:var(--C);cursor:pointer}
+.ce>.cmp-check.is-disabled{opacity:.4;cursor:not-allowed}
+.ce>.cmp-check.is-disabled input{pointer-events:none}
