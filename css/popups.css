@@ -1,0 +1,81 @@
+/* Car + track popups — one responsive component. Centered card on desktop, bottom sheet on mobile. */
+.pop{position:fixed;z-index:501;left:50%;top:50%;transform:translate(-50%,-50%);width:min(680px,94vw);background:#0f0f0f;border:1px solid rgba(0,174,239,.3);border-top:3px solid var(--C);border-radius:6px;box-shadow:0 0 60px rgba(0,174,239,.14),0 24px 60px rgba(0,0,0,.65);font-family:Oswald,Arial,sans-serif;color:#fff;overflow:hidden}
+.pop-trk{width:min(760px,94vw)}
+.pop-flex{display:flex;flex-direction:column;max-height:92vh;max-height:92dvh}
+.pop-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.pop-grip{display:none;width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.28);margin:8px auto 2px;flex-shrink:0}
+.pop-hero{position:relative;height:clamp(150px,26vh,230px);background:#0a0a0a;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pop-hero>img#ovr-img,.pop-hero>img#ovr-sheet-img{width:100%;height:100%;object-fit:contain;object-position:center}
+.pop-hero-bar{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:8px;z-index:3}
+.pop-hero-bar .fav-star-lg{margin:0;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.pop-x{position:relative;width:44px;height:44px;padding:0;border-radius:50%;border:0;background:#e02b2b;color:transparent;font-size:0;line-height:0;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.5);transition:background .15s,transform .15s;flex-shrink:0}
+.pop-x::before,.pop-x::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:3px;background:#fff;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg)}
+.pop-x::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.pop-x:hover{background:#f13c3c;transform:scale(1.06)}
+.pop-x:active{background:#c42121;transform:scale(.96)}
+.pop-bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;filter:saturate(.8)}
+.pop-map{height:clamp(190px,34vh,300px);background:radial-gradient(ellipse at center,#0d1c24 0%,#080808 75%)}
+.pop-map::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,8,.45),rgba(8,8,8,.1) 50%,rgba(15,15,15,.95));z-index:1}
+.pop-outline{position:relative;z-index:2;max-width:82%;max-height:78%;object-fit:contain;filter:invert(1) sepia(1) saturate(3) hue-rotate(170deg) brightness(1.1) drop-shadow(0 0 10px rgba(0,174,239,.6))}
+.pop-body{padding:20px 24px 24px;display:flex;flex-direction:column;gap:14px}
+.pop-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pop-name{margin:0;font-family:"Barlow Condensed",Oswald,Arial,sans-serif;font-size:34px;font-weight:700;line-height:1.05;letter-spacing:1px;text-transform:uppercase;flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.pop-title .car-diff-badge{font-size:11px;padding:5px 12px;margin:0}
+.pop-sub{font-size:13px;font-weight:700;letter-spacing:3px;color:var(--C);text-transform:uppercase;margin-top:-8px}
+.pop-variants{margin:0;padding:0;border:0;gap:8px}
+.pop-variants .trk-layout-btn{font-size:13px;min-height:40px;padding:6px 16px}
+.pop-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pop-tiles-2{grid-template-columns:1fr 1fr}
+.pop-tile{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:12px 14px;min-width:0}
+.pop-k{font-size:12px;font-weight:700;letter-spacing:2.5px;color:rgba(0,174,239,.85);text-transform:uppercase}
+.pop-v{display:flex;align-items:baseline;gap:6px;margin-top:6px;flex-wrap:wrap}
+.pop-v b{font-family:"Barlow Condensed",Oswald,Arial,sans-serif;font-size:34px;font-weight:700;line-height:1;letter-spacing:.5px;overflow-wrap:anywhere}
+.pop-v-sm b{font-size:22px;line-height:1.15;font-weight:600}
+.pop-v i{font-style:normal;font-size:13px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,.6);text-transform:uppercase}
+.pop-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:10px;overflow:hidden}
+.pop-bar>div{height:100%;width:0;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,.5);border-radius:3px;transition:width .4s ease}
+.pop-bar-tq>div{background:rgba(255,200,0,.9);box-shadow:0 0 8px rgba(255,200,0,.4)}
+.pop-sec{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.6);text-transform:uppercase;padding-top:6px;border-top:1px solid rgba(255,255,255,.07);margin-top:2px}
+.pop-sec .diff-badge{font-size:14px;letter-spacing:2px}
+.pop-rate{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:12px}
+.pop-rate .pop-k{color:rgba(255,255,255,.75);letter-spacing:2px;font-size:13px}
+.pop-meter{display:flex;align-items:center;gap:12px;min-width:0}
+.pop-segs{flex:1;display:flex;gap:4px;min-width:0}
+.pop-segs>span{flex:1;height:14px;border-radius:2px;background:rgba(255,255,255,.08)}
+.pop-segs>span.on{background:var(--c);box-shadow:0 0 6px var(--g)}
+.pop-segval{font-family:"Barlow Condensed",Oswald,Arial,sans-serif;font-size:22px;font-weight:700;min-width:46px;text-align:right;line-height:1}
+.pop-segval small{font-size:13px;opacity:.55;font-weight:600}
+.pop-chips{display:flex;flex-wrap:wrap;gap:8px}
+.pop-chip{font-size:14px;font-weight:500;letter-spacing:.8px;padding:6px 12px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.88)}
+.pop-record{background:rgba(0,174,239,.06);border:1px solid rgba(0,174,239,.2);border-left:3px solid var(--C);border-radius:0 4px 4px 0;padding:12px 16px}
+.pop-record-val{font-size:17px;line-height:1.4;margin-top:6px;color:#fff}
+.pop .diff-track{margin-top:0;gap:6px}
+.pop .diff-seg{height:12px;border-radius:2px}
+.pop .diff-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:-6px;letter-spacing:.8px}
+.pop-actions{display:flex;flex-wrap:wrap;gap:10px;padding:12px 24px 14px;border-top:1px solid rgba(255,255,255,.08);background:#0b0b0b;flex-shrink:0}
+.pop-actions .copy-link-btn,.pop-actions .cmp-popup-btn{margin:0;flex:1 1 0;min-height:46px;font-size:13px;padding:0 14px;letter-spacing:2px;border-radius:3px;border-color:rgba(255,255,255,.3);color:#fff}
+.pop-actions .cmp-popup-btn:hover:not(:disabled),.pop-actions .copy-link-btn:hover{color:var(--C);border-color:var(--C)}
+.pop-actions .queue-select-btn{flex:1 1 100%;margin:0;min-height:48px}
+.pop-flex>.copy-link-url{margin:8px 24px 14px;width:auto;flex-shrink:0;font-size:13px}
+@media(max-width:700px){
+.pop-flex>.copy-link-url{margin:8px 16px 12px}
+.pop,.pop-trk{top:auto;bottom:0;left:0;right:0;transform:none;width:100%;border-radius:18px 18px 0 0;border-left:0;border-right:0;border-bottom:0}
+.pop-flex{max-height:94vh;max-height:94dvh}
+.pop-grip{display:block}
+.pop-hero{height:clamp(130px,24vh,190px)}
+.pop-map{height:clamp(150px,28vh,230px)}
+.pop-body{padding:16px 16px 20px;gap:12px}
+.pop-name{font-size:28px}
+.pop-tiles{gap:8px}
+.pop-tile{padding:10px 10px}
+.pop-k{font-size:11px;letter-spacing:2px}
+.pop-v b{font-size:28px}
+.pop-v-sm b{font-size:18px}
+.pop-v i{font-size:11px}
+.pop-rate{grid-template-columns:1fr;gap:6px}
+.pop-rate .pop-k{font-size:12px}
+.pop-segs>span{height:12px}
+.pop-actions{padding:10px 16px calc(12px + env(safe-area-inset-bottom));gap:8px}
+.pop-actions .copy-link-btn,.pop-actions .cmp-popup-btn{min-height:48px}
+}
+@media(max-width:380px){.pop-tiles:not(.pop-tiles-2){grid-template-columns:1fr 1fr}.pop-tiles:not(.pop-tiles-2) .pop-tile:last-child{grid-column:1/-1}}
