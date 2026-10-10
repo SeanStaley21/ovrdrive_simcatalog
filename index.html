@@ -598,9 +598,10 @@ document.querySelectorAll('.brand-btn').forEach(function(btn){
     if(sortState.cars.key!=='default')return;
     if(!document.getElementById('sec-all').classList.contains('active'))return;
     var best=null,bestTop=Infinity;
+    var anchor=navH+document.querySelector('.search-wrap').getBoundingClientRect().height+8;
     bdivs.forEach(function(el){
       var top=el.getBoundingClientRect().top;
-      if(top<=navH+32&&Math.abs(top-navH)<bestTop){bestTop=Math.abs(top-navH);best=el;}
+      if(top<=anchor+4&&Math.abs(top-anchor)<bestTop){bestTop=Math.abs(top-anchor);best=el;}
     });
     if(!best)return;
     var label=best.textContent.replace(/\d/g,'').trim();
