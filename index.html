@@ -1309,7 +1309,7 @@ applyCarFilters();
 // ── Shareable URL (hash state) ──
 // The hash mirrors the view as URL params after "#/". Only non-default values are written.
 // Cars (no page param): sec, diff, drive, q, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, sort, dir.
-// Layers: the compare view (repeated cmp=<name>, 2-3 cars) and a popup on top of it
+// Layers: the compare view (repeated cmp=<name>) and a popup on top of it
 // (car=<name>, or trk=<name>&tcat=<category>&layout=<layout>).
 // Opening a layer pushes a history entry and raises pushedDepth; closing a layer that was pushed goes back one entry.
 // A layer restored from the URL, or opened by an earlier document, is closed by rewriting the current entry.
@@ -1377,7 +1377,7 @@ function applyHash(isBoot){
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
   hashRestoring=true;
-  pushedDepth=0;
+  pushedDepth=Math.min(pushedDepth,_layers(p));
   hideCopyUrls();
   try{
     var landing=document.getElementById('landing');
