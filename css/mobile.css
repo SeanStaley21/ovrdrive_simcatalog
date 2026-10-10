@@ -115,9 +115,10 @@
 @media(max-width:700px){
   #cmp-tray{padding:6px 8px;gap:6px}
   body.cmp-tray-on{padding-bottom:68px}
-  .cmp-tray-items{gap:6px}
-  .cmp-thumb{width:48px;height:36px}
-  .cmp-thumb-x::after{content:'';position:absolute;inset:0 -12px -24px -12px}
+  .cmp-tray-items{gap:6px;min-width:0}
+  .cmp-thumb{flex:0 1 48px;width:auto;min-width:30px;height:36px}
+  .cmp-thumb-x{right:-4px}
+  .cmp-thumb-x::after{content:'';position:absolute;inset:0 -1px -24px -23px}
   .cmp-tray-hint{display:none}
   .cmp-clear,.cmp-go{min-height:44px;padding:0 8px;letter-spacing:1px}
 }
