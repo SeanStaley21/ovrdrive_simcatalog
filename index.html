@@ -7,8 +7,9 @@
 <title>Sim Catalog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css?v=20261009b">
-  <link rel="stylesheet" href="css/mobile.css?v=20261009b">
+  <link rel="stylesheet" href="css/main.css?v=20261010">
+  <link rel="stylesheet" href="css/mobile.css?v=20261010">
+  <link rel="stylesheet" href="css/popups.css?v=20261010">
 </head>
 <body>
 <nav>
@@ -300,63 +301,59 @@
 </aside>
 </div><!-- /.page-layout -->
 <div id="trk-backdrop" onclick="closeTrk()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px)"></div>
-<div id="trk-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(750px,94vw);background:#0f0f0f;border:1px solid rgba(0,174,239,0.3);border-top:3px solid var(--C);border-radius:4px;box-shadow:0 0 60px rgba(0,174,239,0.15),0 20px 60px rgba(0,0,0,0.6);font-family:Oswald,Arial,sans-serif;overflow:hidden;min-height:478px">
-  <!-- Background image layer -->
-  <div id="trk-bg-wrap" style="position:absolute;inset:0;z-index:0">
-    <img id="trk-modal-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;object-position:center">
-    <div id="trk-bg-overlay" style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,8,0.72) 0%,rgba(8,8,8,0.35) 45%,rgba(8,8,8,0.88) 100%)"></div>
-  </div>
-  <!-- Content layer -->
-  <div id="trk-content-wrap" style="position:relative;z-index:1;display:flex;flex-direction:column;min-height:478px">
-    <!-- Header -->
-    <div class="sheet-head" style="display:flex;align-items:flex-start;justify-content:space-between;padding:1.2rem 1.4rem 0.8rem">
-      <div style="flex:1;min-width:0">
-        <div id="trk-modal-name" style="font-size:24pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,0.8)"></div>
-        <div id="trk-modal-layout" style="font-size:8.5pt;font-weight:700;letter-spacing:3px;color:var(--C);text-transform:uppercase;margin-top:4px;opacity:0.9"></div>
-        <div id="trk-modal-layout-nav" class="trk-layout-nav" style="display:none;margin-top:8px"></div>
-      </div>
-      <button type="button" class="fav-star fav-star-lg" data-kind="tracks" aria-pressed="false"></button>
-      <button type="button" class="copy-link-btn">Copy link</button>
-      <button onclick="closeTrk()" class="mobile-close-btn" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;margin-left:1rem;flex-shrink:0;transition:all .15s;backdrop-filter:blur(4px)" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button>
-    </div>
-    <!-- Spacer — track outline centered here -->
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:0.5rem 1rem">
-      <img id="trk-modal-outline" src="" alt="" style="display:none;width:90%;max-height:210px;object-fit:contain;filter:invert(1) sepia(1) saturate(3) hue-rotate(170deg) brightness(1.1) drop-shadow(0 0 10px rgba(0,174,239,0.6))">
-    </div>
-    <!-- Stats pinned to bottom -->
-    <div style="padding:1rem 1.4rem 1.3rem;background:linear-gradient(0deg,rgba(6,6,6,0.97) 60%,transparent 100%)">
-      <div class="trk-stat-grid" style="margin-bottom:0.7rem">
-        <div class="trk-stat">
-          <div class="trk-stat-label">Location</div>
-          <div class="trk-stat-val" id="trk-modal-location"></div>
-        </div>
-        <div class="trk-stat">
-          <div class="trk-stat-label">Length</div>
-          <div class="trk-stat-val" id="trk-modal-length"></div>
-        </div>
-      </div>
-      <div class="trk-record-box" style="margin-bottom:0.7rem">
-        <div class="trk-record-label">Track Record</div>
-        <div class="trk-record-val" id="trk-modal-record"></div>
-      </div>
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-          <div style="font-size:7pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.45);text-transform:uppercase">Difficulty</div>
-          <div class="diff-badge" id="trk-modal-diff-text"></div>
-        </div>
-        <div class="diff-track" id="trk-modal-diff"></div>
-        <div class="diff-sub">Rated relative to other tracks in this category</div>
-      </div>
-      <button id="trk-select-btn" class="queue-select-btn" onclick="toggleTrackSelect()"></button>
-    </div>
-  </div>
-</div>
+<div id="trk-modal" class="pop pop-trk" role="dialog" aria-modal="true" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div id="trk-content-wrap" class="pop-scroll">
+<div class="pop-hero pop-map"><img id="trk-modal-img" class="pop-bgimg" alt="" style="display:none"><img id="trk-modal-outline" class="pop-outline" alt="" style="display:none"><div class="pop-hero-bar"><button type="button" class="fav-star fav-star-lg" data-kind="tracks" aria-pressed="false"></button><button type="button" class="pop-x" onclick="closeTrk()" aria-label="Close">&#215;</button></div></div>
+<div class="pop-body">
+<h2 id="trk-modal-name" class="pop-name"></h2>
+<div id="trk-modal-layout" class="pop-sub"></div>
+<div id="trk-modal-layout-nav" class="trk-layout-nav pop-variants" style="display:none"></div>
+<div class="pop-tiles pop-tiles-2"><div class="pop-tile"><div class="pop-k">Length</div><div class="pop-v"><b id="trk-modal-length"></b></div></div><div class="pop-tile"><div class="pop-k">Location</div><div class="pop-v pop-v-sm"><b id="trk-modal-location"></b></div></div></div>
+<div class="pop-record"><div class="pop-k">Track record</div><div id="trk-modal-record" class="pop-record-val"></div></div>
+<div class="pop-sec"><span>Difficulty</span><span class="diff-badge" id="trk-modal-diff-text"></span></div>
+<div class="diff-track" id="trk-modal-diff"></div>
+<div class="diff-sub">Rated relative to other tracks in this category</div>
+</div></div>
+<div class="pop-actions"><button type="button" class="copy-link-btn">Copy link</button><button id="trk-select-btn" class="queue-select-btn" onclick="toggleTrackSelect()"></button></div></div></div>
 <div id="cmp-backdrop" onclick="closeCompare()" style="display:none;position:fixed;inset:0;z-index:490;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)"></div>
 <div id="cmp-modal" style="display:none"><div class="cmp-head"><div class="cmp-title">Compare cars</div><button type="button" onclick="closeCompare()" class="mobile-close-btn" aria-label="Close compare" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;flex-shrink:0">&#215;</button></div><div id="cmp-body"></div></div>
 <div id="cmp-tray" style="display:none"><div class="cmp-tray-items"></div><span class="cmp-tray-hint">Pick 1-2 more</span><button type="button" id="cmp-clear" class="cmp-clear">Clear</button><button type="button" id="cmp-go" class="cmp-go" disabled>Compare</button></div>
 <div id="ovr-backdrop" onclick="closeStats()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)"></div>
-<div id="ovr-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(640px,92vw);background:#111;border:1px solid rgba(0,174,239,0.4);border-radius:4px;box-shadow:0 0 40px rgba(0,174,239,0.2);font-family:Oswald,Arial,sans-serif"><div style="display:flex;align-items:flex-start;justify-content:space-between;padding:1.3rem 1.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="flex:1;padding-right:1rem"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div id="ovr-name" style="font-size:20pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.25"></div><span id="ovr-diff"></span></div><div id="ovr-variant-nav" class="trk-layout-nav" style="display:none;margin-top:8px;flex-wrap:wrap;gap:5px"></div></div><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button><button onclick="closeStats()" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button></div><div style="padding:0;display:flex;flex-direction:column"><img id="ovr-img" src="" alt="" style="display:none;width:100%;height:200px;object-fit:contain;object-position:center;background:#0a0a0a"><div style="padding:1.2rem 1.6rem 1.3rem;display:flex;flex-direction:column;gap:1.1rem"><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Horsepower</div><div style="display:flex;align-items:center;gap:0.6rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:8px;overflow:hidden"><div id="ovr-hp-bar" style="height:100%;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,0.5);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-hp-val" style="font-size:15pt;font-weight:700;color:#fff;min-width:88px;text-align:right"></div></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Torque (ft-lbs)</div><div style="display:flex;align-items:center;gap:0.6rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:8px;overflow:hidden"><div id="ovr-tq-bar" style="height:100%;background:rgba(255,200,0,0.85);box-shadow:0 0 8px rgba(255,200,0,0.4);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-tq-val" style="font-size:15pt;font-weight:700;color:#fff;min-width:88px;text-align:right"></div></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Drivetrain</div><div id="ovr-drive" style="margin-top:4px;display:inline-block;padding:4px 16px;border-radius:2px;background:rgba(0,174,239,0.12);border:1px solid rgba(0,174,239,0.4);color:#00AEEF;font-size:12pt;font-weight:700;letter-spacing:2px"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Grip</div><div id="ovr-df" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Top Speed</div><div id="ovr-ts" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Braking</div><div id="ovr-br" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:9pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px">Best For</div><div id="ovr-tracks" style="display:flex;flex-wrap:wrap;gap:8px"></div></div></div><button id="ovr-select-btn" class="queue-select-btn" onclick="toggleCarSelect()"></button></div></div>
-<div id="ovr-sheet" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:501;background:#111;border-top:2px solid #00AEEF;border-radius:12px 12px 0 0;font-family:Oswald,Arial,sans-serif"><div class="sheet-head" style="display:flex;align-items:flex-start;justify-content:space-between;padding:1rem 1.2rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="flex:1;padding-right:1rem"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div id="ovr-sheet-name" style="font-size:14pt;font-weight:700;color:#fff;letter-spacing:1px;line-height:1.25"></div><span id="ovr-sheet-diff"></span></div><div id="ovr-sheet-variant-nav" class="trk-layout-nav" style="display:none;margin-top:8px;flex-wrap:wrap;gap:5px"></div></div><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button><button onclick="closeStats()" class="mobile-close-btn" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(210,40,40,0.95)'" onmouseout="this.style.background='rgba(180,30,30,0.75)'">&#215;</button></div><div style="padding:0;display:flex;flex-direction:column"><img id="ovr-sheet-img" src="" alt="" style="display:none;width:100%;height:160px;object-fit:contain;object-position:center;background:#0a0a0a"><div style="padding:1rem 1.2rem 1.4rem;display:flex;flex-direction:column;gap:0.9rem"><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Horsepower</div><div style="display:flex;align-items:center;gap:0.5rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:6px;overflow:hidden"><div id="ovr-sheet-hp-bar" style="height:100%;background:#00AEEF;box-shadow:0 0 8px rgba(0,174,239,0.5);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-sheet-hp-val" style="font-size:12pt;font-weight:700;color:#fff;min-width:72px;text-align:right"></div></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Torque (ft-lbs)</div><div style="display:flex;align-items:center;gap:0.5rem"><div style="flex:1;background:rgba(255,255,255,0.07);border-radius:2px;height:6px;overflow:hidden"><div id="ovr-sheet-tq-bar" style="height:100%;background:rgba(255,200,0,0.85);box-shadow:0 0 8px rgba(255,200,0,0.4);border-radius:2px;transition:width .4s ease;width:0%"></div></div><div id="ovr-sheet-tq-val" style="font-size:12pt;font-weight:700;color:#fff;min-width:72px;text-align:right"></div></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Drivetrain</div><div id="ovr-sheet-drive" style="margin-top:4px;display:inline-block;padding:3px 12px;border-radius:2px;background:rgba(0,174,239,0.12);border:1px solid rgba(0,174,239,0.4);color:#00AEEF;font-size:9pt;font-weight:700;letter-spacing:2px"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Grip</div><div id="ovr-sheet-df" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Top Speed</div><div id="ovr-sheet-ts" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:4px">Braking</div><div id="ovr-sheet-br" style="margin-top:4px;line-height:1"></div></div><div><div style="font-size:8pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px">Best For</div><div id="ovr-sheet-tracks" style="display:flex;flex-wrap:wrap;gap:6px"></div></div></div></div>
+<div id="ovr-modal" class="pop" role="dialog" aria-modal="true" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div class="pop-scroll">
+<div class="pop-hero"><img id="ovr-img" alt="" style="display:none"><div class="pop-hero-bar"><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="pop-x" onclick="closeStats()" aria-label="Close">&#215;</button></div></div>
+<div class="pop-body">
+<div class="pop-title"><h2 id="ovr-name" class="pop-name"></h2><span id="ovr-diff"></span></div>
+<div id="ovr-variant-nav" class="trk-layout-nav pop-variants" style="display:none"></div>
+<div class="pop-tiles">
+<div class="pop-tile"><div class="pop-k">Power</div><div class="pop-v"><b id="ovr-hp-val"></b><i>hp</i></div><div class="pop-bar"><div id="ovr-hp-bar"></div></div></div>
+<div class="pop-tile"><div class="pop-k">Torque</div><div class="pop-v"><b id="ovr-tq-val"></b><i>ft-lb</i></div><div class="pop-bar pop-bar-tq"><div id="ovr-tq-bar"></div></div></div>
+<div class="pop-tile"><div class="pop-k">Drive</div><div class="pop-v"><b id="ovr-drive"></b></div></div>
+</div>
+<div class="pop-sec"><span>Handling</span></div>
+<div class="pop-rate"><span class="pop-k">Grip</span><div id="ovr-df" class="pop-meter"></div></div>
+<div class="pop-rate"><span class="pop-k">Top speed</span><div id="ovr-ts" class="pop-meter"></div></div>
+<div class="pop-rate"><span class="pop-k">Braking</span><div id="ovr-br" class="pop-meter"></div></div>
+<div class="pop-sec" id="ovr-tracks-hd"><span>Best for</span></div>
+<div id="ovr-tracks" class="pop-chips"></div>
+</div></div>
+<div class="pop-actions"><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button><button id="ovr-select-btn" class="queue-select-btn" onclick="toggleCarSelect()"></button></div></div></div>
+<div id="ovr-sheet" class="pop" role="dialog" aria-modal="true" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div class="pop-scroll">
+<div class="pop-hero"><img id="ovr-sheet-img" alt="" style="display:none"><div class="pop-hero-bar"><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="pop-x" onclick="closeStats()" aria-label="Close">&#215;</button></div></div>
+<div class="pop-body">
+<div class="pop-title"><h2 id="ovr-sheet-name" class="pop-name"></h2><span id="ovr-sheet-diff"></span></div>
+<div id="ovr-sheet-variant-nav" class="trk-layout-nav pop-variants" style="display:none"></div>
+<div class="pop-tiles">
+<div class="pop-tile"><div class="pop-k">Power</div><div class="pop-v"><b id="ovr-sheet-hp-val"></b><i>hp</i></div><div class="pop-bar"><div id="ovr-sheet-hp-bar"></div></div></div>
+<div class="pop-tile"><div class="pop-k">Torque</div><div class="pop-v"><b id="ovr-sheet-tq-val"></b><i>ft-lb</i></div><div class="pop-bar pop-bar-tq"><div id="ovr-sheet-tq-bar"></div></div></div>
+<div class="pop-tile"><div class="pop-k">Drive</div><div class="pop-v"><b id="ovr-sheet-drive"></b></div></div>
+</div>
+<div class="pop-sec"><span>Handling</span></div>
+<div class="pop-rate"><span class="pop-k">Grip</span><div id="ovr-sheet-df" class="pop-meter"></div></div>
+<div class="pop-rate"><span class="pop-k">Top speed</span><div id="ovr-sheet-ts" class="pop-meter"></div></div>
+<div class="pop-rate"><span class="pop-k">Braking</span><div id="ovr-sheet-br" class="pop-meter"></div></div>
+<div class="pop-sec" id="ovr-sheet-tracks-hd"><span>Best for</span></div>
+<div id="ovr-sheet-tracks" class="pop-chips"></div>
+</div></div>
+<div class="pop-actions"><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button></div></div></div>
 
 <script>
 // Data loader: fetches data/cars.json and data/tracks.json, renders the card grids,
@@ -1533,13 +1530,9 @@ function lookupCar(name) {
 }
 var HP_MAX = 2000, TQ_MAX = 900;
 function segBar(val, color, glow) {
-  var h = '';
-  for (var i = 1; i <= 10; i++) {
-    h += '<span style="display:inline-block;width:24px;height:14px;border-radius:2px;margin-right:3px;background:' +
-      (i <= val ? color : 'rgba(255,255,255,0.07)') + ';box-shadow:' +
-      (i <= val ? '0 0 6px ' + glow : 'none') + '"></span>';
-  }
-  return h + '<span style="color:' + color + ';font-size:12pt;font-weight:700;margin-left:8px;vertical-align:middle">' + val + '/10</span>';
+  var h = '<span class="pop-segs" style="--c:' + color + ';--g:' + glow + '">';
+  for (var i = 1; i <= 10; i++) h += '<span' + (i <= val ? ' class="on"' : '') + '></span>';
+  return h + '</span><b class="pop-segval" style="color:' + color + '">' + val + '<small>/10</small></b>';
 }
 function carDiffInfo(d) {
   var t = d && d.diff ? d.diff : 1;
@@ -1552,9 +1545,9 @@ function fillStats(pfx, name, d) {
   var _dEl=document.getElementById(pfx+'diff');
   if(_dEl){var _di=carDiffInfo(d);_dEl.className='car-diff-badge '+_di.cls;_dEl.textContent=_di.label;}
   document.getElementById(pfx+'hp-bar').style.width = Math.min(d.hp/HP_MAX*100,100)+'%';
-  document.getElementById(pfx+'hp-val').textContent = d.hp+' hp';
+  document.getElementById(pfx+'hp-val').textContent = d.hp.toLocaleString();
   document.getElementById(pfx+'tq-bar').style.width = Math.min(d.tq/TQ_MAX*100,100)+'%';
-  document.getElementById(pfx+'tq-val').textContent = d.tq+' FT-LB';
+  document.getElementById(pfx+'tq-val').textContent = d.tq.toLocaleString();
   document.getElementById(pfx+'drive').textContent = d.drive;
   var imgEl=document.getElementById(pfx+'img');
   if(imgEl){if(d.img){imgEl.src=d.img;imgEl.style.display='block';}else{imgEl.src='';imgEl.style.display='none';}}
@@ -1563,10 +1556,12 @@ function fillStats(pfx, name, d) {
   if(tsEl) tsEl.innerHTML = d.ts ? segBar(d.ts,'#00C896','rgba(0,200,150,0.4)') : 'N/A';
   if(brEl) brEl.innerHTML = d.br ? segBar(d.br,'#FF4C4C','rgba(255,76,76,0.4)') : 'N/A';
   var tc=document.getElementById(pfx+'tracks'); tc.innerHTML='';
+  var _hd=document.getElementById(pfx+'tracks-hd'), _has=(d.tracks||[]).length>0;
+  tc.style.display=_has?'':'none'; if(_hd)_hd.style.display=_has?'':'none';
   (d.tracks||[]).forEach(function(t){
     var s=document.createElement('span');
     s.textContent=t;
-    s.style.cssText='font-size:8.5pt;font-weight:600;letter-spacing:1px;padding:3px 10px;border-radius:2px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7)';
+    s.className='pop-chip';
     tc.appendChild(s);
   });
 }
