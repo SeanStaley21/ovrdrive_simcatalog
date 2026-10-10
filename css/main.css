@@ -568,3 +568,31 @@ body.cmp-tray-on{padding-bottom:76px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+#race-card{display:none}
+@media print{
+  @page{margin:12mm}
+  body>*:not(#race-card){display:none!important}
+  body{background:#fff;color:#000;min-height:0;padding:0}
+  #race-card{display:block;font-family:"Oswald",Arial,sans-serif;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rc-head{display:flex;align-items:center;gap:16px;border-bottom:3px solid #00AEEF;padding-bottom:10px;margin-bottom:16px}
+  .rc-logo{width:80px;height:80px;object-fit:contain}
+  .rc-title{font-size:30pt;font-weight:700;letter-spacing:4px;text-transform:uppercase}
+  .rc-cols{display:flex;gap:20px}
+  .rc-col{flex:1;min-width:0;break-inside:avoid}
+  .rc-col-title{font-size:11pt;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#555;margin-bottom:6px}
+  .rc-photo{width:100%;height:170px;object-fit:cover;border-radius:3px;background:#000}
+  .rc-name{font-size:18pt;font-weight:700;margin-top:8px;word-break:break-word}
+  .rc-sub{font-size:11pt;color:#444}
+  .rc-tags{display:flex;gap:6px;margin:6px 0}
+  .rc-tag{border:1px solid #000;border-radius:2px;padding:2px 8px;font-size:10pt;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  .rc-stats{display:flex;gap:18px;font-size:11pt;margin:8px 0}
+  .rc-stats b{font-size:15pt}
+  .rc-bar{display:flex;align-items:center;gap:3px;margin-top:5px}
+  .rc-bar-label{width:80px;font-size:9pt;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  .rc-seg{width:16px;height:10px;border:1px solid #888;border-radius:1px}
+  .rc-seg.on{background:#00AEEF;border-color:#00AEEF}
+  .rc-outline{background:#000;border-radius:3px;margin-top:8px;padding:10px;text-align:center}
+  .rc-outline img{height:150px;max-width:100%;object-fit:contain}
+  .rc-empty{border:2px dashed #aaa;padding:40px 0;text-align:center;color:#777;font-size:12pt;text-transform:uppercase;letter-spacing:2px}
+}
