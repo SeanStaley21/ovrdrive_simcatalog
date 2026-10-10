@@ -384,7 +384,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 .preset-toggle.open .preset-caret{transform:rotate(180deg)}
 .preset-menu{
   margin-top:6px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.12);border-radius:4px;
-  max-height:300px;overflow-y:auto;
+  max-height:460px;overflow-y:auto;
 }
 .preset-save-btn{
   width:100%;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,0.1);
@@ -406,6 +406,37 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   background:transparent;border:0;color:rgba(255,255,255,0.35);font-size:13pt;padding:0 12px;cursor:pointer;
 }
 .preset-item-del:hover{color:#f87171;background:rgba(239,68,68,0.08)}
+.preset-item-exp{
+  background:transparent;border:0;color:rgba(255,255,255,0.35);font-size:11pt;padding:0 10px;cursor:pointer;
+}
+.preset-item-exp:hover{color:var(--C);background:rgba(0,174,239,0.1)}
+.preset-tools{display:flex;border-bottom:1px solid rgba(255,255,255,0.1)}
+.preset-tools button{
+  flex:1;background:transparent;border:0;color:rgba(255,255,255,0.6);
+  font-family:"Oswald",Arial,sans-serif;font-size:8.5pt;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;cursor:pointer;
+}
+.preset-tools button+button{border-left:1px solid rgba(255,255,255,0.1)}
+.preset-tools button:hover{color:var(--C);background:rgba(0,174,239,0.1)}
+.preset-io{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.preset-io-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.preset-io-title{font-size:9pt;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff}
+.preset-io textarea{
+  display:block;width:100%;box-sizing:border-box;height:110px;resize:vertical;
+  background:#000;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:3px;
+  font-family:monospace;font-size:8pt;padding:6px;
+}
+.preset-io-file{display:block;width:100%;margin-top:8px;color:rgba(255,255,255,0.6);font-size:8pt}
+.preset-io-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.preset-io-btn{
+  background:transparent;border:1px solid var(--C);border-radius:3px;color:var(--C);
+  font-family:"Oswald",Arial,sans-serif;font-size:8pt;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;padding:4px 10px;cursor:pointer;
+}
+.preset-io-btn:hover{background:rgba(0,174,239,0.1)}
+.preset-io-msg{margin-top:8px;font-size:8.5pt;color:rgba(255,255,255,0.6);word-break:break-word}
+.preset-io-msg:empty{display:none}
+.preset-io-msg.err{color:#f87171}
 
 /* Select buttons inside the car/track modals (only where the queue panel is visible) */
 .queue-select-btn{
