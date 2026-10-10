@@ -279,6 +279,11 @@
     <button type="button" class="preset-toggle" id="preset-toggle" onclick="togglePresetMenu()">Presets <span class="preset-caret">&#9662;</span></button>
     <div class="preset-menu" id="preset-menu" style="display:none">
       <button type="button" class="preset-save-btn" onclick="savePreset()">+ Save current race</button>
+      <div class="preset-tools">
+        <button type="button" onclick="openPresetExport()">Export all</button>
+        <button type="button" onclick="openPresetImport()">Import</button>
+      </div>
+      <div class="preset-io" id="preset-io" style="display:none"></div>
       <div id="preset-list"></div>
     </div>
   </div>
@@ -1984,13 +1989,15 @@ function loadPresets(){
   }catch(e){}
 }
 function savePresets(){
-  try{ localStorage.setItem('ovrRacePresets',JSON.stringify(racePresets)); }catch(e){}
+  try{ localStorage.setItem('ovrRacePresets',JSON.stringify(racePresets)); return true; }
+  catch(e){ return false; }
 }
 function togglePresetMenu(force){
   var m=document.getElementById('preset-menu');
   var open=(typeof force==='boolean')?force:m.style.display==='none';
   m.style.display=open?'block':'none';
   document.getElementById('preset-toggle').classList.toggle('open',open);
+  if(!open) closePresetIO();
 }
 function savePreset(){
   if(!raceQueue.car && !raceQueue.track){ alert('Select a car and/or track first, then save it as a preset.'); return; }
@@ -2058,9 +2065,215 @@ function renderPresets(){
     del.title='Delete preset';
     del.innerHTML='&times;';
     del.onclick=function(){ deletePreset(p.id); };
-    row.appendChild(main); row.appendChild(del);
+    var exp=document.createElement('button');
+    exp.type='button';
+    exp.className='preset-item-exp';
+    exp.title='Export preset';
+    exp.textContent='\u2193';
+    exp.onclick=function(){ openPresetExport(p.id); };
+    row.appendChild(main); row.appendChild(exp); row.appendChild(del);
     list.appendChild(row);
   });
+}
+// ----- Preset export / import -----
+var PRESET_MAX=100, PRESET_NAME_MAX=80, PRESET_FILE_MAX=100*1024, PRESET_TEXT_MAX=100000;
+function presetEl(tag,cls,text){
+  var el=document.createElement(tag);
+  if(cls) el.className=cls;
+  if(text!==undefined) el.textContent=text;
+  return el;
+}
+function presetBtn(label,fn){
+  var b=presetEl('button','preset-io-btn',label);
+  b.type='button';
+  b.onclick=fn;
+  return b;
+}
+function setPresetMsg(msgEl,text,isErr){
+  msgEl.textContent=text;
+  msgEl.classList.toggle('err',!!isErr);
+}
+function closePresetIO(){
+  var io=document.getElementById('preset-io');
+  io.textContent='';
+  io.style.display='none';
+}
+function openPresetPanel(title){
+  var io=document.getElementById('preset-io');
+  io.textContent='';
+  io.style.display='block';
+  var head=presetEl('div','preset-io-head');
+  head.appendChild(presetEl('span','preset-io-title',title));
+  head.appendChild(presetBtn('Close',closePresetIO));
+  io.appendChild(head);
+  return io;
+}
+function presetExportText(list){
+  return JSON.stringify({
+    format:'ovrRacePresets',
+    version:1,
+    exported:new Date().toISOString(),
+    presets:list.map(function(p){
+      return {
+        name:p.name,
+        car:p.car||null,
+        track:p.track?{name:p.track.name,cat:p.track.cat,layout:p.track.layout}:null
+      };
+    })
+  },null,2);
+}
+function downloadPresetFile(text,filename){
+  var url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+  var a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function copyPresetText(ta,msgEl){
+  function fallback(){
+    ta.focus();
+    ta.select();
+    setPresetMsg(msgEl,'Press Ctrl+C to copy');
+  }
+  if(!navigator.clipboard || !navigator.clipboard.writeText){ fallback(); return; }
+  navigator.clipboard.writeText(ta.value).then(function(){ setPresetMsg(msgEl,'Copied'); },fallback);
+}
+function openPresetExport(id){
+  var list=id?racePresets.filter(function(p){return p.id===id;}):racePresets;
+  var io=openPresetPanel('Export');
+  var msg=presetEl('div','preset-io-msg');
+  if(!list.length){ setPresetMsg(msg,'No presets to export'); io.appendChild(msg); return; }
+  var text=presetExportText(list);
+  var ta=presetEl('textarea');
+  ta.readOnly=true;
+  ta.value=text;
+  var filename=id?'ovr-race-preset.json':'ovr-race-presets-'+new Date().toISOString().slice(0,10)+'.json';
+  var actions=presetEl('div','preset-io-actions');
+  actions.appendChild(presetBtn('Download',function(){ downloadPresetFile(text,filename); }));
+  actions.appendChild(presetBtn('Copy',function(){ copyPresetText(ta,msg); }));
+  io.appendChild(ta); io.appendChild(actions); io.appendChild(msg);
+}
+function presetHas(obj,key){ return Object.prototype.hasOwnProperty.call(obj,key); }
+function isPlainObject(v){ return !!v && typeof v==='object' && !Array.isArray(v); }
+function cleanImportedPreset(raw){
+  if(!isPlainObject(raw) || typeof raw.name!=='string') return null;
+  var name=raw.name.trim().slice(0,PRESET_NAME_MAX).trim();
+  if(!name) return null;
+  var car=null, track=null;
+  if(raw.car!=null){
+    if(typeof raw.car!=='string' || !presetHas(carStats,raw.car)) return null;
+    car=raw.car;
+  }
+  if(raw.track!=null){
+    var t=raw.track;
+    if(!isPlainObject(t) || typeof t.name!=='string' || typeof t.layout!=='string' || typeof t.cat!=='string') return null;
+    if(!presetHas(trackData,t.name+'::'+t.layout) || !presetHas(_trackToCat,t.name) || _trackToCat[t.name].indexOf(t.cat)<0) return null;
+    track={name:t.name,cat:t.cat,layout:t.layout};
+  }
+  if(!car && !track) return null;
+  return {name:name,car:car,track:track};
+}
+function parsePresetImport(text){
+  var data;
+  try{ data=JSON.parse(text); }catch(e){ throw new Error('Not valid JSON.'); }
+  if(!isPlainObject(data) || data.format!=='ovrRacePresets') throw new Error('Not an OVR race presets file.');
+  if(data.version!==1) throw new Error('Unsupported file version.');
+  if(!Array.isArray(data.presets) || !data.presets.length) throw new Error('The file contains no presets.');
+  if(data.presets.length>PRESET_MAX) throw new Error('The file has more than '+PRESET_MAX+' presets.');
+  var presets=[], invalid=0;
+  data.presets.forEach(function(raw){
+    var p=cleanImportedPreset(raw);
+    if(p) presets.push(p); else invalid++;
+  });
+  if(!presets.length) throw new Error('No valid presets in the file.');
+  return {presets:presets,invalid:invalid};
+}
+function newPresetId(taken){
+  var id;
+  do{ id=Date.now().toString(36)+Math.random().toString(36).slice(2,6); }while(taken[id]);
+  taken[id]=true;
+  return id;
+}
+function uniquePresetName(name,taken){
+  var n=2, cand;
+  do{
+    var suffix=' ('+n+')';
+    cand=name.slice(0,PRESET_NAME_MAX-suffix.length).trimEnd()+suffix;
+    n++;
+  }while(taken[cand.toLowerCase()]);
+  return cand;
+}
+function samePresetContent(a,b){
+  var ta=a.track, tb=b.track;
+  if((a.car||null)!==(b.car||null)) return false;
+  if(!ta || !tb) return !ta && !tb;
+  return ta.name===tb.name && ta.cat===tb.cat && ta.layout===tb.layout;
+}
+function importPresets(list,mode){
+  var prev=racePresets;
+  var next=mode==='replace'?[]:prev.slice();
+  var byName=Object.create(null), ids=Object.create(null);
+  next.forEach(function(p){ byName[p.name.toLowerCase()]=p; ids[p.id]=true; });
+  var result={added:0,renamed:0,duplicates:0};
+  list.forEach(function(p){
+    var existing=byName[p.name.toLowerCase()];
+    var name=p.name;
+    if(existing){
+      if(samePresetContent(existing,p)){ result.duplicates++; return; }
+      name=uniquePresetName(p.name,byName);
+      result.renamed++;
+    }
+    var entry={id:newPresetId(ids),name:name,car:p.car,track:p.track};
+    next.push(entry);
+    byName[name.toLowerCase()]=entry;
+    result.added++;
+  });
+  if(next.length>PRESET_MAX) throw new Error('Import would exceed the limit of '+PRESET_MAX+' presets. Nothing was imported.');
+  racePresets=next;
+  if(!savePresets()){
+    racePresets=prev;
+    throw new Error('Could not save presets: browser storage is full.');
+  }
+  renderPresets();
+  return result;
+}
+function openPresetImport(){
+  var io=openPresetPanel('Import');
+  var ta=presetEl('textarea');
+  ta.placeholder='Paste exported JSON here';
+  var file=presetEl('input','preset-io-file');
+  file.type='file';
+  file.accept='.json,application/json';
+  var msg=presetEl('div','preset-io-msg');
+  file.onchange=function(){
+    var f=file.files[0];
+    if(!f) return;
+    if(f.size>PRESET_FILE_MAX){ file.value=''; setPresetMsg(msg,'File is too large (max 100 KB).',true); return; }
+    var reader=new FileReader();
+    reader.onload=function(){ ta.value=reader.result; setPresetMsg(msg,'File loaded. Choose Merge or Replace.'); file.value=''; };
+    reader.onerror=function(){ setPresetMsg(msg,'Could not read the file.',true); file.value=''; };
+    reader.readAsText(f);
+  };
+  function run(mode){
+    if(ta.value.length>PRESET_TEXT_MAX){ setPresetMsg(msg,'Pasted text is too long.',true); return; }
+    try{
+      var parsed=parsePresetImport(ta.value);
+      if(mode==='replace' && racePresets.length && !confirm('Replace all '+racePresets.length+' saved presets with the imported ones?')) return;
+      var r=importPresets(parsed.presets,mode);
+      var notes=[];
+      if(r.renamed) notes.push(r.renamed+' renamed');
+      if(r.duplicates) notes.push(r.duplicates+' duplicates skipped');
+      if(parsed.invalid) notes.push(parsed.invalid+' invalid');
+      setPresetMsg(msg,'Imported '+r.added+(notes.length?' ('+notes.join(', ')+')':'')+'.');
+    }catch(e){
+      setPresetMsg(msg,e.message,true);
+    }
+  }
+  var actions=presetEl('div','preset-io-actions');
+  actions.appendChild(presetBtn('Merge',function(){ run('merge'); }));
+  actions.appendChild(presetBtn('Replace',function(){ run('replace'); }));
+  io.appendChild(ta); io.appendChild(file); io.appendChild(actions); io.appendChild(msg);
 }
 document.addEventListener('click',function(e){
   var w=document.getElementById('preset-wrap');
