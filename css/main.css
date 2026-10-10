@@ -34,7 +34,7 @@ nav{
 }
 .sidebar::-webkit-scrollbar{display:none}
 .sidebar-label{
-  font-size:7.5pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.25);
+  font-size:7.5pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.55);
   text-transform:uppercase;padding:0.5rem 0.4rem 0.25rem;margin-top:0.2rem;
 }
 .nav-btn{
@@ -182,7 +182,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 
 /* Collapsible sidebar */
 .sidebar-toggle{cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
-.stoggle-arr{font-size:9pt;transition:transform .25s;display:inline-block;opacity:0.5;}
+.stoggle-arr{font-size:9pt;transition:transform .25s;display:inline-block;}
 .stoggle-arr.coll{transform:rotate(-90deg);}
 #cat-list.coll,#brand-list.coll,#car-diff-list.coll,#car-drive-list.coll,#trk-cat-list.coll,#trk-country-list.coll,#trk-diff-list.coll{display:none;}
 /* Brand filter buttons */
@@ -301,7 +301,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 }
 .trk-card-rec{color:rgba(255,255,255,0.55)}
 .trk-card-diff-label{
-  font-size:6.5pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.32);
+  font-size:6.5pt;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.55);
   text-transform:uppercase;margin-bottom:4px;
 }
 .trk-card-diff-bar{display:flex;gap:3px;}
@@ -334,7 +334,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
 }
 .queue-slot.filled:hover{border-color:var(--C)}
 .queue-empty{
-  color:rgba(255,255,255,0.3);font-size:8.5pt;letter-spacing:0.5px;line-height:1.5;
+  color:rgba(255,255,255,0.55);font-size:8.5pt;letter-spacing:0.5px;line-height:1.5;
   text-transform:uppercase;font-weight:600;
 }
 .queue-item{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
@@ -561,3 +561,10 @@ body.cmp-tray-on{padding-bottom:76px}
 .cmp-grip .cmp-seg.on{background:#7B61FF;box-shadow:0 0 6px rgba(123,97,255,0.4)}
 .cmp-top .cmp-seg.on{background:#00C896;box-shadow:0 0 6px rgba(0,200,150,0.4)}
 .cmp-brake .cmp-seg.on{background:#FF4C4C;box-shadow:0 0 6px rgba(255,76,76,0.4)}
+
+:focus-visible{outline:2px solid var(--C);outline-offset:2px}
+.ce:focus-visible,.sidebar-toggle:focus-visible{outline-color:var(--W);outline-offset:-2px}
+[role="dialog"]:focus{outline:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
