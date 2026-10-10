@@ -554,7 +554,7 @@ if(sidebarToggleBtn){
 var activeBrand='__all__';
 function filterByBrand(brand){
   var navH=(document.querySelector('nav')||{offsetHeight:60}).offsetHeight;
-  if(brand==='__all__'){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(brand==='__all__'){window.scrollTo({top:0,behavior:'instant'});return;}
   var target=null;
   if(sortState.cars.key==='default'){
     var bdivs=document.querySelectorAll('#sec-all .bdiv');
@@ -570,7 +570,7 @@ function filterByBrand(brand){
   if(!target||target.offsetParent===null)return;
   var searchH=document.querySelector('.search-wrap').getBoundingClientRect().height;
   var top=target.getBoundingClientRect().top+window.pageYOffset-navH-searchH-8;
-  window.scrollTo({top:top,behavior:'smooth'});
+  window.scrollTo({top:top,behavior:'instant'});
 }
 document.querySelectorAll('.brand-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
