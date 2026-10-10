@@ -33,7 +33,7 @@
       font-family:Oswald,sans-serif;font-size:15pt;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;
       box-shadow:0 6px 24px rgba(0,174,239,0.4)">View Catalog &rarr;</button>
   </div>
-  <div style="text-align:center;color:rgba(255,255,255,0.35);font-size:9.5pt;letter-spacing:1px;margin-bottom:40px">
+  <div style="text-align:center;color:rgba(255,255,255,0.55);font-size:9.5pt;letter-spacing:1px;margin-bottom:40px">
     Tip: click the <b style="color:rgba(255,255,255,0.6)">OVRDRIVE</b> logo up top any time to come back here.
   </div>
 
@@ -288,6 +288,7 @@
       <div id="preset-list"></div>
     </div>
   </div>
+  <div class="shared-race-banner" id="shared-race-banner" style="display:none"></div>
   <div class="queue-header">Your Race</div>
   <div class="queue-section-title">Car</div>
   <div class="queue-slot" id="queue-slot-car" data-kind="car">
@@ -297,11 +298,13 @@
   <div class="queue-slot" id="queue-slot-track" data-kind="track">
     <div class="queue-empty">No track selected<br>Open a track and press Select</div>
   </div>
+  <button type="button" class="queue-share-btn" id="queue-print-btn" onclick="printRaceCard(raceQueue)" style="display:none">Print race card</button>
+  <button type="button" class="queue-share-btn" id="queue-share-btn" onclick="copyRaceLink(raceQueue,null,this)" style="display:none">Copy race link</button>
   <button type="button" class="queue-clear-btn" id="queue-clear-btn" onclick="clearQueue()" style="display:none">Clear</button>
 </aside>
 </div><!-- /.page-layout -->
 <div id="trk-backdrop" onclick="closeTrk()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px)"></div>
-<div id="trk-modal" class="pop pop-trk" role="dialog" aria-modal="true" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div id="trk-content-wrap" class="pop-scroll">
+<div id="trk-modal" class="pop pop-trk" role="dialog" aria-modal="true" aria-labelledby="trk-modal-name" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div id="trk-content-wrap" class="pop-scroll">
 <div class="pop-hero pop-map"><img id="trk-modal-img" class="pop-bgimg" alt="" style="display:none"><img id="trk-modal-outline" class="pop-outline" alt="" style="display:none"><div class="pop-hero-bar"><button type="button" class="fav-star fav-star-lg" data-kind="tracks" aria-pressed="false"></button><button type="button" class="pop-x" onclick="closeTrk()" aria-label="Close">&#215;</button></div></div>
 <div class="pop-body">
 <h2 id="trk-modal-name" class="pop-name"></h2>
@@ -315,10 +318,11 @@
 </div></div>
 <div class="pop-actions"><button type="button" class="copy-link-btn">Copy link</button><button id="trk-select-btn" class="queue-select-btn" onclick="toggleTrackSelect()"></button></div></div></div>
 <div id="cmp-backdrop" onclick="closeCompare()" style="display:none;position:fixed;inset:0;z-index:490;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)"></div>
-<div id="cmp-modal" style="display:none"><div class="cmp-head"><div class="cmp-title">Compare cars</div><button type="button" onclick="closeCompare()" class="mobile-close-btn" aria-label="Close compare" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;flex-shrink:0">&#215;</button></div><div id="cmp-body"></div></div>
+<div id="cmp-modal" role="dialog" aria-modal="true" aria-labelledby="cmp-title" style="display:none"><div class="cmp-head"><div class="cmp-title" id="cmp-title">Compare cars</div><button type="button" onclick="closeCompare()" class="mobile-close-btn" aria-label="Close compare" style="background:rgba(180,30,30,0.75);border:1px solid rgba(255,80,80,0.3);border-radius:2px;cursor:pointer;color:#fff;font-size:18pt;line-height:1;padding:2px 9px;font-family:inherit;flex-shrink:0">&#215;</button></div><div id="cmp-body"></div></div>
 <div id="cmp-tray" style="display:none"><div class="cmp-tray-items"></div><span class="cmp-tray-hint">Pick 1-2 more</span><button type="button" id="cmp-clear" class="cmp-clear">Clear</button><button type="button" id="cmp-go" class="cmp-go" disabled>Compare</button></div>
 <div id="ovr-backdrop" onclick="closeStats()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)"></div>
-<div id="ovr-modal" class="pop" role="dialog" aria-modal="true" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div class="pop-scroll">
+<div id="race-card"></div>
+<div id="ovr-modal" class="pop" role="dialog" aria-modal="true" aria-labelledby="ovr-name" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div class="pop-scroll">
 <div class="pop-hero"><img id="ovr-img" alt="" style="display:none"><div class="pop-hero-bar"><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="pop-x" onclick="closeStats()" aria-label="Close">&#215;</button></div></div>
 <div class="pop-body">
 <div class="pop-title"><h2 id="ovr-name" class="pop-name"></h2><span id="ovr-diff"></span></div>
@@ -336,7 +340,7 @@
 <div id="ovr-tracks" class="pop-chips"></div>
 </div></div>
 <div class="pop-actions"><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button><button id="ovr-select-btn" class="queue-select-btn" onclick="toggleCarSelect()"></button></div></div></div>
-<div id="ovr-sheet" class="pop" role="dialog" aria-modal="true" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div class="pop-scroll">
+<div id="ovr-sheet" class="pop" role="dialog" aria-modal="true" aria-labelledby="ovr-sheet-name" style="display:none"><div class="pop-flex"><span class="pop-grip"></span><div class="pop-scroll">
 <div class="pop-hero"><img id="ovr-sheet-img" alt="" style="display:none"><div class="pop-hero-bar"><button type="button" class="fav-star fav-star-lg" data-kind="cars" aria-pressed="false"></button><button type="button" class="pop-x" onclick="closeStats()" aria-label="Close">&#215;</button></div></div>
 <div class="pop-body">
 <div class="pop-title"><h2 id="ovr-sheet-name" class="pop-name"></h2><span id="ovr-sheet-diff"></span></div>
@@ -1157,10 +1161,10 @@ function loadTrkLayout(layout){
   var d=trackData[key];if(!d)return;
   window._trkLayout=layout;
   var imgEl=document.getElementById('trk-modal-img');
-  if(d.img){imgEl.src=d.img;imgEl.style.display='block';}
-  else{imgEl.style.display='none';imgEl.src='';}
+  if(d.img){imgEl.src=d.img;imgEl.alt=window._trkName+(layout&&layout.toLowerCase()!==window._trkName.toLowerCase()?' \u2013 '+layout:'');imgEl.style.display='block';}
+  else{imgEl.style.display='none';imgEl.src='';imgEl.alt='';}
   var outlineEl=document.getElementById('trk-modal-outline');
-  if(d.outline){outlineEl.src=d.outline;outlineEl.style.display='block';}
+  if(d.outline){outlineEl.src=d.outline;outlineEl.alt='Track outline';outlineEl.style.display='block';}
   else{outlineEl.style.display='none';outlineEl.src='';}
   document.querySelectorAll('.trk-layout-btn').forEach(function(b){
     b.classList.toggle('active',b.dataset.layout===layout);
@@ -1416,6 +1420,14 @@ function applyHash(isBoot){
   var raw=location.hash.replace(/^#\/?/,'');
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
+  if(p.has('rcar')||p.has('rtrk')){
+    if(document.getElementById('landing').style.display!=='none')showCatalog();
+    loadSharedRace(p);
+    history.replaceState(null,'',location.pathname+location.search);
+    curHash=location.hash;
+    hashRestoring=false;
+    return;
+  }
   hashRestoring=true;
   pushedDepth=(history.state&&history.state.d)||0;
   hideCopyUrls();
@@ -1550,9 +1562,9 @@ function fillStats(pfx, name, d) {
   document.getElementById(pfx+'tq-val').textContent = d.tq.toLocaleString();
   document.getElementById(pfx+'drive').textContent = d.drive;
   var imgEl=document.getElementById(pfx+'img');
-  if(imgEl){if(d.img){imgEl.src=d.img;imgEl.style.display='block';}else{imgEl.src='';imgEl.style.display='none';}}
+  if(imgEl){if(d.img){imgEl.src=d.img;imgEl.alt=name;imgEl.style.display='block';}else{imgEl.src='';imgEl.alt='';imgEl.style.display='none';}}
   var dfEl=document.getElementById(pfx+'df'), tsEl=document.getElementById(pfx+'ts'), brEl=document.getElementById(pfx+'br');
-  if(dfEl) dfEl.innerHTML = d.df ? segBar(d.df,'#7B61FF','rgba(123,97,255,0.4)') : 'N/A';
+  if(dfEl) dfEl.innerHTML = d.df ? segBar(d.df,'#8B75FF','rgba(139,117,255,0.4)') : 'N/A';
   if(tsEl) tsEl.innerHTML = d.ts ? segBar(d.ts,'#00C896','rgba(0,200,150,0.4)') : 'N/A';
   if(brEl) brEl.innerHTML = d.br ? segBar(d.br,'#FF4C4C','rgba(255,76,76,0.4)') : 'N/A';
   var tc=document.getElementById(pfx+'tracks'); tc.innerHTML='';
@@ -1958,6 +1970,8 @@ function renderQueue(){
   }
   var clearBtn=document.getElementById('queue-clear-btn');
   clearBtn.style.display=(raceQueue.car||raceQueue.track)?'block':'none';
+  document.getElementById('queue-share-btn').style.display=clearBtn.style.display;
+  document.getElementById('queue-print-btn').style.display=clearBtn.style.display;
   document.querySelectorAll('.queue-remove').forEach(function(btn){
     btn.addEventListener('click',function(e){ e.stopPropagation(); removeQueue(this.dataset.kind); });
   });
@@ -1994,12 +2008,12 @@ function togglePresetMenu(force){
   document.getElementById('preset-toggle').classList.toggle('open',open);
   if(!open) closePresetIO();
 }
-function savePreset(){
-  if(!raceQueue.car && !raceQueue.track){ alert('Select a car and/or track first, then save it as a preset.'); return; }
-  var name=prompt('Name this preset:');
-  if(name===null) return;
+function savePreset(defaultName){
+  if(!raceQueue.car && !raceQueue.track){ alert('Select a car and/or track first, then save it as a preset.'); return false; }
+  var name=prompt('Name this preset:',typeof defaultName==='string'?defaultName:'');
+  if(name===null) return false;
   name=name.trim();
-  if(!name) return;
+  if(!name) return false;
   var entry={
     id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
     name:name,
@@ -2008,12 +2022,13 @@ function savePreset(){
   };
   var idx=racePresets.findIndex(function(p){return p.name.toLowerCase()===name.toLowerCase();});
   if(idx>=0){
-    if(!confirm('A preset named "'+racePresets[idx].name+'" already exists. Overwrite it?')) return;
+    if(!confirm('A preset named "'+racePresets[idx].name+'" already exists. Overwrite it?')) return false;
     entry.id=racePresets[idx].id;
     racePresets[idx]=entry;
   } else racePresets.push(entry);
   savePresets();
   renderPresets();
+  return true;
 }
 function loadPreset(id){
   var p=racePresets.find(function(x){return x.id===id;});
@@ -2066,7 +2081,19 @@ function renderPresets(){
     exp.title='Export preset';
     exp.textContent='\u2193';
     exp.onclick=function(){ openPresetExport(p.id); };
-    row.appendChild(main); row.appendChild(exp); row.appendChild(del);
+    var lnk=document.createElement('button');
+    lnk.type='button';
+    lnk.className='preset-item-exp';
+    lnk.title='Copy link to this preset';
+    lnk.textContent='\uD83D\uDD17';
+    lnk.onclick=function(){ copyRaceLink(p,p.name,lnk); };
+    var prt=document.createElement('button');
+    prt.type='button';
+    prt.className='preset-item-exp';
+    prt.title='Print race card';
+    prt.textContent='\uD83D\uDDA8';
+    prt.onclick=function(){ printRaceCard(p); };
+    row.appendChild(main); row.appendChild(lnk); row.appendChild(prt); row.appendChild(exp); row.appendChild(del);
     list.appendChild(row);
   });
 }
@@ -2151,20 +2178,26 @@ function openPresetExport(id){
 }
 function presetHas(obj,key){ return Object.prototype.hasOwnProperty.call(obj,key); }
 function isPlainObject(v){ return !!v && typeof v==='object' && !Array.isArray(v); }
+function validCar(name){
+  return (typeof name==='string' && presetHas(carStats,name))?name:null;
+}
+function validTrack(t){
+  if(!isPlainObject(t) || typeof t.name!=='string' || typeof t.layout!=='string' || typeof t.cat!=='string') return null;
+  if(!presetHas(trackData,t.name+'::'+t.layout) || !presetHas(_trackToCat,t.name) || _trackToCat[t.name].indexOf(t.cat)<0) return null;
+  return {name:t.name,cat:t.cat,layout:t.layout};
+}
 function cleanImportedPreset(raw){
   if(!isPlainObject(raw) || typeof raw.name!=='string') return null;
   var name=raw.name.trim().slice(0,PRESET_NAME_MAX).trim();
   if(!name) return null;
   var car=null, track=null;
   if(raw.car!=null){
-    if(typeof raw.car!=='string' || !presetHas(carStats,raw.car)) return null;
-    car=raw.car;
+    car=validCar(raw.car);
+    if(!car) return null;
   }
   if(raw.track!=null){
-    var t=raw.track;
-    if(!isPlainObject(t) || typeof t.name!=='string' || typeof t.layout!=='string' || typeof t.cat!=='string') return null;
-    if(!presetHas(trackData,t.name+'::'+t.layout) || !presetHas(_trackToCat,t.name) || _trackToCat[t.name].indexOf(t.cat)<0) return null;
-    track={name:t.name,cat:t.cat,layout:t.layout};
+    track=validTrack(raw.track);
+    if(!track) return null;
   }
   if(!car && !track) return null;
   return {name:name,car:car,track:track};
@@ -2270,6 +2303,91 @@ function openPresetImport(){
   actions.appendChild(presetBtn('Replace',function(){ run('replace'); }));
   io.appendChild(ta); io.appendChild(file); io.appendChild(actions); io.appendChild(msg);
 }
+// ----- Printable race card -----
+function cardBar(label,val){
+  var segs='';
+  for(var i=1;i<=10;i++) segs+='<span class="rc-seg'+(i<=val?' on':'')+'"></span>';
+  return '<div class="rc-bar"><span class="rc-bar-label">'+label+'</span>'+segs+'</div>';
+}
+function raceCardCarHtml(name){
+  var d=name?carStats[name]:null;
+  if(!d) return '<div class="rc-empty">No car selected</div>';
+  var di=carDiffInfo(d);
+  return '<img class="rc-photo" src="'+qEsc(d.img)+'" alt="">'+
+    '<div class="rc-name">'+qEsc(name)+'</div>'+
+    '<div class="rc-tags"><span class="rc-tag">'+di.label+'</span><span class="rc-tag">'+qEsc(d.drive)+'</span></div>'+
+    '<div class="rc-stats"><div><b>'+d.hp+'</b> HP</div><div><b>'+d.tq+'</b> TQ (ft-lbs)</div></div>'+
+    cardBar('Grip',d.df)+cardBar('Top Speed',d.ts)+cardBar('Braking',d.br);
+}
+function raceCardTrackHtml(t){
+  var d=t?trackData[t.name+'::'+t.layout]:null;
+  if(!d) return '<div class="rc-empty">No track selected</div>';
+  var showLayout=t.layout && t.layout.toLowerCase()!==t.name.toLowerCase();
+  return '<img class="rc-photo" src="'+qEsc(d.img)+'" alt="">'+
+    '<div class="rc-name">'+qEsc(t.name)+'</div>'+
+    (showLayout?'<div class="rc-sub">'+qEsc(t.layout)+'</div>':'')+
+    '<div class="rc-tags"><span class="rc-tag">'+(diffText[d.diff]||'')+'</span>'+(d.length?'<span class="rc-tag">'+qEsc(d.length)+'</span>':'')+'</div>'+
+    (d.outline?'<div class="rc-outline"><img src="'+qEsc(d.outline)+'" alt="Track outline"></div>':'');
+}
+function printRaceCard(race){
+  var card=document.getElementById('race-card');
+  card.innerHTML='<div class="rc-head"><img class="rc-logo" src="logos/logo with text.png" alt="">'+
+    '<div class="rc-title">Race Card</div></div>'+
+    '<div class="rc-cols"><div class="rc-col"><div class="rc-col-title">Car</div>'+raceCardCarHtml(race.car)+'</div>'+
+    '<div class="rc-col"><div class="rc-col-title">Track</div>'+raceCardTrackHtml(race.track)+'</div></div>';
+  var pending=Array.prototype.filter.call(card.querySelectorAll('img'),function(im){return !im.complete;});
+  Promise.all(pending.map(function(im){
+    return new Promise(function(res){ im.onload=im.onerror=res; });
+  })).then(function(){ window.print(); });
+}
+// ----- Share a race by link -----
+// Link params: rcar=<car>, rtrk=<track>&rcat=<category>&rlayout=<layout>, rname=<preset name>.
+function raceLinkUrl(race,name){
+  var p=new URLSearchParams();
+  if(race.car) p.set('rcar',race.car);
+  if(race.track){
+    p.set('rtrk',race.track.name);
+    p.set('rcat',race.track.cat);
+    p.set('rlayout',race.track.layout);
+  }
+  if(name) p.set('rname',name);
+  return location.origin+location.pathname+location.search+'#/'+p.toString();
+}
+function copyRaceLink(race,name,btn){
+  var url=raceLinkUrl(race,name), label=btn.textContent;
+  function fallback(){ prompt('Copy this link:',url); }
+  if(!navigator.clipboard || !navigator.clipboard.writeText){ fallback(); return; }
+  navigator.clipboard.writeText(url).then(function(){
+    btn.textContent='Copied';
+    setTimeout(function(){ btn.textContent=label; },1500);
+  },fallback);
+}
+function loadSharedRace(p){
+  var car=p.has('rcar')?validCar(p.get('rcar')):null;
+  var track=p.has('rtrk')?validTrack({name:p.get('rtrk'),cat:p.get('rcat'),layout:p.get('rlayout')}):null;
+  var skipped=[];
+  if(p.has('rcar') && !car) skipped.push('car');
+  if(p.has('rtrk') && !track) skipped.push('track');
+  var banner=document.getElementById('shared-race-banner');
+  banner.textContent='';
+  banner.style.display='block';
+  if(!car && !track){
+    banner.appendChild(presetEl('div','shared-race-msg err','The car and track in this link are no longer in the catalog.'));
+    banner.appendChild(presetBtn('Dismiss',function(){ banner.style.display='none'; }));
+    return;
+  }
+  raceQueue={car:car,track:track};
+  saveQueue();
+  renderQueue();
+  var msg='Shared race loaded.';
+  if(skipped.length) msg+=' The '+skipped.join(' and ')+' in the link could not be found and was skipped.';
+  banner.appendChild(presetEl('div','shared-race-msg',msg));
+  var name=(p.get('rname')||'').trim().slice(0,PRESET_NAME_MAX);
+  var actions=presetEl('div','preset-io-actions');
+  actions.appendChild(presetBtn('Save as preset',function(){ if(savePreset(name)) banner.style.display='none'; }));
+  actions.appendChild(presetBtn('Dismiss',function(){ banner.style.display='none'; }));
+  banner.appendChild(actions);
+}
 document.addEventListener('click',function(e){
   var w=document.getElementById('preset-wrap');
   // a clicked button may already be re-rendered away (e.g. delete); that's not an outside click
@@ -2282,5 +2400,125 @@ renderPresets();
 applyHash(true);
 </script>
 
+<script type="text/app">
+// ===== Accessibility layer: dialogs, keyboard operation and toggle state =====
+var A11Y_DIALOGS=[
+  {id:'ovr-modal',close:closeStats},{id:'ovr-sheet',close:closeStats},
+  {id:'trk-modal',close:closeTrk},{id:'cmp-modal',close:closeCompare}
+];
+var A11Y_FOCUSABLE='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+function a11yOpenDialog(){
+  for(var i=0;i<A11Y_DIALOGS.length;i++){
+    if(_popupOpen(A11Y_DIALOGS[i].id))return A11Y_DIALOGS[i];
+  }
+  return null;
+}
+var a11yPendingFocus=null;
+function a11yRestoreFocus(el){
+  if(document.contains(el)&&el.getClientRects().length)el.focus({preventScroll:true});
+}
+window.addEventListener('popstate',function(){
+  if(!a11yPendingFocus)return;
+  var el=a11yPendingFocus;
+  a11yPendingFocus=null;
+  if(document.activeElement!==el)a11yRestoreFocus(el);
+});
+A11Y_DIALOGS.forEach(function(dlg){
+  var el=document.getElementById(dlg.id);
+  var wasOpen=false, returnTo=null;
+  el.setAttribute('tabindex','-1');
+  new MutationObserver(function(){
+    var open=el.style.display==='block';
+    if(open===wasOpen)return;
+    wasOpen=open;
+    if(open){
+      returnTo=document.activeElement;
+      el.focus({preventScroll:true});
+    } else {
+      var back=returnTo;
+      returnTo=null;
+      if(!a11yOpenDialog()&&back&&back!==document.body){
+        a11yRestoreFocus(back);
+        a11yPendingFocus=back;
+        setTimeout(function(){a11yPendingFocus=null;},500);
+      }
+    }
+  }).observe(el,{attributes:true,attributeFilter:['style']});
+});
+document.addEventListener('keydown',function(e){
+  var dlg=a11yOpenDialog();
+  if(e.key==='Escape'){
+    if(dlg){e.preventDefault();dlg.close();}
+    else togglePresetMenu(false);
+    return;
+  }
+  if(e.key==='Tab'&&dlg){
+    var el=document.getElementById(dlg.id);
+    var items=Array.prototype.filter.call(el.querySelectorAll(A11Y_FOCUSABLE),function(n){return n.getClientRects().length;});
+    if(!items.length){e.preventDefault();return;}
+    var first=items[0], last=items[items.length-1], cur=document.activeElement;
+    if(!el.contains(cur)||cur===el){
+      e.preventDefault();
+      (e.shiftKey?last:first).focus();
+    } else if(e.shiftKey&&cur===first){
+      e.preventDefault();last.focus();
+    } else if(!e.shiftKey&&cur===last){
+      e.preventDefault();first.focus();
+    }
+    return;
+  }
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.ce,.sidebar-toggle')){
+    e.preventDefault();
+    e.target.click();
+  }
+});
+function a11yCardLabel(card){
+  var name=card.dataset.car||card.dataset.tname;
+  var layout=card.dataset.layout;
+  return name+(layout&&layout.toLowerCase()!==name.toLowerCase()?', '+layout:'');
+}
+function a11ySync(){
+  document.querySelectorAll('.ce[data-car],.ce[data-tname]').forEach(function(card){
+    if(card.hasAttribute('tabindex'))return;
+    var label=a11yCardLabel(card);
+    card.setAttribute('tabindex','0');
+    card.setAttribute('role','group');
+    card.setAttribute('aria-label',label+'. Press Enter to open details.');
+    card.querySelectorAll('img').forEach(function(im){
+      if(im.getAttribute('alt'))return;
+      im.alt=im.classList.contains('trk-card-outline')?'Track outline':label;
+    });
+  });
+  document.querySelectorAll('.queue-card').forEach(function(card){
+    var nameEl=card.querySelector('.queue-card-name');
+    card.querySelectorAll('img').forEach(function(im){
+      if(im.getAttribute('alt'))return;
+      im.alt=im.classList.contains('queue-card-outline')?'Track outline':(nameEl?nameEl.textContent:'');
+    });
+  });
+  document.querySelectorAll('.sidebar-toggle').forEach(function(t){
+    t.setAttribute('role','button');
+    t.setAttribute('tabindex','0');
+    var arr=t.querySelector('.stoggle-arr');
+    t.setAttribute('aria-expanded',arr&&arr.classList.contains('coll')?'false':'true');
+  });
+  document.querySelectorAll('.nav-btn,.trk-btn,.brand-btn,.top-tab,.trk-layout-btn').forEach(function(b){
+    b.setAttribute('aria-pressed',b.classList.contains('active')?'true':'false');
+  });
+  document.querySelectorAll('.queue-select-btn').forEach(function(b){
+    b.setAttribute('aria-pressed',b.classList.contains('selected')?'true':'false');
+  });
+  var pt=document.getElementById('preset-toggle');
+  pt.setAttribute('aria-haspopup','true');
+  pt.setAttribute('aria-expanded',pt.classList.contains('open')?'true':'false');
+}
+var a11yQueued=false;
+new MutationObserver(function(){
+  if(a11yQueued)return;
+  a11yQueued=true;
+  requestAnimationFrame(function(){a11yQueued=false;a11ySync();});
+}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+a11ySync();
+</script>
 </body>
 </html>
