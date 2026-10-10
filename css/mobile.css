@@ -111,3 +111,12 @@
   .ce>.cmp-check{min-height:44px;min-width:44px;padding:0 10px;display:flex;align-items:center;top:2px;left:2px}
   .ce>.cmp-check input{width:18px;height:18px}
 }
+
+@media(max-width:700px){
+  #cmp-tray{padding:6px 8px;gap:6px}
+  body.cmp-tray-on{padding-bottom:68px}
+  .cmp-tray-items{gap:6px}
+  .cmp-thumb{width:56px;height:40px}
+  .cmp-tray-hint{display:none}
+  .cmp-clear,.cmp-go{min-height:44px;padding:0 10px}
+}
