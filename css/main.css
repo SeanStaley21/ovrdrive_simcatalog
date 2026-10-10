@@ -319,7 +319,7 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   border-radius:5px;padding:16px 16px 18px;
 }
 .queue-header{
-  font-size:10pt;font-weight:700;letter-spacing:3px;color:#fff;text-transform:uppercase;
+  font-size:16pt;font-weight:700;letter-spacing:3px;color:#fff;text-transform:uppercase;
 }
 .queue-section-title{font-size:13pt;font-weight:700;letter-spacing:3px;color:var(--C);text-transform:uppercase;margin-bottom:-6px}
 .queue-slot{
