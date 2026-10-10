@@ -1696,7 +1696,7 @@ function refreshCompare(){
 function renderCompareTray(){
   var tray=document.getElementById('cmp-tray');
   var n=compareSel.length;
-  var show=n>0&&document.getElementById('landing').style.display==='none';
+  var show=n>0&&activePage==='cars'&&document.getElementById('landing').style.display==='none';
   tray.style.display=show?'flex':'none';
   document.body.classList.toggle('cmp-tray-on',show);
   if(!show)return;
@@ -1813,6 +1813,7 @@ function closeCompare(){
   writeHash(true);
 }
 document.getElementById('cmp-go').addEventListener('click',openCompare);
+document.querySelectorAll('.top-tab').forEach(function(t){t.addEventListener('click',refreshCompare);});
 document.getElementById('cmp-modal').addEventListener('click',function(e){
   var rm=e.target.closest('.cmp-remove');
   if(rm){
