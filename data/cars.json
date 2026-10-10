@@ -270,7 +270,7 @@
   "Toyota Supra MKIV": {"brand":"Toyota","hp":280,"tq":318,"drive":"RWD","diff":1,"df":6,"ts":8,"br":6,"img":"cars/ks-toyota-supra-mkiv.jpg"},
   "Toyota Supra MKIV Drift": {"brand":"Toyota","hp":624,"tq":558,"drive":"RWD","diff":3,"df":6,"ts":9,"br":5,"img":"cars/ks-toyota-supra-mkiv-drift.jpg","cats":["drift"]},
   "Toyota Supra MKIV Time Attack": {"brand":"Toyota","hp":690,"tq":558,"drive":"RWD","diff":3,"df":7,"ts":10,"br":6,"img":"cars/ks-toyota-supra-mkiv-tuned.jpg"},
-  "Toyota TS040 Hybrid 2014": {"brand":"Toyota","hp":1000,"tq":0,"drive":"AWD","diff":3,"df":10,"ts":9,"br":10,"img":"cars/ks-toyota-ts040.jpg","cats":["prototype"]},
+  "Toyota TS040 Hybrid 2014": {"brand":"Toyota","hp":1000,"tq":400,"drive":"AWD","diff":3,"df":10,"ts":9,"br":10,"img":"cars/ks-toyota-ts040.jpg","cats":["prototype"]},
   "BETA": {"brand":"Vauxhall","hp":454,"tq":403,"drive":"RWD","diff":3,"df":5,"ts":7,"br":5,"img":"cars/gravygarage-street-omega.jpg","cats":["drift"]},
   "Amazon Delivery Box": {"brand":"Other","hp":701,"tq":618,"drive":"AWD","diff":2,"df":4,"ts":9,"br":4,"img":"cars/nix-quick-delivery.jpg","cats":["fun"]},
   "Barber Formula 2000": {"brand":"Other","hp":149,"tq":131,"drive":"RWD","diff":3,"df":9,"ts":7,"br":10,"img":"cars/skipbarber-f2000.jpg","cats":["formula"]},
