@@ -1311,8 +1311,9 @@ applyCarFilters();
 // Cars (no page param): sec, diff, drive, q, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, sort, dir.
 // Layers: the compare view (repeated cmp=<name>) and a popup on top of it
 // (car=<name>, or trk=<name>&tcat=<category>&layout=<layout>).
-// Opening a layer pushes a history entry and raises pushedDepth; closing a layer that was pushed goes back one entry.
-// A layer restored from the URL, or opened by an earlier document, is closed by rewriting the current entry.
+// Opening a layer pushes a history entry whose state {d} is the number of layers this page has pushed up to that entry;
+// pushedDepth mirrors the current entry's d. Closing a pushed layer goes back one entry.
+// A layer restored from the URL, or opened by an earlier document, has no state and is closed by rewriting the current entry.
 var curHash='';
 var pushedDepth=0;
 function _popupOpen(id){return document.getElementById(id).style.display==='block';}
@@ -1360,10 +1361,10 @@ function writeHash(push){
   hideCopyUrls();
   var url=h||location.pathname+location.search;
   if(push&&now>prev){
-    history.pushState(null,'',url);
+    history.pushState({d:pushedDepth+1},'',url);
     pushedDepth++;
   } else {
-    history.replaceState(null,'',url);
+    history.replaceState(pushedDepth?{d:pushedDepth}:null,'',url);
   }
   curHash=location.hash;
 }
@@ -1377,7 +1378,7 @@ function applyHash(isBoot){
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
   hashRestoring=true;
-  pushedDepth=Math.min(pushedDepth,_layers(p));
+  pushedDepth=(history.state&&history.state.d)||0;
   hideCopyUrls();
   try{
     var landing=document.getElementById('landing');
