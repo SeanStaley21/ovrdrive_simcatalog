@@ -498,7 +498,6 @@ body.cmp-tray-on{padding-bottom:76px}
 .cmp-go{background:var(--C);border:1px solid var(--C);color:#03242e}
 .cmp-go:disabled{opacity:.4;cursor:not-allowed}
 
-#cmp-backdrop{backdrop-filter:blur(4px)}
 #cmp-modal{
   position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:491;width:min(960px,94vw);
   max-height:92vh;overflow-y:auto;overscroll-behavior:contain;background:#111;

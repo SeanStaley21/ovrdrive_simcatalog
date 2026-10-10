@@ -1499,10 +1499,16 @@ function segBar(val, color, glow) {
   }
   return h + '<span style="color:' + color + ';font-size:12pt;font-weight:700;margin-left:8px;vertical-align:middle">' + val + '/10</span>';
 }
+function carDiffInfo(d) {
+  var t = d && d.diff ? d.diff : 1;
+  return t >= 3 ? {label: 'PRO', cls: 'car-diff-pro'}
+       : t === 2 ? {label: 'INTERMEDIATE', cls: 'car-diff-int'}
+       : {label: 'BEGINNER', cls: 'car-diff-beg'};
+}
 function fillStats(pfx, name, d) {
   document.getElementById(pfx+'name').textContent = name;
   var _dEl=document.getElementById(pfx+'diff');
-  if(_dEl){var _t=d&&d.diff?d.diff:1;var _dc=_t>=3?'car-diff-pro':_t===2?'car-diff-int':'car-diff-beg';var _dl=_t>=3?'PRO':_t===2?'INTERMEDIATE':'BEGINNER';_dEl.className='car-diff-badge '+_dc;_dEl.textContent=_dl;}
+  if(_dEl){var _di=carDiffInfo(d);_dEl.className='car-diff-badge '+_di.cls;_dEl.textContent=_di.label;}
   document.getElementById(pfx+'hp-bar').style.width = Math.min(d.hp/HP_MAX*100,100)+'%';
   document.getElementById(pfx+'hp-val').textContent = d.hp+' hp';
   document.getElementById(pfx+'tq-bar').style.width = Math.min(d.tq/TQ_MAX*100,100)+'%';
@@ -1594,10 +1600,7 @@ function buildCarCards(){
     el.dataset.diff=d.diff||1;
     el.dataset.drive=d.drive||'';
     var hp=d.hp||0;
-    var _t=d.diff||1;
-    var diff=_t>=3?{label:'PRO',cls:'car-diff-pro'}
-            :_t===2?{label:'INTERMEDIATE',cls:'car-diff-int'}
-            :{label:'BEGINNER',cls:'car-diff-beg'};
+    var diff=carDiffInfo(d);
     var statsHtml=(hp>0?'<span>'+hp+' HP</span><span class="car-stat-sep">&middot;</span>':'')
       +'<span>'+d.tq+' FT-LB</span><span class="car-stat-sep">&middot;</span><span>'+d.drive+'</span>';
     el.innerHTML=[
@@ -1748,17 +1751,14 @@ document.addEventListener('change',function(e){
   var card=inp.closest('.ce');
   if(card&&card.dataset.car)toggleCompare(card.dataset.car);
 });
-function cmpEsc(t){return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function cmpBar(val){
   var h='<div class="cmp-bar" role="img" aria-label="'+val+' of 10">';
   for(var i=1;i<=10;i++)h+='<span class="cmp-seg'+(i<=val?' on':'')+'"></span>';
   return h+'</div>';
 }
 function cmpDiff(d){
-  var t=d.diff||1;
-  var cls=t>=3?'car-diff-pro':t===2?'car-diff-int':'car-diff-beg';
-  var label=t>=3?'PRO':t===2?'INTERMEDIATE':'BEGINNER';
-  return '<span class="car-diff-badge '+cls+'">'+label+'</span>';
+  var di=carDiffInfo(d);
+  return '<span class="car-diff-badge '+di.cls+'">'+di.label+'</span>';
 }
 function cmpBestValue(vals){
   var present=vals.filter(function(v){return v!==null;});
@@ -1771,14 +1771,14 @@ function renderCompare(){
   var h='<div class="cmp-grid" style="--n:'+compareSel.length+'"><div class="cmp-corner"></div>';
   compareSel.forEach(function(name,i){
     var d=data[i];
-    h+='<div class="cmp-col-head"><button type="button" class="cmp-remove" data-car="'+cmpEsc(name)+'" aria-label="Remove '+cmpEsc(name)+'">&times;</button>'
-      +'<button type="button" class="cmp-open" data-car="'+cmpEsc(name)+'"><img src="'+cmpEsc(d.img)+'" alt=""><span class="cmp-name">'+cmpEsc(name)+'</span></button>'
+    h+='<div class="cmp-col-head"><button type="button" class="cmp-remove" data-car="'+qEsc(name)+'" aria-label="Remove '+qEsc(name)+'">&times;</button>'
+      +'<button type="button" class="cmp-open" data-car="'+qEsc(name)+'"><img src="'+qEsc(d.img)+'" alt=""><span class="cmp-name">'+qEsc(name)+'</span></button>'
       +cmpDiff(d)+'</div>';
   });
   var rows=[
     {label:'Horsepower',val:function(d){return d.hp||null;},show:function(v){return v+' hp';},best:true},
     {label:'Torque (ft-lb)',val:function(d){return d.tq||null;},show:function(v){return v+' ft-lb';},best:true},
-    {label:'Drivetrain',val:function(d){return d.drive||null;},show:function(v){return cmpEsc(v);}},
+    {label:'Drivetrain',val:function(d){return d.drive||null;},show:function(v){return qEsc(v);}},
     {label:'Grip',val:function(d){return d.df||null;},show:cmpBar,best:true,cls:'cmp-grip'},
     {label:'Top Speed',val:function(d){return d.ts||null;},show:cmpBar,best:true,cls:'cmp-top'},
     {label:'Braking',val:function(d){return d.br||null;},show:cmpBar,best:true,cls:'cmp-brake'},
