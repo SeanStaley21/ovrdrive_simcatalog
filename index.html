@@ -1808,7 +1808,7 @@ function openCompare(){
 function closeCompare(){
   document.getElementById('cmp-backdrop').style.display='none';
   document.getElementById('cmp-modal').style.display='none';
-  document.body.style.overflow='';
+  document.body.style.overflow=(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet'))?'hidden':'';
   refreshCompare();
   writeHash(true);
 }
