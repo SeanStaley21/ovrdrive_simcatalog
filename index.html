@@ -1309,12 +1309,14 @@ applyCarFilters();
 // ── Shareable URL (hash state) ──
 // The hash mirrors the view as URL params after "#/". Only non-default values are written.
 // Cars (no page param): sec, diff, drive, q, sort, dir. Tracks: page=tracks, cat, country, tdiff, q, sort, dir.
-// Popup: car=<name>, or trk=<name>&tcat=<category>&layout=<layout>.
-// Opening a popup pushes a history entry and sets popupPushed; closing that popup goes back one entry.
-// A popup restored from the URL, or opened by an earlier document, is closed by rewriting the current entry.
+// Layers: the compare view (repeated cmp=<name>, 2-3 cars) and a popup on top of it
+// (car=<name>, or trk=<name>&tcat=<category>&layout=<layout>).
+// Opening a layer pushes a history entry and raises pushedDepth; closing a layer that was pushed goes back one entry.
+// A layer restored from the URL, or opened by an earlier document, is closed by rewriting the current entry.
 var curHash='';
-var popupPushed=false;
+var pushedDepth=0;
 function _popupOpen(id){return document.getElementById(id).style.display==='block';}
+function _layers(params){return (params.has('cmp')?1:0)+((params.has('car')||params.has('trk'))?1:0);}
 function writeHash(push){
   if(hashRestoring)return;
   var p=new URLSearchParams();
@@ -1336,6 +1338,7 @@ function writeHash(push){
     p.set('sort',st.key);
     if(st.dir==='desc')p.set('dir','desc');
   }
+  if(_popupOpen('cmp-modal'))compareSel.forEach(function(n){p.append('cmp',n);});
   if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet')){
     p.set('car',window._curCarName);
   } else if(_popupOpen('trk-modal')){
@@ -1343,9 +1346,10 @@ function writeHash(push){
     p.set('tcat',window._trkCat);
     p.set('layout',window._trkLayout);
   }
-  var popupNow=p.has('car')||p.has('trk');
-  if(push&&!popupNow&&popupPushed){
-    popupPushed=false;
+  var now=_layers(p);
+  var prev=_layers(new URLSearchParams(curHash.replace(/^#\/?/,'')));
+  if(push&&now<prev&&pushedDepth>0){
+    pushedDepth--;
     hideCopyUrls();
     history.back();
     return;
@@ -1355,9 +1359,9 @@ function writeHash(push){
   if(h===location.hash||(!h&&!location.hash))return;
   hideCopyUrls();
   var url=h||location.pathname+location.search;
-  if(push&&popupNow){
+  if(push&&now>prev){
     history.pushState(null,'',url);
-    popupPushed=true;
+    pushedDepth++;
   } else {
     history.replaceState(null,'',url);
   }
@@ -1373,7 +1377,7 @@ function applyHash(isBoot){
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
   hashRestoring=true;
-  popupPushed=false;
+  pushedDepth=0;
   hideCopyUrls();
   try{
     var landing=document.getElementById('landing');
@@ -1409,6 +1413,19 @@ function applyHash(isBoot){
     updateSortUI();
     _reapplySort();
     var car=p.get('car'),trk=p.get('trk');
+    var cmp=[];
+    p.getAll('cmp').forEach(function(n){
+      if(Object.prototype.hasOwnProperty.call(carStats,n)&&cmp.indexOf(n)<0&&cmp.length<3)cmp.push(n);
+    });
+    if(cmp.length>=2&&!trk){
+      var sameView=_popupOpen('cmp-modal')&&cmp.join('\n')===compareSel.join('\n');
+      compareSel=cmp;
+      saveCompare();
+      refreshCompare();
+      if(!sameView)openCompare();
+    } else if(_popupOpen('cmp-modal')){
+      closeCompare();
+    }
     if(car&&Object.prototype.hasOwnProperty.call(carStats,car)){
       if(_popupOpen('trk-modal'))closeTrk();
       var carOpen=_popupOpen('ovr-modal')||_popupOpen('ovr-sheet');
