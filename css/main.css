@@ -365,11 +365,15 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   cursor:pointer;transition:background .15s ease;z-index:2;
 }
 .queue-remove:hover{background:rgba(220,40,40,1)}
-.queue-clear-btn{
+.queue-share-btn,.queue-clear-btn{
   background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:3px;
   color:rgba(255,255,255,0.6);font-family:"Oswald",Arial,sans-serif;font-size:9pt;font-weight:700;
   letter-spacing:2px;text-transform:uppercase;padding:9px 0;cursor:pointer;transition:all .18s ease;
 }
+.queue-share-btn:hover{border-color:var(--C);color:var(--C);background:rgba(0,174,239,0.08)}
+.shared-race-banner{margin-bottom:12px;padding:10px 12px;border:1px solid rgba(0,174,239,0.4);border-radius:2px;background:rgba(0,174,239,0.08)}
+.shared-race-msg{font-size:9pt;color:rgba(255,255,255,0.8);margin-bottom:8px;word-break:break-word}
+.shared-race-msg.err{color:#f87171;margin-bottom:0}
 .queue-clear-btn:hover{border-color:#ef4444;color:#f87171;background:rgba(239,68,68,0.08)}
 
 /* Saved presets dropdown (above "Your Race") */

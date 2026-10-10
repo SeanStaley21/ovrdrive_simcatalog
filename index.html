@@ -287,6 +287,7 @@
       <div id="preset-list"></div>
     </div>
   </div>
+  <div class="shared-race-banner" id="shared-race-banner" style="display:none"></div>
   <div class="queue-header">Your Race</div>
   <div class="queue-section-title">Car</div>
   <div class="queue-slot" id="queue-slot-car" data-kind="car">
@@ -296,6 +297,7 @@
   <div class="queue-slot" id="queue-slot-track" data-kind="track">
     <div class="queue-empty">No track selected<br>Open a track and press Select</div>
   </div>
+  <button type="button" class="queue-share-btn" id="queue-share-btn" onclick="copyRaceLink(raceQueue,null,this)" style="display:none">Copy race link</button>
   <button type="button" class="queue-clear-btn" id="queue-clear-btn" onclick="clearQueue()" style="display:none">Clear</button>
 </aside>
 </div><!-- /.page-layout -->
@@ -1419,6 +1421,14 @@ function applyHash(isBoot){
   var raw=location.hash.replace(/^#\/?/,'');
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
+  if(p.has('rcar')||p.has('rtrk')){
+    if(document.getElementById('landing').style.display!=='none')showCatalog();
+    loadSharedRace(p);
+    history.replaceState(null,'',location.pathname+location.search);
+    curHash=location.hash;
+    hashRestoring=false;
+    return;
+  }
   hashRestoring=true;
   pushedDepth=(history.state&&history.state.d)||0;
   hideCopyUrls();
@@ -1963,6 +1973,7 @@ function renderQueue(){
   }
   var clearBtn=document.getElementById('queue-clear-btn');
   clearBtn.style.display=(raceQueue.car||raceQueue.track)?'block':'none';
+  document.getElementById('queue-share-btn').style.display=clearBtn.style.display;
   document.querySelectorAll('.queue-remove').forEach(function(btn){
     btn.addEventListener('click',function(e){ e.stopPropagation(); removeQueue(this.dataset.kind); });
   });
@@ -1999,12 +2010,12 @@ function togglePresetMenu(force){
   document.getElementById('preset-toggle').classList.toggle('open',open);
   if(!open) closePresetIO();
 }
-function savePreset(){
-  if(!raceQueue.car && !raceQueue.track){ alert('Select a car and/or track first, then save it as a preset.'); return; }
-  var name=prompt('Name this preset:');
-  if(name===null) return;
+function savePreset(defaultName){
+  if(!raceQueue.car && !raceQueue.track){ alert('Select a car and/or track first, then save it as a preset.'); return false; }
+  var name=prompt('Name this preset:',typeof defaultName==='string'?defaultName:'');
+  if(name===null) return false;
   name=name.trim();
-  if(!name) return;
+  if(!name) return false;
   var entry={
     id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
     name:name,
@@ -2013,12 +2024,13 @@ function savePreset(){
   };
   var idx=racePresets.findIndex(function(p){return p.name.toLowerCase()===name.toLowerCase();});
   if(idx>=0){
-    if(!confirm('A preset named "'+racePresets[idx].name+'" already exists. Overwrite it?')) return;
+    if(!confirm('A preset named "'+racePresets[idx].name+'" already exists. Overwrite it?')) return false;
     entry.id=racePresets[idx].id;
     racePresets[idx]=entry;
   } else racePresets.push(entry);
   savePresets();
   renderPresets();
+  return true;
 }
 function loadPreset(id){
   var p=racePresets.find(function(x){return x.id===id;});
@@ -2071,7 +2083,13 @@ function renderPresets(){
     exp.title='Export preset';
     exp.textContent='\u2193';
     exp.onclick=function(){ openPresetExport(p.id); };
-    row.appendChild(main); row.appendChild(exp); row.appendChild(del);
+    var lnk=document.createElement('button');
+    lnk.type='button';
+    lnk.className='preset-item-exp';
+    lnk.title='Copy link to this preset';
+    lnk.textContent='\uD83D\uDD17';
+    lnk.onclick=function(){ copyRaceLink(p,p.name,lnk); };
+    row.appendChild(main); row.appendChild(lnk); row.appendChild(exp); row.appendChild(del);
     list.appendChild(row);
   });
 }
@@ -2156,20 +2174,26 @@ function openPresetExport(id){
 }
 function presetHas(obj,key){ return Object.prototype.hasOwnProperty.call(obj,key); }
 function isPlainObject(v){ return !!v && typeof v==='object' && !Array.isArray(v); }
+function validCar(name){
+  return (typeof name==='string' && presetHas(carStats,name))?name:null;
+}
+function validTrack(t){
+  if(!isPlainObject(t) || typeof t.name!=='string' || typeof t.layout!=='string' || typeof t.cat!=='string') return null;
+  if(!presetHas(trackData,t.name+'::'+t.layout) || !presetHas(_trackToCat,t.name) || _trackToCat[t.name].indexOf(t.cat)<0) return null;
+  return {name:t.name,cat:t.cat,layout:t.layout};
+}
 function cleanImportedPreset(raw){
   if(!isPlainObject(raw) || typeof raw.name!=='string') return null;
   var name=raw.name.trim().slice(0,PRESET_NAME_MAX).trim();
   if(!name) return null;
   var car=null, track=null;
   if(raw.car!=null){
-    if(typeof raw.car!=='string' || !presetHas(carStats,raw.car)) return null;
-    car=raw.car;
+    car=validCar(raw.car);
+    if(!car) return null;
   }
   if(raw.track!=null){
-    var t=raw.track;
-    if(!isPlainObject(t) || typeof t.name!=='string' || typeof t.layout!=='string' || typeof t.cat!=='string') return null;
-    if(!presetHas(trackData,t.name+'::'+t.layout) || !presetHas(_trackToCat,t.name) || _trackToCat[t.name].indexOf(t.cat)<0) return null;
-    track={name:t.name,cat:t.cat,layout:t.layout};
+    track=validTrack(raw.track);
+    if(!track) return null;
   }
   if(!car && !track) return null;
   return {name:name,car:car,track:track};
@@ -2274,6 +2298,54 @@ function openPresetImport(){
   actions.appendChild(presetBtn('Merge',function(){ run('merge'); }));
   actions.appendChild(presetBtn('Replace',function(){ run('replace'); }));
   io.appendChild(ta); io.appendChild(file); io.appendChild(actions); io.appendChild(msg);
+}
+// ----- Share a race by link -----
+// Link params: rcar=<car>, rtrk=<track>&rcat=<category>&rlayout=<layout>, rname=<preset name>.
+function raceLinkUrl(race,name){
+  var p=new URLSearchParams();
+  if(race.car) p.set('rcar',race.car);
+  if(race.track){
+    p.set('rtrk',race.track.name);
+    p.set('rcat',race.track.cat);
+    p.set('rlayout',race.track.layout);
+  }
+  if(name) p.set('rname',name);
+  return location.origin+location.pathname+location.search+'#/'+p.toString();
+}
+function copyRaceLink(race,name,btn){
+  var url=raceLinkUrl(race,name), label=btn.textContent;
+  function fallback(){ prompt('Copy this link:',url); }
+  if(!navigator.clipboard || !navigator.clipboard.writeText){ fallback(); return; }
+  navigator.clipboard.writeText(url).then(function(){
+    btn.textContent='Copied';
+    setTimeout(function(){ btn.textContent=label; },1500);
+  },fallback);
+}
+function loadSharedRace(p){
+  var car=p.has('rcar')?validCar(p.get('rcar')):null;
+  var track=p.has('rtrk')?validTrack({name:p.get('rtrk'),cat:p.get('rcat'),layout:p.get('rlayout')}):null;
+  var skipped=[];
+  if(p.has('rcar') && !car) skipped.push('car');
+  if(p.has('rtrk') && !track) skipped.push('track');
+  var banner=document.getElementById('shared-race-banner');
+  banner.textContent='';
+  banner.style.display='block';
+  if(!car && !track){
+    banner.appendChild(presetEl('div','shared-race-msg err','The car and track in this link are no longer in the catalog.'));
+    banner.appendChild(presetBtn('Dismiss',function(){ banner.style.display='none'; }));
+    return;
+  }
+  raceQueue={car:car,track:track};
+  saveQueue();
+  renderQueue();
+  var msg='Shared race loaded.';
+  if(skipped.length) msg+=' The '+skipped.join(' and ')+' in the link could not be found and was skipped.';
+  banner.appendChild(presetEl('div','shared-race-msg',msg));
+  var name=(p.get('rname')||'').trim().slice(0,PRESET_NAME_MAX);
+  var actions=presetEl('div','preset-io-actions');
+  actions.appendChild(presetBtn('Save as preset',function(){ if(savePreset(name)) banner.style.display='none'; }));
+  actions.appendChild(presetBtn('Dismiss',function(){ banner.style.display='none'; }));
+  banner.appendChild(actions);
 }
 document.addEventListener('click',function(e){
   var w=document.getElementById('preset-wrap');
