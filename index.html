@@ -197,6 +197,7 @@
   <div class="sort-box">
     <select id="sort-key" class="sort-select" aria-label="Sort by"></select>
     <button type="button" id="sort-dir-btn" class="sort-dir"></button>
+    <button type="button" id="filters-clear-btn" class="filters-clear" aria-label="Clear filters" title="Clear filters" style="display:none">Clear</button>
   </div>
 </div>
 <section id="sec-all" class="section active">
@@ -735,6 +736,7 @@ function applyCarFilters(){
     _updateCountHeader(sec,visCount);
   }
   writeHash();
+  updateFiltersClearBtn();
 }
 
 // Top Cars / Tracks tab switcher
@@ -806,6 +808,39 @@ if(searchClearBtn){
   });
 }
 updateSearchPlaceholder();
+
+var filtersClearBtn=document.getElementById('filters-clear-btn');
+function updateFiltersClearBtn(){
+  if(!filtersClearBtn)return;
+  var active=activePage==='cars'
+    ?(carSearchQuery||favsOnlyCars||activeCarDiff!=='__all__'||activeCarDrive!=='__all__'||sortState.cars.key!=='default')
+    :(trkSearchQuery||favsOnlyTracks||activeTrkCountry!=='__all__'||activeTrkDiff!=='__all__'||sortState.tracks.key!=='default');
+  filtersClearBtn.style.display=active?'':'none';
+}
+if(filtersClearBtn){
+  filtersClearBtn.addEventListener('click',function(){
+    searchInput.value='';
+    if(searchClearBtn)searchClearBtn.style.display='none';
+    var favBtn;
+    if(activePage==='cars'){
+      carSearchQuery='';favsOnlyCars=false;activeCarDiff='__all__';activeCarDrive='__all__';
+      favBtn=document.getElementById('fav-only-cars');
+    }else{
+      trkSearchQuery='';favsOnlyTracks=false;activeTrkCountry='__all__';activeTrkDiff='__all__';
+      favBtn=document.getElementById('fav-only-tracks');
+    }
+    favBtn.classList.toggle('active',false);
+    favBtn.setAttribute('aria-pressed','false');
+    if(activePage==='cars'){updateCarDiffBtns();updateCarDriveBtns();}
+    else{updateCountryBtns();updateDiffBtns();}
+    var sortSel=document.getElementById('sort-key');
+    sortState[activePage].dir='asc';
+    sortSel.value='default';
+    sortSel.dispatchEvent(new Event('change'));
+    window.scrollTo(0,0);
+    sortSel.focus();
+  });
+}
 
 // Track category buttons
 document.querySelectorAll('.trk-btn').forEach(function(btn){
@@ -1001,6 +1036,7 @@ function applyTrkFilters(){
   }
   _sortTrkSection(activeSection);
   writeHash();
+  updateFiltersClearBtn();
 }
 function filterTrkCountry(country){activeTrkCountry=country;applyTrkFilters();}
 function filterTrkDiff(diff){activeTrkDiff=diff;applyTrkFilters();}

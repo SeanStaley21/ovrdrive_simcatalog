@@ -18,7 +18,7 @@
   .sort-select{padding:0.5rem 0.5rem}
 }
 
-@media(max-width:480px){
+@media(max-width:700px){
   .search-wrap{flex-wrap:wrap}
   .sort-box{flex-basis:100%}
   .sort-select{flex:1;min-width:0;font-size:16px}
