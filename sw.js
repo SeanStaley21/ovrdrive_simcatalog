@@ -1,6 +1,7 @@
-var VERSION = '20261011';
-var SHELL = 'shell-' + VERSION;
-var IMG = 'img-' + VERSION;
+var VERSION = '20261010';
+var CACHE_PREFIX = 'simcatalog-';
+var SHELL = CACHE_PREFIX + 'shell-' + VERSION;
+var IMG = CACHE_PREFIX + 'img-' + VERSION;
 var PRECACHE = [
   './',
   'css/main.css',
@@ -30,21 +31,22 @@ self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.filter(function (k) {
-        return k !== SHELL && k !== IMG;
+        return k.indexOf(CACHE_PREFIX) === 0 && k !== SHELL && k !== IMG;
       }).map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
 });
 
 // Looks in every cache (ignoring the query string) before the network; a
-// response that passes accept() is stored under key in cacheName.
-function cacheFirst(req, key, cacheName, accept) {
+// response that passes accept() is stored under key in cacheName, and the
+// event stays alive until the write finishes.
+function cacheFirst(e, req, key, cacheName, accept) {
   return caches.match(key, { ignoreSearch: true }).then(function (hit) {
     if (hit) return hit;
     return fetch(req).then(function (res) {
       if (accept(res)) {
         var copy = res.clone();
-        caches.open(cacheName).then(function (c) { c.put(key, copy); });
+        e.waitUntil(caches.open(cacheName).then(function (c) { return c.put(key, copy); }));
       }
       return res;
     });
@@ -60,17 +62,17 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
 
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    e.respondWith(cacheFirst(req, req, SHELL, isOkOrOpaque));
+    e.respondWith(cacheFirst(e, req, req, SHELL, isOkOrOpaque));
     return;
   }
   if (url.origin !== self.location.origin) return;
 
   var key = url.origin + url.pathname;
-  if (req.mode === 'navigate') {
-    e.respondWith(cacheFirst(req, './', SHELL, isOk));
+  if (req.mode === 'navigate' && /(\/|index\.html)$/.test(url.pathname)) {
+    e.respondWith(cacheFirst(e, req, './', SHELL, isOk));
   } else if (req.destination === 'image' || IMAGE_DIRS.test(url.pathname)) {
-    e.respondWith(cacheFirst(req, key, IMG, isOk));
+    e.respondWith(cacheFirst(e, req, key, IMG, isOk));
   } else {
-    e.respondWith(cacheFirst(req, key, SHELL, isOk));
+    e.respondWith(cacheFirst(e, req, key, SHELL, isOk));
   }
 });
