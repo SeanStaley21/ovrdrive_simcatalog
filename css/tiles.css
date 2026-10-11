@@ -1,0 +1,50 @@
+/* Car and track tiles: gaps, rounded edges, stat cells, hover and focus states. */
+.section:not(.trk-section) .grid,.trk-section .grid{gap:14px;background:transparent;padding:0 .5in 1.2rem}
+.ce[data-car],.ce[data-tname]{border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden;background:#0e0e0e;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.ce[data-car]:nth-child(even),.ce[data-tname]:nth-child(even){border-left:1px solid rgba(255,255,255,.08)}
+.ce[data-car]:focus-visible,.ce[data-tname]:focus-visible{border-color:rgba(0,174,239,.55)}
+.ce[data-car]:hover,.ce[data-tname]:hover{transform:translateY(-3px);border-color:rgba(0,174,239,.55);background:#0e0e0e;box-shadow:0 12px 28px rgba(0,0,0,.55),0 0 24px rgba(0,174,239,.14)}
+.ce[data-car]:active,.ce[data-tname]:active{transform:translateY(-1px)}
+.ce.queued{outline-offset:-2px;border-radius:8px}
+/* ---- car tile ---- */
+.ce[data-car]{height:268px}
+.car-card-img-wrap{padding:1.1rem .9rem .3rem;background:radial-gradient(ellipse 68% 58% at 50% 58%,rgba(0,174,239,.16),transparent 72%),linear-gradient(180deg,#161616,#0e0e0e)}
+.car-card-img{filter:drop-shadow(0 6px 12px rgba(0,0,0,.65))}
+.ce[data-car]:hover .car-card-img{transform:scale(1.06)}
+.car-card-info{padding:.7rem .95rem .85rem;background:#0a0a0a;border-top:1px solid rgba(255,255,255,.07)}
+.car-card-row1{align-items:flex-start;gap:10px;margin-bottom:9px}
+.car-card-name{font-family:"Barlow Condensed",Oswald,Arial,sans-serif;font-size:19px;font-weight:700;letter-spacing:1px;line-height:1.1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ce .car-diff-badge{font-size:10px;padding:3px 8px;border-radius:3px;letter-spacing:1.2px;margin-top:1px}
+.car-card-stats{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;margin:0;border:1px solid rgba(255,255,255,.09);border-radius:5px;background:rgba(255,255,255,.03);overflow:hidden}
+.car-card-stats .cs{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 4px 6px;min-width:0}
+.car-card-stats .cs+.cs{border-left:1px solid rgba(255,255,255,.09)}
+.car-card-stats .cs b{font-family:"Barlow Condensed",Oswald,Arial,sans-serif;font-size:20px;font-weight:700;line-height:1;letter-spacing:.5px;color:#fff;white-space:nowrap}
+.car-card-stats .cs i{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(0,174,239,.85);line-height:1}
+/* ---- track tile ---- */
+.ce[data-tname]{height:284px}
+.trk-card-bg{filter:brightness(.4) saturate(.85);transition:filter .35s ease,transform .5s ease}
+.ce[data-tname]:hover .trk-card-bg{filter:brightness(.58) saturate(1);transform:scale(1.05)}
+.trk-card-grad{background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.15) 35%,rgba(0,0,0,.82) 68%,rgba(0,0,0,.97) 100%)}
+.trk-card-info{padding:.8rem 1rem .95rem}
+.trk-card-header{align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px}
+.trk-card-name{font-family:"Barlow Condensed",Oswald,Arial,sans-serif;font-size:24px;min-width:0;overflow-wrap:anywhere;font-weight:700;letter-spacing:1.5px;line-height:1.05}
+.trk-card-header span[style]{font-size:11px!important;letter-spacing:2px!important}
+.trk-card-country{font-size:10px;letter-spacing:1.5px;padding:3px 9px;border-radius:3px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.85);margin-top:0}
+.trk-card-stats{font-size:13px;letter-spacing:.8px;margin-bottom:9px}
+.trk-card-diff-label{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:5px}
+.trk-card-diff-bar{gap:4px}
+.trk-card-diff-bar .trk-cd-seg{height:4px;border-radius:2px}
+/* ---- overlays on tiles ---- */
+.ce>.fav-star{top:8px;right:8px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.ce>.cmp-check{top:8px;left:8px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);border-radius:14px}
+@media(prefers-reduced-motion:reduce){.ce[data-car]:hover,.ce[data-tname]:hover,.ce[data-car]:active,.ce[data-tname]:active{transform:none}.ce[data-car]:hover .car-card-img{transform:none}.ce[data-tname]:hover .trk-card-bg{transform:none}.ce[data-tname]:hover .trk-card-outline{transform:translate(-50%,-50%)}}
+@media(max-width:700px){
+.section:not(.trk-section) .grid,.trk-section .grid{gap:10px;padding:0 .5rem 1rem}
+.car-card-name{font-size:16px}
+.trk-card-name{font-size:19px}
+.car-card-stats .cs b{font-size:17px}
+.car-card-stats .cs i{font-size:9px;letter-spacing:1.4px}
+.trk-card-stats{font-size:11px}
+body.sidebar-open .trk-card-info{padding:.6rem .6rem .75rem}
+body.sidebar-open .trk-card-name{font-size:15px;letter-spacing:.5px}
+}

@@ -25,7 +25,6 @@
 }
 
 @media(max-width:700px){
-  .ce[data-car]{height:185px}
   .car-card-name{font-size:8.5pt;letter-spacing:1px}
   .car-diff-badge{font-size:4.5pt;padding:1px 5px}
   .car-card-stats{font-size:7pt;gap:3px}
@@ -35,7 +34,6 @@
 
 @media(max-width:700px){
   .trk-section .grid{grid-template-columns:1fr 1fr;gap:1px}
-  .ce[data-tname]{height:200px}
   .trk-card-name{font-size:9.5pt;letter-spacing:1px}
   .trk-card-country{font-size:5.5pt;padding:1px 5px}
   .trk-card-stats{font-size:7pt;margin-bottom:4px}
@@ -64,8 +62,6 @@
   body:not(.sidebar-open) .sidebar{display:none!important}
 
   /* Scale car/track cards up when the sidebar is hidden */
-  body:not(.sidebar-open) .ce[data-car]{height:230px}
-  body:not(.sidebar-open) .ce[data-tname]{height:230px}
   body:not(.sidebar-open) .trk-card-outline{width:75%;max-height:105px}
 }
 

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/main.css?v=20261010">
   <link rel="stylesheet" href="css/mobile.css?v=20261010">
   <link rel="stylesheet" href="css/popups.css?v=20261010">
+  <link rel="stylesheet" href="css/tiles.css?v=20261010">
 </head>
 <body>
 <nav>
@@ -1650,8 +1651,8 @@ function buildCarCards(){
     el.dataset.drive=d.drive||'';
     var hp=d.hp||0;
     var diff=carDiffInfo(d);
-    var statsHtml=(hp>0?'<span>'+hp+' HP</span><span class="car-stat-sep">&middot;</span>':'')
-      +'<span>'+d.tq+' FT-LB</span><span class="car-stat-sep">&middot;</span><span>'+d.drive+'</span>';
+    function cs(v,l){return '<div class="cs"><b>'+v+'</b> <i>'+l+'</i></div>';}
+    var statsHtml=(hp>0?cs(hp.toLocaleString('en-US'),'HP'):'')+cs((+d.tq).toLocaleString('en-US'),'FT-LB')+cs(d.drive,'Drive');
     el.innerHTML=[
       '<div class="car-card-img-wrap"><img class="car-card-img" src="'+d.img+'" alt="" loading="lazy"></div>',
       '<div class="car-card-info">',
