@@ -7,7 +7,7 @@
 <title>Sim Catalog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css?v=20261010">
+  <link rel="stylesheet" href="css/main.css?v=20261011">
   <link rel="stylesheet" href="css/mobile.css?v=20261010">
   <link rel="stylesheet" href="css/popups.css?v=20261010">
   <link rel="stylesheet" href="css/tiles.css?v=20261010">
@@ -985,7 +985,7 @@ function _buildLayoutCards(sec){
     var layoutLabel=(item.layout.toLowerCase()!==item.tname.toLowerCase())?item.layout:'';
     var nameQ=item.tname.replace(/"/g,'&quot;'),layQ=item.layout.replace(/"/g,'&quot;');
     html+='<div class="ce" data-tname="'+nameQ+'" data-layout="'+layQ+'" data-tcat="'+item.tcat+'" data-country="'+d.country+'" data-diff="'+d.diff+'" style="cursor:pointer">'+
-      '<div class="trk-card-bg" style="background-image:url('+d.img+')"></div>'+
+      '<img class="trk-card-bg" src="'+d.img+'" alt="" loading="lazy" decoding="async">'+
       '<div class="trk-card-grad"></div>'+
       '<img class="trk-card-outline" src="'+d.outline+'" alt="" loading="lazy">'+
       '<div class="trk-card-info">'+
@@ -1294,7 +1294,7 @@ function buildTrackCards(){
     var segs='';
     for(var i=1;i<=5;i++){segs+='<div class="trk-cd-seg'+(i<=d.diff?' on-'+d.diff:'')+'"></div>';}
     el.innerHTML=[
-      '<div class="trk-card-bg" style="background-image:url('+d.img+')"></div>',
+      '<img class="trk-card-bg" src="'+d.img+'" alt="" loading="lazy" decoding="async">',
       '<div class="trk-card-grad"></div>',
       '<img class="trk-card-outline" src="'+d.outline+'" alt="" loading="lazy">',
       '<div class="trk-card-info">',
@@ -2486,7 +2486,7 @@ function a11ySync(){
     card.setAttribute('role','group');
     card.setAttribute('aria-label',label+'. Press Enter to open details.');
     card.querySelectorAll('img').forEach(function(im){
-      if(im.getAttribute('alt'))return;
+      if(im.getAttribute('alt')||im.classList.contains('trk-card-bg'))return;
       im.alt=im.classList.contains('trk-card-outline')?'Track outline':label;
     });
   });
