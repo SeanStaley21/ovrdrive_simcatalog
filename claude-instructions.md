@@ -11,6 +11,8 @@ There is no build step. All car and track data lives in two JSON files, and `ind
 
 The page loads the JSON with `fetch()`, which does not work from `file://`. Always test through a server: `npx serve .`
 
+**Bump `VERSION` in `sw.js`** (to match the `?v=` values in `index.html`) whenever you change, replace or remove anything under `cars/`, `tracks/`, `logos/` or `icons/`, or any data/CSS/manifest file — the service worker serves cached files until `VERSION` changes.
+
 ## Data model
 
 ### `data/cars.json`
