@@ -18,6 +18,7 @@ The catalog loads its data with `fetch()`, so opening `index.html` directly (`fi
 - `data/cars.json`, `data/tracks.json` — all car and track data (stats, categories, brands, images, layouts, variant groups).
 - `css/main.css`, `css/mobile.css` — desktop and mobile styles.
 - `css/popups.css` — car and track popup styles.
+- `css/tiles.css` — car and track tile styles, loaded last.
 - `cars/` — car photos referenced by the catalog data.
 - `tracks/` — track layout images (each track has a filled and an outline version per layout).
 - `logos/` — OVRDRIVE branding assets.

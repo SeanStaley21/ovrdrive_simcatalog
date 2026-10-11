@@ -238,7 +238,6 @@ main{flex:1;min-width:0;padding:0 0 3rem;background:var(--K)}
   display:flex;gap:5px;align-items:center;
   font-family:"Oswald",Arial,sans-serif;
 }
-.car-stat-sep{color:rgba(0,174,239,0.4);}
 
 /* ===== TRACK CARD REDESIGN ===== */
 .trk-section .grid{padding:0;gap:2px;background:#050505}
