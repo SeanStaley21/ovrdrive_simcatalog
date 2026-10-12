@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/mobile.css?v=20261010">
   <link rel="stylesheet" href="css/popups.css?v=20261010">
   <link rel="stylesheet" href="css/tiles.css?v=20261010">
+  <link rel="stylesheet" href="css/records.css?v=20261013b">
 </head>
 <body>
 <nav>
@@ -22,6 +23,7 @@
     <button class="top-tab active" data-page="cars">Cars</button>
     <button class="top-tab" data-page="tracks">Tracks</button>
   </div>
+  <button type="button" class="rec-nav-btn" id="rec-nav-btn">Records</button>
 </nav>
 
 <!-- ===== Landing / Welcome page ===== -->
@@ -105,6 +107,7 @@
 </style>
 <!-- ===== /Landing ===== -->
 
+<section id="records-page" style="display:none"></section>
 <div class="page-layout" id="page-layout" style="display:none">
   <aside class="sidebar" id="sidebar-cars">
     <button type="button" class="brand-btn fav-toggle" id="fav-only-cars" aria-pressed="false">&#9733; Favorites only</button>
@@ -363,11 +366,12 @@
 </div></div>
 <div class="pop-actions"><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button></div></div></div>
 
+<script src="rigRecords/records.js?v=20261013b"></script>
 <script>
 // Data loader: fetches data/cars.json and data/tracks.json, renders the card grids,
 // then runs the page scripts (<script type="text/app">) in document order, once the data and cards exist.
 (function(){
-  var V='?v=20261013';
+  var V='?v=20261013b';
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function carCard(name,brand){
     return '<div class="ce" data-car="'+esc(name)+'"'+(brand?' data-brand="'+esc(brand)+'"':'')+' data-has-stats="1"><span class="cn">'+esc(name)+'</span></div>';
@@ -1385,7 +1389,10 @@ function writeHash(push){
   if(hashRestoring)return;
   var p=new URLSearchParams();
   var tracks=activePage==='tracks';
-  if(tracks){
+  var records=RigRecords.isOpen();
+  if(records){
+    p.set('page','records');
+  } else if(tracks){
     p.set('page','tracks');
     if(activeTrkCat!=='all')p.set('cat',activeTrkCat);
     if(activeTrkCountry!=='__all__')p.set('country',activeTrkCountry);
@@ -1395,14 +1402,16 @@ function writeHash(push){
     if(activeCarDiff!=='__all__')p.set('diff',activeCarDiff);
     if(activeCarDrive!=='__all__')p.set('drive',activeCarDrive);
   }
-  var q=tracks?trkSearchQuery:carSearchQuery;
-  if(q)p.set('q',q);
-  var st=sortState[activePage];
-  if(st.key!=='default'){
-    p.set('sort',st.key);
-    if(st.dir==='desc')p.set('dir','desc');
+  if(!records){
+    var q=tracks?trkSearchQuery:carSearchQuery;
+    if(q)p.set('q',q);
+    var st=sortState[activePage];
+    if(st.key!=='default'){
+      p.set('sort',st.key);
+      if(st.dir==='desc')p.set('dir','desc');
+    }
+    if(_popupOpen('cmp-modal'))compareSel.forEach(function(n){p.append('cmp',n);});
   }
-  if(_popupOpen('cmp-modal'))compareSel.forEach(function(n){p.append('cmp',n);});
   if(_popupOpen('ovr-modal')||_popupOpen('ovr-sheet')){
     p.set('car',window._curCarName);
   } else if(_popupOpen('trk-modal')){
@@ -1440,6 +1449,8 @@ function applyHash(isBoot){
   var raw=location.hash.replace(/^#\/?/,'');
   if(isBoot&&!raw){hashRestoring=false;return;}
   var p=new URLSearchParams(raw);
+  var wantRecords=p.get('page')==='records';
+  if(!wantRecords&&RigRecords.isOpen())RigRecords.hide();
   if(p.has('rcar')||p.has('rtrk')){
     if(document.getElementById('landing').style.display!=='none')showCatalog();
     loadSharedRace(p);
@@ -1454,7 +1465,9 @@ function applyHash(isBoot){
   try{
     var landing=document.getElementById('landing');
     if(raw&&landing.style.display!=='none')showCatalog();
+    if(wantRecords&&!RigRecords.isOpen())RigRecords.show();
     var page=p.get('page')==='tracks'?'tracks':'cars';
+    if(!wantRecords){
     if(page!==activePage)document.querySelector('.top-tab[data-page="'+page+'"]').click();
     var q=(p.get('q')||'').trim().toLowerCase();
     if(searchInput.value.trim().toLowerCase()!==q)searchInput.value=q;
@@ -1484,6 +1497,7 @@ function applyHash(isBoot){
     saveSortState();
     updateSortUI();
     _reapplySort();
+    }
     var car=p.get('car'),trk=p.get('trk');
     var cmp=[];
     p.getAll('cmp').forEach(function(n){
@@ -1696,6 +1710,7 @@ updateCarDriveBtns();
 
 <script type="text/app">
   function showLanding(){
+    RigRecords.hide();
     document.getElementById('landing').style.display='';
     var pl=document.getElementById('page-layout'); if(pl)pl.style.display='none';
     var tt=document.getElementById('top-tabs'); if(tt)tt.style.display='none';
@@ -1768,7 +1783,7 @@ function refreshCompare(){
 function renderCompareTray(){
   var tray=document.getElementById('cmp-tray');
   var n=compareSel.length;
-  var show=n>0&&activePage==='cars'&&document.getElementById('landing').style.display==='none';
+  var show=n>0&&activePage==='cars'&&!RigRecords.isOpen()&&document.getElementById('landing').style.display==='none';
   tray.style.display=show?'flex':'none';
   document.body.classList.toggle('cmp-tray-on',show);
   if(!show)return;
