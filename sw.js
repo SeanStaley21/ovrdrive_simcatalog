@@ -1,4 +1,4 @@
-var VERSION = '20261012';
+var VERSION = '20261012b';
 var CACHE_PREFIX = 'simcatalog-';
 var SHELL = CACHE_PREFIX + 'shell-' + VERSION;
 var IMG = CACHE_PREFIX + 'img-' + VERSION;
@@ -7,8 +7,11 @@ var PRECACHE = [
   'css/main.css',
   'css/mobile.css',
   'css/popups.css',
+  'css/records.css',
+  'rigRecords/records.js',
   'data/cars.json',
   'data/tracks.json',
+  'data/rig-records.json',
   'favicon.png',
   'manifest.webmanifest',
   'icons/icon-192.png',
@@ -53,6 +56,22 @@ function cacheFirst(e, req, key, cacheName, accept) {
   });
 }
 
+// Fetches past the HTTP cache so edits to the file show up on the next load;
+// a good response replaces the cached copy, which is the offline fallback.
+function networkFirst(e, req, key) {
+  return fetch(req, { cache: 'no-cache' }).then(function (res) {
+    if (isOk(res)) {
+      var copy = res.clone();
+      e.waitUntil(caches.open(SHELL).then(function (c) { return c.put(key, copy); }));
+    }
+    return res;
+  }).catch(function () {
+    return caches.match(key, { ignoreSearch: true }).then(function (hit) {
+      return hit || Response.error();
+    });
+  });
+}
+
 function isOk(res) { return res.status === 200; }
 function isOkOrOpaque(res) { return res.ok || res.type === 'opaque'; }
 
@@ -72,6 +91,8 @@ self.addEventListener('fetch', function (e) {
     e.respondWith(cacheFirst(e, req, './', SHELL, isOk));
   } else if (req.destination === 'image' || IMAGE_DIRS.test(url.pathname)) {
     e.respondWith(cacheFirst(e, req, key, IMG, isOk));
+  } else if (/\/data\/rig-records\.json$/.test(url.pathname)) {
+    e.respondWith(networkFirst(e, req, key));
   } else {
     e.respondWith(cacheFirst(e, req, key, SHELL, isOk));
   }
