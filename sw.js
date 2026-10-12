@@ -1,4 +1,4 @@
-var VERSION = '20261012';
+var VERSION = '20261013';
 var CACHE_PREFIX = 'simcatalog-';
 var SHELL = CACHE_PREFIX + 'shell-' + VERSION;
 var IMG = CACHE_PREFIX + 'img-' + VERSION;
@@ -15,7 +15,7 @@ var PRECACHE = [
   'icons/icon-512.png',
   'logos/logo with text.png'
 ];
-var IMAGE_DIRS = /\/(cars|tracks|logos|icons)\//;
+var IMAGE_DIRS = /\/(cars|tracks|logos|icons|thumbs)\//;
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
