@@ -367,7 +367,7 @@
 // Data loader: fetches data/cars.json and data/tracks.json, renders the card grids,
 // then runs the page scripts (<script type="text/app">) in document order, once the data and cards exist.
 (function(){
-  var V='?v=20261012';
+  var V='?v=20261013';
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function carCard(name,brand){
     return '<div class="ce" data-car="'+esc(name)+'"'+(brand?' data-brand="'+esc(brand)+'"':'')+' data-has-stats="1"><span class="cn">'+esc(name)+'</span></div>';
@@ -430,6 +430,7 @@ if('serviceWorker' in navigator){addEventListener('load',function(){navigator.se
 </script>
 
 <script type="text/app">
+function thumbSrc(p){return 'thumbs/'+p.replace(/\.\w+$/,'.webp');}
 function showCatalog(){
   document.getElementById('landing').style.display='none';
   document.getElementById('page-layout').style.display='flex';
@@ -989,7 +990,7 @@ function _buildLayoutCards(sec){
     var layoutLabel=(item.layout.toLowerCase()!==item.tname.toLowerCase())?item.layout:'';
     var nameQ=item.tname.replace(/"/g,'&quot;'),layQ=item.layout.replace(/"/g,'&quot;');
     html+='<div class="ce" data-tname="'+nameQ+'" data-layout="'+layQ+'" data-tcat="'+item.tcat+'" data-country="'+d.country+'" data-diff="'+d.diff+'" style="cursor:pointer">'+
-      '<img class="trk-card-bg" src="'+d.img+'" alt="" loading="lazy" decoding="async">'+
+      '<img class="trk-card-bg" src="'+thumbSrc(d.img)+'" alt="" loading="lazy" decoding="async">'+
       '<div class="trk-card-grad"></div>'+
       '<img class="trk-card-outline" src="'+d.outline+'" alt="" loading="lazy">'+
       '<div class="trk-card-info">'+
@@ -1298,7 +1299,7 @@ function buildTrackCards(){
     var segs='';
     for(var i=1;i<=5;i++){segs+='<div class="trk-cd-seg'+(i<=d.diff?' on-'+d.diff:'')+'"></div>';}
     el.innerHTML=[
-      '<img class="trk-card-bg" src="'+d.img+'" alt="" loading="lazy" decoding="async">',
+      '<img class="trk-card-bg" src="'+thumbSrc(d.img)+'" alt="" loading="lazy" decoding="async">',
       '<div class="trk-card-grad"></div>',
       '<img class="trk-card-outline" src="'+d.outline+'" alt="" loading="lazy">',
       '<div class="trk-card-info">',
@@ -1658,7 +1659,7 @@ function buildCarCards(){
     function cs(v,l){return '<div class="cs"><b>'+v+'</b> <i>'+l+'</i></div>';}
     var statsHtml=(hp>0?cs(hp.toLocaleString('en-US'),'HP'):'')+cs((+d.tq).toLocaleString('en-US'),'FT-LB')+cs(d.drive,'Drive');
     el.innerHTML=[
-      '<div class="car-card-img-wrap"><img class="car-card-img" src="'+d.img+'" alt="" loading="lazy"></div>',
+      '<div class="car-card-img-wrap"><img class="car-card-img" src="'+thumbSrc(d.img)+'" alt="" loading="lazy"></div>',
       '<div class="car-card-info">',
         '<div class="car-card-row1">',
           '<span class="car-card-name">'+name+'</span>',
@@ -1764,7 +1765,7 @@ function renderCompareTray(){
     t.className='cmp-thumb';
     t.title=name;
     var img=document.createElement('img');
-    img.src=carStats[name].img;
+    img.src=thumbSrc(carStats[name].img);
     img.alt=name;
     var x=document.createElement('button');
     x.type='button';
@@ -1826,7 +1827,7 @@ function renderCompare(){
   compareSel.forEach(function(name,i){
     var d=data[i];
     h+='<div class="cmp-col-head"><button type="button" class="cmp-remove" data-car="'+qEsc(name)+'" aria-label="Remove '+qEsc(name)+'">&times;</button>'
-      +'<button type="button" class="cmp-open" data-car="'+qEsc(name)+'"><img src="'+qEsc(d.img)+'" alt=""><span class="cmp-name">'+qEsc(name)+'</span></button>'
+      +'<button type="button" class="cmp-open" data-car="'+qEsc(name)+'"><img src="'+qEsc(thumbSrc(d.img))+'" alt=""><span class="cmp-name">'+qEsc(name)+'</span></button>'
       +cmpDiff(d)+'</div>';
   });
   var rows=[
@@ -1946,7 +1947,7 @@ function renderQueue(){
     var dt=cd.diff>=3?'PRO':cd.diff===2?'INTERMEDIATE':'BEGINNER';
     carSlot.className='queue-slot filled';
     carSlot.innerHTML='<div class="queue-remove" data-kind="car" title="Remove car">&times;</div>'+
-      '<div class="queue-card"><img class="queue-card-img" src="'+cd.img+'" alt="">'+
+      '<div class="queue-card"><img class="queue-card-img" src="'+thumbSrc(cd.img)+'" alt="">'+
       '<div class="queue-card-body"><div class="queue-card-name">'+qEsc(raceQueue.car)+'</div>'+
       '<div class="queue-card-tags"><span class="car-diff-badge car-diff-'+dcls+'">'+dt+'</span>'+
       '<span class="queue-drive-pill">'+qEsc(cd.drive)+'</span></div></div></div>';
@@ -1962,7 +1963,7 @@ function renderQueue(){
     var segs='';for(var i=1;i<=5;i++)segs+='<span class="trk-cd-seg'+(i<=td.diff?' on-'+td.diff:'')+'"></span>';
     trkSlot.className='queue-slot filled';
     trkSlot.innerHTML='<div class="queue-remove" data-kind="track" title="Remove track">&times;</div>'+
-      '<div class="queue-card"><div class="queue-card-imgwrap"><img class="queue-card-img" src="'+td.img+'" alt="">'+
+      '<div class="queue-card"><div class="queue-card-imgwrap"><img class="queue-card-img" src="'+thumbSrc(td.img)+'" alt="">'+
       (td.outline?'<img class="queue-card-outline" src="'+td.outline+'" alt="">':'')+'</div>'+
       '<div class="queue-card-body"><div class="queue-card-name">'+qEsc(t.name)+'</div>'+
       (showLayout?'<div class="queue-card-sub">'+qEsc(t.layout)+'</div>':'')+
