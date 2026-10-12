@@ -12,7 +12,7 @@ There is no build step. All car and track data lives in two JSON files, and `ind
 
 The page loads the JSON with `fetch()`, which does not work from `file://`. Always test through a server: `npx serve .`
 
-**Bump `VERSION` in `sw.js`** (to match the `?v=` values in `index.html`) whenever you change, replace or remove anything under `cars/`, `tracks/`, `logos/` or `icons/`, or any data/CSS/JS/manifest file (except `data/rig-records.json`, which the service worker fetches from the network first) — the service worker serves cached files until `VERSION` changes.
+**Bump `VERSION` in `sw.js`** (to match the `?v=` values in `index.html`) whenever you change, replace or remove anything under `cars/`, `tracks/`, `thumbs/`, `logos/` or `icons/`, or any data/CSS/JS/manifest file (except `data/rig-records.json`, which the service worker fetches from the network first) — the service worker serves cached files until `VERSION` changes.
 
 ## Data model
 
@@ -20,7 +20,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 ```
 { "cars": { "<exact car name>": { ... } }, "variantGroups": { ... } }
 ```
-- Each car is keyed by its exact displayed name. Fields: `brand` (must match the sidebar `data-brand`), `hp`, `tq` (torque), `drive` (`RWD`/`FWD`/`AWD`), `diff` (1=Beginner, 2=Intermediate, 3=Pro), `df` (grip), `ts` (top speed), `br` (braking) — `df`/`ts`/`br` are on a 0–10 scale, `img` (path into `cars/`).
+- Each car is keyed by its exact displayed name. Fields: `brand` (must match the sidebar `data-brand`), `hp`, `tq` (torque), `drive` (`RWD`/`FWD`/`AWD`), `diff` (1=Beginner, 2=Intermediate, 3=Pro), `df` (grip), `ts` (top speed), `br` (braking) — `df`/`ts`/`br` are on a 0–10 scale, `img` (path into `cars/`; the card thumbnail is derived as `thumbs/<path without extension>.webp`).
 - `cats` (optional): list of category tabs the car also appears in — any of `gt3`, `formula`, `prototype`, `nascar`, `drift`, `fun`. Category tabs are sorted by name automatically.
 - `hidden: true` (optional): the car has stats (used for variants) but gets no card of its own.
 - **Order matters for the All Cars A–Z tab:** cars render in the order they appear in the file, and a brand divider is inserted whenever `brand` changes. Keep cars grouped by brand, brands alphabetical, cars alphabetical within the brand. A brand split into two runs would get two dividers.
@@ -39,7 +39,8 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 1. Add the photo to `cars/` — lowercase, hyphen-separated filename matching the existing naming style.
 2. Add an entry to `cars` in `data/cars.json`, in the right spot (brand group, alphabetical), with all fields and `brand` set. Add `cats` if it belongs to a category tab.
 3. New brand only: add a `<button class="brand-btn" data-brand="Brand">Brand</button>` to `#brand-list` in `index.html` (alphabetical). The divider and counts are automatic.
-4. Run `npx serve .` and check the car.
+4. Run `python tools/make_thumbs.py` to generate the thumbnail.
+5. Run `npx serve .` and check the car.
 
 ## Adding a new track
 
@@ -47,7 +48,8 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 2. Add an entry to `tracks` keyed `"Track Name::Layout Name"`, and the same key with an empty list (`"Track Name::Layout Name": []`) to `data/rig-records.json`, in the same position.
 3. Add the layout name to `layouts[category][trackName]` (create the track's array, or the category key, if new). Add it to more than one category if the track legitimately has layouts in multiple categories.
 4. Add a `{ "name", "cat", "country" }` card to `sections.all` **and** to each relevant category list (`road`, `oval`, `street`, `fun-track`, `drift-track`). Header counts are automatic.
-5. Run `npx serve .` and check the track.
+5. Run `python tools/make_thumbs.py` to generate the thumbnails.
+6. Run `npx serve .` and check the track.
 
 ## Adjusting stats or difficulty on an existing entry
 
@@ -59,7 +61,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 
 - Cars: rename/remove the key in `data/cars.json` (and in `variantGroups` if it's listed there).
 - Tracks: rename/remove the keys in `tracks` and `data/rig-records.json`, the name in `layouts`, and every card in `sections`.
-- Delete the now-unused image file(s) from `cars/`/`tracks/` if nothing else references them.
+- Delete the now-unused image file(s) from `cars/`/`tracks/` if nothing else references them, then run `python tools/make_thumbs.py` to refresh `thumbs/`.
 - Check the JSON is still valid (the page shows a load error if not).
 
 ## Scratch/reference files (not read by the site, safe to leave stale but nice to update)
