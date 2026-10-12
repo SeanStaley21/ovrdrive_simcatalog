@@ -31,11 +31,19 @@ CLASSES = [
 ]
 LAP_TYPES = ["race", "qualifying", "track_record", "unknown", "demo", "exhibition"]
 CONFIDENCES = ["exact layout", "layout changed"]
-TIME_RE = re.compile(r"^\d+:[0-5]\d\.\d{1,4}$")
+TIME_RE = re.compile(r"\d+:[0-5]\d\.\d{1,4}")
 
 REQUIRED = ["class", "car", "driver", "time"]
 OPTIONAL = ["lap_type", "year", "source", "confidence", "verified", "speed_mph", "note"]
 ENTRY_FIELDS = ["records", "no_record_reason"]
+
+
+class NonStandardNumber(ValueError):
+    pass
+
+
+def reject_constant(name):
+    raise NonStandardNumber(name)
 
 
 class DuplicateTracker:
@@ -43,9 +51,11 @@ class DuplicateTracker:
 
     def __init__(self):
         self.duplicates = {}
+        self.objects = []
 
     def __call__(self, pairs):
         obj = {}
+        self.objects.append(obj)
         for key, value in pairs:
             if key in obj:
                 self.duplicates.setdefault(id(obj), []).append(key)
@@ -77,12 +87,14 @@ def check_record(rec, label, problems, duplicates):
         if field not in REQUIRED and field not in OPTIONAL:
             problems.append(f"{label}: unknown field '{field}'")
     time = rec.get("time")
-    if isinstance(time, str) and time.strip() and not TIME_RE.match(time):
+    if isinstance(time, str) and time.strip() and not TIME_RE.fullmatch(time):
         problems.append(f"{label}: time '{time}' must look like m:ss.mmm (e.g. 1:20.942)")
     for field, allowed in (("class", CLASSES), ("lap_type", LAP_TYPES), ("confidence", CONFIDENCES)):
+        if field not in rec:
+            continue
         if field == "class" and not (isinstance(rec[field], str) and rec[field].strip()):
             continue
-        if field in rec and rec[field] not in allowed:
+        if rec[field] not in allowed:
             problems.append(f"{label}: {field} '{rec[field]}' is not allowed; use one of: {', '.join(allowed)}")
     if "verified" in rec and not isinstance(rec["verified"], bool):
         problems.append(f"{label}: 'verified' must be true or false")
@@ -153,6 +165,8 @@ def load_track_keys():
 
 
 def main():
+    sys.stdout.reconfigure(errors="backslashreplace")
+    sys.stderr.reconfigure(errors="backslashreplace")
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_RECORDS
     try:
         text = path.read_text(encoding="utf-8-sig")
@@ -161,7 +175,16 @@ def main():
         return 1
     try:
         tracker = DuplicateTracker()
-        data = json.loads(text, object_pairs_hook=tracker)
+        data = json.loads(text, object_pairs_hook=tracker, parse_constant=reject_constant)
+    except NonStandardNumber as err:
+        index = text.find(str(err))
+        line = text.count("\n", 0, index) + 1
+        column = index - (text.rfind("\n", 0, index) + 1) + 1
+        print(f"{path} line {line}, column {column}: {err} is not valid JSON")
+        key = nearest_key(text, line)
+        if key:
+            print(f"Nearest track above: {key}")
+        return 1
     except json.JSONDecodeError as err:
         print(f"{path} line {err.lineno}, column {err.colno}: {err.msg}")
         key = nearest_key(text, err.lineno)
