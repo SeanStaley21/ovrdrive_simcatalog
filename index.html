@@ -431,6 +431,20 @@ if('serviceWorker' in navigator){addEventListener('load',function(){navigator.se
 
 <script type="text/app">
 function thumbSrc(p){return 'thumbs/'+p.replace(/\.\w+$/,'.webp');}
+// Shows the card thumbnail in a popup <img> and swaps in the full image once it has loaded.
+// data-full holds the image the popup currently wants; a late load for an earlier car or layout is ignored.
+// The element stays hidden until its current src has an image, so a previous popup's image is never shown.
+function setPopupImg(el,full,alt){
+  el.dataset.full=full;
+  el.alt=alt;
+  el.style.display='block';
+  var pre=new Image();
+  pre.onload=function(){if(el.dataset.full===full){el.src=full;el.style.visibility='';}};
+  pre.src=full;
+  el.onload=function(){el.style.visibility='';};
+  el.src=pre.complete&&pre.naturalWidth?full:thumbSrc(full);
+  el.style.visibility=el.complete?'':'hidden';
+}
 function showCatalog(){
   document.getElementById('landing').style.display='none';
   document.getElementById('page-layout').style.display='flex';
@@ -1167,8 +1181,8 @@ function loadTrkLayout(layout){
   var d=trackData[key];if(!d)return;
   window._trkLayout=layout;
   var imgEl=document.getElementById('trk-modal-img');
-  if(d.img){imgEl.src=d.img;imgEl.alt=window._trkName+(layout&&layout.toLowerCase()!==window._trkName.toLowerCase()?' \u2013 '+layout:'');imgEl.style.display='block';}
-  else{imgEl.style.display='none';imgEl.src='';imgEl.alt='';}
+  if(d.img){setPopupImg(imgEl,d.img,window._trkName+(layout&&layout.toLowerCase()!==window._trkName.toLowerCase()?' \u2013 '+layout:''));}
+  else{imgEl.dataset.full='';imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';}
   var outlineEl=document.getElementById('trk-modal-outline');
   if(d.outline){outlineEl.src=d.outline;outlineEl.alt='Track outline';outlineEl.style.display='block';}
   else{outlineEl.style.display='none';outlineEl.src='';}
@@ -1568,7 +1582,7 @@ function fillStats(pfx, name, d) {
   document.getElementById(pfx+'tq-val').textContent = d.tq.toLocaleString();
   document.getElementById(pfx+'drive').textContent = d.drive;
   var imgEl=document.getElementById(pfx+'img');
-  if(imgEl){if(d.img){imgEl.src=d.img;imgEl.alt=name;imgEl.style.display='block';}else{imgEl.src='';imgEl.alt='';imgEl.style.display='none';}}
+  if(imgEl){if(d.img){setPopupImg(imgEl,d.img,name);}else{imgEl.dataset.full='';imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';}}
   var dfEl=document.getElementById(pfx+'df'), tsEl=document.getElementById(pfx+'ts'), brEl=document.getElementById(pfx+'br');
   if(dfEl) dfEl.innerHTML = d.df ? segBar(d.df,'#8B75FF','rgba(139,117,255,0.4)') : 'N/A';
   if(tsEl) tsEl.innerHTML = d.ts ? segBar(d.ts,'#00C896','rgba(0,200,150,0.4)') : 'N/A';
