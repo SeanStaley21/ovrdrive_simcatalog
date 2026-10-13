@@ -177,7 +177,8 @@ def main():
         tracker = DuplicateTracker()
         data = json.loads(text, object_pairs_hook=tracker, parse_constant=reject_constant)
     except NonStandardNumber as err:
-        index = text.find(str(err))
+        match = re.search(r"[:\[,]\s*(" + re.escape(str(err)) + r")", text)
+        index = match.start(1) if match else 0
         line = text.count("\n", 0, index) + 1
         column = index - (text.rfind("\n", 0, index) + 1) + 1
         print(f"{path} line {line}, column {column}: {err} is not valid JSON")
