@@ -17,6 +17,7 @@ The catalog loads its data with `fetch()`, so opening `index.html` directly (`fi
 - `index.html` — the app: markup, style hooks, and JS. Cards, brand dividers and counts are rendered at load time from the JSON data files.
 - `data/cars.json`, `data/tracks.json` — all car and track data (stats, categories, brands, images, layouts, variant groups).
 - `data/rig-records.json` — lap times set on the rigs, one list per `"Track::Layout"` key (see "Rig records" below).
+- `db/track-records.json` — real-world lap records per `"Track::Layout"` key, edited by hand and checked by `tools/check_track_records.py` (see "Track records" below). Not read by the site yet.
 - `css/main.css`, `css/mobile.css` — desktop and mobile styles.
 - `css/popups.css` — car and track popup styles.
 - `css/tiles.css` — car and track tile styles.
@@ -58,6 +59,14 @@ node -e "JSON.parse(require('fs').readFileSync('data/rig-records.json','utf8'))"
 ```
 
 Edits to this file go live without bumping `VERSION`: the service worker fetches it from the network first and only falls back to its cached copy when offline. A key that is not in `data/tracks.json` is ignored and logged to the browser console.
+
+### Track records
+
+Real-world lap records live in `db/track-records.json`, one entry per `"Track::Layout"` key. Only `class`, `car`, `driver` and `time` are required per record; see `db/README.md` for the fields and allowed values. Before committing an edit, run:
+
+```
+python tools/check_track_records.py
+```
 
 ## Offline / install
 

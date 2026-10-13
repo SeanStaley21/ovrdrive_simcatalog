@@ -45,7 +45,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 ## Adding a new track
 
 1. Add both images to `tracks/`: the filled version and the `-outline` version, e.g. `track-name-layout.png` / `track-name-layout-outline.png`.
-2. Add an entry to `tracks` keyed `"Track Name::Layout Name"`, and the same key with an empty list (`"Track Name::Layout Name": []`) to `data/rig-records.json`, in the same position.
+2. Add an entry to `tracks` keyed `"Track Name::Layout Name"`, and the same key with an empty list (`"Track Name::Layout Name": []`) to `data/rig-records.json`, in the same position. Also add `"Track Name::Layout Name": { "records": [] }` to `db/track-records.json`, in sorted position, and run `python tools/check_track_records.py`.
 3. Add the layout name to `layouts[category][trackName]` (create the track's array, or the category key, if new). Add it to more than one category if the track legitimately has layouts in multiple categories.
 4. Add a `{ "name", "cat", "country" }` card to `sections.all` **and** to each relevant category list (`road`, `oval`, `street`, `fun-track`, `drift-track`). Header counts are automatic.
 5. Run `python tools/make_thumbs.py` to generate the thumbnails.
@@ -60,7 +60,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 ## Renaming or removing a car/track
 
 - Cars: rename/remove the key in `data/cars.json` (and in `variantGroups` if it's listed there).
-- Tracks: rename/remove the keys in `tracks` and `data/rig-records.json`, the name in `layouts`, and every card in `sections`.
+- Tracks: rename/remove the keys in `tracks`, `data/rig-records.json` and `db/track-records.json`, the name in `layouts`, and every card in `sections`.
 - Delete the now-unused image file(s) from `cars/`/`tracks/` if nothing else references them, then run `python tools/make_thumbs.py` to refresh `thumbs/`.
 - Check the JSON is still valid (the page shows a load error if not).
 
