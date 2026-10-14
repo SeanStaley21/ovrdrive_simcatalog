@@ -311,17 +311,16 @@ class App:
         self.show_records()
 
     def on_search(self):
-        if not self.confirm_discard_for_search():
-            return
+        if self.track is not None and self.track not in self.shown_tracks():
+            self.detach_edit()
         self.refresh_tracks()
 
-    def confirm_discard_for_search(self):
-        keep = self.track
-        if keep is not None and keep not in self.shown_tracks():
-            if not self.confirm_discard():
-                return False
-            self.reset_form()
-        return True
+    def detach_edit(self):
+        """An edited record belongs to its own layout; leaving it makes the form a new, unsaved entry."""
+        if self.editing is not None:
+            self.editing = None
+            self.baseline = self.default_values()
+            self.update_dirty_title()
 
     def on_track_select(self):
         picked = self.track_list.curselection()
@@ -330,10 +329,7 @@ class App:
         track = self.track_list.get(picked[0])
         if track == self.track:
             return
-        if not self.confirm_discard():
-            self.restore_listbox(self.track_list, self.track)
-            return
-        self.reset_form()
+        self.detach_edit()
         self.track = track
         self.fill_layouts()
 
@@ -344,18 +340,9 @@ class App:
         layout = self.layout_list.get(picked[0])
         if layout == self.layout:
             return
-        if not self.confirm_discard():
-            self.restore_listbox(self.layout_list, self.layout)
-            return
-        self.reset_form()
+        self.detach_edit()
         self.layout = layout
         self.show_records()
-
-    def restore_listbox(self, box, name):
-        box.selection_clear(0, "end")
-        if name is not None:
-            index = box.get(0, "end").index(name)
-            box.selection_set(index)
 
     # ---- records table ----
 
