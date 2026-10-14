@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/mobile.css?v=20261010">
   <link rel="stylesheet" href="css/popups.css?v=20261010">
   <link rel="stylesheet" href="css/tiles.css?v=20261010">
-  <link rel="stylesheet" href="css/records.css?v=20261013b">
+  <link rel="stylesheet" href="css/records.css?v=20261013c">
 </head>
 <body>
 <nav>
@@ -366,12 +366,12 @@
 </div></div>
 <div class="pop-actions"><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button></div></div></div>
 
-<script src="rigRecords/records.js?v=20261013b"></script>
+<script src="rigRecords/records.js?v=20261013c"></script>
 <script>
 // Data loader: fetches data/cars.json and data/tracks.json, renders the card grids,
 // then runs the page scripts (<script type="text/app">) in document order, once the data and cards exist.
 (function(){
-  var V='?v=20261013b';
+  var V='?v=20261013c';
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function carCard(name,brand){
     return '<div class="ce" data-car="'+esc(name)+'"'+(brand?' data-brand="'+esc(brand)+'"':'')+' data-has-stats="1"><span class="cn">'+esc(name)+'</span></div>';

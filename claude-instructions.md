@@ -6,13 +6,13 @@ There is no build step. All car and track data lives in two JSON files, and `ind
 
 - `data/cars.json` — cars and variant groups.
 - `data/tracks.json` — track stats, layouts and the track card lists.
-- `data/rig-records.json` — rig lap times, keyed by the same `"Track::Layout"` keys as `data/tracks.json`.
+- `db/userSetRecords.json` — rig lap times, nested as track, then layout, for every track and layout in `data/tracks.json`.
 
 **Edit the JSON only.** Do not add `.ce` cards, `.bdiv` dividers or count numbers to `index.html` — those are generated. (The sidebar brand/country/difficulty buttons in `index.html` are still hand-written; see "New brand" below.)
 
 The page loads the JSON with `fetch()`, which does not work from `file://`. Always test through a server: `npx serve .`
 
-**Bump `VERSION` in `sw.js`** (to match the `?v=` values in `index.html`) whenever you change, replace or remove anything under `cars/`, `tracks/`, `thumbs/`, `logos/` or `icons/`, or any data/CSS/JS/manifest file (except `data/rig-records.json`, which the service worker fetches from the network first) — the service worker serves cached files until `VERSION` changes.
+**Bump `VERSION` in `sw.js`** (to match the `?v=` values in `index.html`) whenever you change, replace or remove anything under `cars/`, `tracks/`, `thumbs/`, `logos/` or `icons/`, or any data/CSS/JS/manifest file (except `db/userSetRecords.json`, which the service worker fetches from the network first) — the service worker serves cached files until `VERSION` changes.
 
 ## Data model
 
@@ -45,7 +45,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 ## Adding a new track
 
 1. Add both images to `tracks/`: the filled version and the `-outline` version, e.g. `track-name-layout.png` / `track-name-layout-outline.png`.
-2. Add an entry to `tracks` keyed `"Track Name::Layout Name"`, and the same key with an empty list (`"Track Name::Layout Name": []`) to `data/rig-records.json`, in the same position. Also add `"Track Name::Layout Name": { "records": [] }` to `db/track-records.json`, in sorted position, and run `python tools/check_track_records.py`.
+2. Add an entry to `tracks` keyed `"Track Name::Layout Name"`, and the layout under its track in `db/userSetRecords.json` (alphabetical, with one blank template record: `"Layout Name": { "records": [{ "class": "", "car": "", "driver": "", "time": "" }] }`; a new track gets a new track key). Also add `"Track Name::Layout Name": { "records": [] }` to `db/track-records.json`, in sorted position, and run `python tools/check_track_records.py`.
 3. Add the layout name to `layouts[category][trackName]` (create the track's array, or the category key, if new). Add it to more than one category if the track legitimately has layouts in multiple categories.
 4. Add a `{ "name", "cat", "country" }` card to `sections.all` **and** to each relevant category list (`road`, `oval`, `street`, `fun-track`, `drift-track`). Header counts are automatic.
 5. Run `python tools/make_thumbs.py` to generate the thumbnails.
@@ -60,7 +60,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 ## Renaming or removing a car/track
 
 - Cars: rename/remove the key in `data/cars.json` (and in `variantGroups` if it's listed there).
-- Tracks: rename/remove the keys in `tracks`, `data/rig-records.json` and `db/track-records.json`, the name in `layouts`, and every card in `sections`.
+- Tracks: rename/remove the keys in `tracks` and `db/track-records.json`, the track and layout keys in `db/userSetRecords.json`, the name in `layouts`, and every card in `sections`.
 - Delete the now-unused image file(s) from `cars/`/`tracks/` if nothing else references them, then run `python tools/make_thumbs.py` to refresh `thumbs/`.
 - Check the JSON is still valid (the page shows a load error if not).
 
