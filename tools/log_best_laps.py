@@ -244,6 +244,8 @@ def run_pass(logs_dir, out_path, id_map, state, unmapped, reported):
     """
     data = load_records(out_path)
     changed = not out_path.exists()
+    if changed:
+        state.clear()
     seen = {}
     for path in sorted(logs_dir.glob("*.log")):
         try:

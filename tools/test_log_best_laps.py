@@ -207,6 +207,15 @@ class PassTests(unittest.TestCase):
         self.assertEqual(data["Indianapolis Motor Speedway"]["Indianapolis Motor Speedway"]["records"][0]["driver"], "Jane")
         self.assertIn("Daytona International Speedway", data)
 
+    def test_deleted_output_is_rebuilt_from_the_logs(self):
+        (self.logs / "a.log").write_text(make_log(laps=[("Pod 3", "1:00:000", 0)]), encoding="utf-8")
+        state = {}
+        lbl.run_pass(self.logs, self.out, ID_MAP, state, set(), set())
+        before = self.out.read_text(encoding="utf-8")
+        self.out.unlink()
+        lbl.run_pass(self.logs, self.out, ID_MAP, state, set(), set())
+        self.assertEqual(self.out.read_text(encoding="utf-8"), before)
+
     def test_invalid_output_mid_run_skips_the_pass_without_writing(self):
         state = {}
         lbl.run_pass(self.logs, self.out, ID_MAP, state, set(), set())
