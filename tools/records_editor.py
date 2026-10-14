@@ -15,9 +15,12 @@ from records_file import (
     load,
     load_cars,
     load_catalog_cars,
+    match_names,
+    normalize,
     read_saved_path,
     replace,
     save,
+    snap_car,
     write_saved_path,
 )
 
@@ -26,6 +29,7 @@ SAVED_MESSAGE = "Saved. Not live until committed and pushed."
 NAVIGATION_KEYS = {"Up", "Down", "Left", "Right", "Home", "End", "Return", "KP_Enter", "Tab",
                    "ISO_Left_Tab", "Escape", "Shift_L", "Shift_R", "Control_L", "Control_R",
                    "Alt_L", "Alt_R", "Caps_Lock"}
+SUGGEST_ROWS = 8
 COLUMNS = (("class", "Class", 90), ("car", "Car", 220), ("driver", "Driver", 140),
            ("time", "Time", 90), ("year", "Year", 60))
 
@@ -155,7 +159,12 @@ class App:
         ttk.Label(form, text="Car").grid(row=1, column=0, sticky="w")
         self.car_box = ttk.Combobox(form, textvariable=self.car)
         self.car_box.grid(row=1, column=1, sticky="ew", pady=2)
+        self.car_box.bind("<KeyPress>", self.on_car_press)
         self.car_box.bind("<KeyRelease>", self.on_car_key)
+        self.car_box.bind("<FocusOut>", lambda _e: self.hide_suggestions())
+        self.suggest = tk.Listbox(self.root, height=SUGGEST_ROWS, exportselection=False,
+                                  activestyle="none", takefocus=False)
+        self.suggest.bind("<Button-1>", self.on_suggest_click)
         self.car_box.bind("<<ComboboxSelected>>", lambda _e: self.show_all_cars())
         ttk.Label(form, text="Driver").grid(row=2, column=0, sticky="w")
         ttk.Entry(form, textvariable=self.driver).grid(row=2, column=1, sticky="ew", pady=2)
@@ -184,13 +193,61 @@ class App:
         if self.baseline is not None:
             self.root.title(TITLE + (" *" if self.is_dirty() else ""))
 
+    def on_car_press(self, event):
+        """While suggestions are shown, Down/Up move through them, Return picks, Escape closes."""
+        if not self.suggest.winfo_ismapped():
+            return None
+        if event.keysym in ("Down", "Up"):
+            rows = self.suggest.size()
+            current = self.suggest.curselection()
+            step = 1 if event.keysym == "Down" else -1
+            index = min(max((current[0] + step) if current else (0 if step > 0 else rows - 1), 0), rows - 1)
+            self.suggest.selection_clear(0, "end")
+            self.suggest.selection_set(index)
+            self.suggest.see(index)
+            return "break"
+        if event.keysym in ("Return", "KP_Enter") and self.suggest.curselection():
+            self.pick_suggestion(self.suggest.curselection()[0])
+            return "break"
+        if event.keysym == "Escape":
+            self.hide_suggestions()
+            return "break"
+        return None
+
     def on_car_key(self, event):
-        """Narrow the Car dropdown to the typed text; Down or the button shows it."""
+        """Show the cars matching the typed text in a list under the Car field."""
         if event.keysym in NAVIGATION_KEYS:
             return
-        self.car_box.config(values=filter_cars(self.cars, self.car.get()))
+        matches = match_names(self.cars, self.car.get()) if self.car.get().strip() else []
+        self.car_box.config(values=matches or self.cars)
+        if not matches:
+            self.hide_suggestions()
+            return
+        self.suggest.delete(0, "end")
+        self.suggest.insert("end", *matches)
+        self.suggest.config(height=min(len(matches), SUGGEST_ROWS))
+        self.suggest.place(x=self.car_box.winfo_rootx() - self.root.winfo_rootx(),
+                           y=self.car_box.winfo_rooty() - self.root.winfo_rooty() + self.car_box.winfo_height(),
+                           width=self.car_box.winfo_width())
+        self.suggest.lift()
+
+    def hide_suggestions(self):
+        self.suggest.place_forget()
+
+    def on_suggest_click(self, event):
+        index = self.suggest.nearest(event.y)
+        if index >= 0:
+            self.pick_suggestion(index)
+        return "break"
+
+    def pick_suggestion(self, index):
+        self.car.set(self.suggest.get(index))
+        self.hide_suggestions()
+        self.car_box.focus_set()
+        self.car_box.icursor("end")
 
     def show_all_cars(self):
+        self.hide_suggestions()
         self.car_box.config(values=self.cars)
 
     def set_form(self, values):
@@ -267,12 +324,9 @@ class App:
     # ---- left pane ----
 
     def shown_tracks(self):
-        query = self.search.get().strip().casefold()
-        tracks = []
-        for track, layouts in self.loaded.data.items():
-            if not query or query in track.casefold() or any(query in name.casefold() for name in layouts):
-                tracks.append(track)
-        return tracks
+        query = self.search.get()
+        return [track for track, layouts in self.loaded.data.items()
+                if not normalize(query) or match_names([track, *layouts], query)]
 
     def refresh_tracks(self):
         tracks = self.shown_tracks()
@@ -326,6 +380,7 @@ class App:
         picked = self.track_list.curselection()
         if not picked:
             return
+        self.hide_suggestions()
         track = self.track_list.get(picked[0])
         if track == self.track:
             return
@@ -337,6 +392,7 @@ class App:
         picked = self.layout_list.curselection()
         if not picked:
             return
+        self.hide_suggestions()
         layout = self.layout_list.get(picked[0])
         if layout == self.layout:
             return
@@ -408,9 +464,11 @@ class App:
         self.write(lambda data: delete(data, track, layout, rec))
 
     def save_record(self):
+        self.hide_suggestions()
         if not self.need_layout():
             return
         base = self.editing
+        self.car.set(snap_car(self.catalog_cars, self.car.get()))
         try:
             rec = build_record(*self.form_values(), base=base)
         except RecordsFileError as err:
@@ -450,6 +508,7 @@ class App:
         self.set_status(SAVED_MESSAGE)
 
     def on_close(self):
+        self.hide_suggestions()
         if self.confirm_discard():
             self.root.destroy()
 

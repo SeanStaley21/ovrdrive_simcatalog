@@ -5,6 +5,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from datetime import date
+from difflib import SequenceMatcher
 from pathlib import Path
 
 from check_track_records import (
@@ -18,6 +19,7 @@ from check_track_records import (
 BOM = b"\xef\xbb\xbf"
 RETRY_DELAYS = (0.2, 0.4, 0.8, 1.6, 3.2)
 LOCKED_MESSAGE = "File is locked by another program (OneDrive/VS Code?). Nothing was changed."
+FUZZY_RATIO = 0.8
 CONFLICT_MESSAGE = "This record was changed or removed in the file since it was loaded. Reload."
 
 
@@ -343,13 +345,51 @@ def load_cars(records_path, data):
     return sorted(names, key=str.casefold)
 
 
-def filter_cars(cars, text):
-    """Cars whose name contains text (case-insensitive), names starting with it first."""
-    needle = text.strip().casefold()
+def normalize(text):
+    """Casefolded text with everything except letters and digits removed."""
+    return "".join(ch for ch in text.casefold() if ch.isalnum())
+
+
+def _is_close(needle, haystack):
+    """True when needle is nearly equal to some stretch of haystack (a typo or two)."""
+    for size in (len(needle), len(needle) + 1):
+        for start in range(max(len(haystack) - size, 0) + 1):
+            window = haystack[start:start + size]
+            if SequenceMatcher(None, needle, window).ratio() >= FUZZY_RATIO:
+                return True
+    return False
+
+
+def match_names(names, text):
+    """Names matching text ignoring case, spacing and punctuation.
+
+    Order: names starting with it, names containing it, then (for 3+ characters)
+    names containing something close to it; each group sorted case-insensitively.
+    """
+    needle = normalize(text)
     if not needle:
-        return list(cars)
-    hits = [car for car in cars if needle in car.casefold()]
-    return sorted(hits, key=lambda car: (not car.casefold().startswith(needle), car.casefold()))
+        return list(names)
+    tiers = ([], [], [])
+    for name in dict.fromkeys(names):
+        flat = normalize(name)
+        if flat.startswith(needle):
+            tiers[0].append(name)
+        elif needle in flat:
+            tiers[1].append(name)
+        elif len(needle) >= 3 and _is_close(needle, flat):
+            tiers[2].append(name)
+    return [name for tier in tiers for name in sorted(tier, key=str.casefold)]
+
+
+def filter_cars(cars, text):
+    return match_names(cars, text)
+
+
+def snap_car(catalog_cars, text):
+    """The catalog car whose name equals text ignoring case, spacing and punctuation, if exactly one does."""
+    flat = normalize(text)
+    hits = [car for car in catalog_cars if normalize(car) == flat] if flat else []
+    return hits[0] if len(hits) == 1 else text
 
 
 def config_path():

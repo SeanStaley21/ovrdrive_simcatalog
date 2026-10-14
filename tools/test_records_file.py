@@ -269,20 +269,62 @@ class BuildRecord(unittest.TestCase):
 
 
 class FilterCars(unittest.TestCase):
-    CARS = ["Cup MX5", "Mazda MX-5", "MX5 Cup", "Audi R8", "Zonda MX5"]
+    CARS = ["Cup MX5", "Mazda MX-5", "MX5 Cup", "Audi R8", "Zonda MX5",
+            "Porsche 911 GT3", "Ferrari 488", "Lime Rock Raceway"]
 
     def test_substring_case_insensitive(self):
         self.assertEqual(rf.filter_cars(self.CARS, "r8"), ["Audi R8"])
 
     def test_prefix_matches_first_then_sorted(self):
-        self.assertEqual(rf.filter_cars(self.CARS, "mx5"), ["MX5 Cup", "Cup MX5", "Zonda MX5"])
+        self.assertEqual(rf.filter_cars(self.CARS, "mx5"),
+                         ["MX5 Cup", "Cup MX5", "Mazda MX-5", "Zonda MX5"])
+
+    def test_dash_ignored(self):
+        self.assertIn("Mazda MX-5", rf.filter_cars(self.CARS, "mx5"))
+        self.assertIn("Mazda MX-5", rf.filter_cars(self.CARS, "MX 5"))
+
+    def test_spacing_ignored(self):
+        self.assertEqual(rf.filter_cars(self.CARS, "limerock"), ["Lime Rock Raceway"])
+        self.assertEqual(rf.filter_cars(self.CARS, "Lime  Rock"), ["Lime Rock Raceway"])
+
+    def test_typo_tolerated(self):
+        self.assertEqual(rf.filter_cars(self.CARS, "porshe"), ["Porsche 911 GT3"])
+        self.assertEqual(rf.filter_cars(self.CARS, "ferrai"), ["Ferrari 488"])
+
+    def test_typo_matches_listed_last(self):
+        names = ["Alpha Porshe", "Porsche X", "Zed Porsche"]
+        self.assertEqual(rf.match_names(names, "porsche"),
+                         ["Porsche X", "Zed Porsche", "Alpha Porshe"])
 
     def test_empty_text_returns_all(self):
         self.assertEqual(rf.filter_cars(self.CARS, ""), self.CARS)
         self.assertEqual(rf.filter_cars(self.CARS, "  "), self.CARS)
 
-    def test_no_match_returns_empty(self):
+    def test_gibberish_returns_empty(self):
         self.assertEqual(rf.filter_cars(self.CARS, "zzz"), [])
+        self.assertEqual(rf.filter_cars(self.CARS, "qxv"), [])
+
+    def test_short_text_not_fuzzy(self):
+        self.assertEqual(rf.filter_cars(self.CARS, "r9"), [])
+
+    def test_no_duplicates(self):
+        self.assertEqual(rf.match_names(["A1", "A1"], "a"), ["A1"])
+
+
+class SnapCar(unittest.TestCase):
+    CARS = {"Mazda MX-5 Cup", "Audi R8", "Audi R-8"}
+
+    def test_normalized_match_snaps(self):
+        self.assertEqual(rf.snap_car(self.CARS, "mazda mx5 cup"), "Mazda MX-5 Cup")
+
+    def test_no_match_unchanged(self):
+        self.assertEqual(rf.snap_car(self.CARS, "Foo Car"), "Foo Car")
+
+    def test_ambiguous_unchanged(self):
+        self.assertEqual(rf.snap_car(self.CARS, "audi r8"), "audi r8")
+
+    def test_empty_unchanged(self):
+        self.assertEqual(rf.snap_car(self.CARS, "  "), "  ")
 
 
 class Save(TempFileCase):
