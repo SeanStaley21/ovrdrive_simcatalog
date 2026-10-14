@@ -1,0 +1,371 @@
+Assetto Corsa Dedicated Server v1.15
+Protocol version: 202
+2025-07-18 23:48:33.3736607 -0400 EDT m=+0.011069300
+Num CPU: 4
+Car list:
+_rss_formula_americas_2020_oval_
+Client interval HZ: 60
+WARNING: pitstop window needs a valid range
+WARNING: RACE_OVER_TIME was less of 30secs or not found, setting to default: 30secs
+WARNING: MAX_CONTACTS_PER_KM disabled
+AUTH_PLUGIN_ADDRESS 
+Initialising UDP Plugin with target: 127.0.0.1:31632 on the local port 31631
+TRACK=csp/2000/../D/../indi
+CARS=["rss_formula_americas_2020_oval"]
+SESSION: Race
+TYPE=RACE
+TIME=0
+LAPS=100
+OPEN=1
+WAIT TIME=20
+
+DynamicTrack: first session, resetting grip
+Trying to load DRS zones from: content/tracks/csp/2000/../D/../indi/data/drs_zones.ini
+open content/tracks/csp/2000/../D/../indi/data/drs_zones.ini: The system cannot find the file specified.
+Weather update. Ambient: 16.74231 Road: 22.104057 Graphics: 3_clear_type=19_time=115200
+Wind update. Speed: 0 Direction: 0
+CHECKSUM: system/data/surfaces.ini=41949b9f7045cad2af3f5eb951d170a9
+CHECKSUM: content/tracks/csp/2000/../D/../indi/data/surfaces.ini=7261680176ca02ada90ca597ce2c2321
+ACD CHECKSUM:09ad2a3180d4dc335d96a9878ce9fb25
+Loading blacklist
+Found car  CAR_0
+CAR: 0 rss_formula_americas_2020_oval (0) [Pod 3 [3]] Pod 3 [3] 3 Ballast: 0 kg
+CAR: 0 rss_formula_americas_2020_oval (0) [Pod 3 [3]] Pod 3 [3] 3 Restrictor: 0
+open setups/rss_formula_americas_2020_oval.ini: The system cannot find the file specified.
+Found car  CAR_1
+CAR: 1 rss_formula_americas_2020_oval (1) [Pod 4 [4]] Pod 4 [4] 4 Ballast: 0 kg
+CAR: 1 rss_formula_americas_2020_oval (1) [Pod 4 [4]] Pod 4 [4] 4 Restrictor: 0
+open setups/rss_formula_americas_2020_oval.ini: The system cannot find the file specified.
+Found car  CAR_2
+CAR: 2 rss_formula_americas_2020_oval (2) [Pod 5 [5]] Pod 5 [5] 5 Ballast: 0 kg
+CAR: 2 rss_formula_americas_2020_oval (2) [Pod 5 [5]] Pod 5 [5] 5 Restrictor: 0
+open setups/rss_formula_americas_2020_oval.ini: The system cannot find the file specified.
+Found car  CAR_3
+CAR: 3 rss_formula_americas_2020_oval (3) [Spectator []] Spectator [] 348872a7-fe9c-44db-b0de-76c60eca603f Ballast: 0 kg
+CAR: 3 rss_formula_americas_2020_oval (3) [Spectator []] Spectator [] 348872a7-fe9c-44db-b0de-76c60eca603f Restrictor: 0
+open setups/rss_formula_americas_2020_oval.ini: The system cannot find the file specified.
+Random seed: 3617926584
+Starting TCP listener at port 9599
+Session has 0 laps, will not save json
+NextSession
+SESSION: Race
+TYPE=RACE
+TIME=0
+LAPS=100
+OPEN=1
+WAIT TIME=20
+
+RACE, WaitTime: 20000 START TIME: 20089
+DynamicTrack: first session, resetting grip
+Weather update. Ambient: 19.108652 Road: 25.868086 Graphics: 3_clear_type=19_time=115200
+Wind update. Speed: 0 Direction: 0
+No laptime available, use car index for grids
+POS: 1, SessionID:0
+POS: 2, SessionID:1
+POS: 3, SessionID:2
+POS: 4, SessionID:3
+SENDING session name : Race
+SENDING session index : 0
+SENDING session type : 3
+SENDING session time : 0
+SENDING session laps : 100
+SENDING session Timed Race: false
+Starting HTTP server on port  8079
+Server started
+UDP_PLUGIN: Realtime pos interval now set to: 100 ms
+New connection from &{{2271202400}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.43:53356
+VERSION 202
+Pod 3
+REQUESTED CAR: rss_formula_americas_2020_oval*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 3
+Slot found by name at index 0
+DRIVER ACCEPTED FOR CAR 0
+DRIVER ACCEPTED FOR CAR Pod 3
+Tyre blankets: true
+Sending SESSION ID : 0
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19290
+Sending 2 checksum requests
+SERVER TIME: 799
+DRIVER: Pod 3 [3]
+New connection from &{{2267460500}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.44:58915
+VERSION 202
+Pod 4
+REQUESTED CAR: rss_formula_americas_2020_oval*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 4
+Slot found by name at index 1
+DRIVER ACCEPTED FOR CAR 1
+DRIVER ACCEPTED FOR CAR Pod 4
+Tyre blankets: true
+Sending SESSION ID : 1
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19285
+Sending 2 checksum requests
+SERVER TIME: 804
+DRIVER: Pod 4 [4]
+New connection from &{{2271203100}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.45:65136
+VERSION 202
+Pod 5
+REQUESTED CAR: rss_formula_americas_2020_oval*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 5
+Slot found by name at index 2
+DRIVER ACCEPTED FOR CAR 2
+DRIVER ACCEPTED FOR CAR Pod 5
+Tyre blankets: true
+Sending SESSION ID : 2
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19100
+Sending 2 checksum requests
+SERVER TIME: 989
+DRIVER: Pod 5 [5]
+New connection from &{{2267461200}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.127:63840
+VERSION 202
+Spectator
+REQUESTED CAR: rss_formula_americas_2020_oval*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 348872a7-fe9c-44db-b0de-76c60eca603f
+Slot found by name at index 3
+DRIVER ACCEPTED FOR CAR 3
+DRIVER ACCEPTED FOR CAR Spectator
+Tyre blankets: true
+Sending SESSION ID : 3
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-18926
+Sending 2 checksum requests
+SERVER TIME: 1163
+DRIVER: Spectator []
+TCP packet 63
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+Sending car list from index:0
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Pod 3 [3] changed tyres to H
+Sending weather  19.108652 25.868086
+Sending wind  0 0
+Sending first leaderboard to car: rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Pod 3 [3] changed tyres to H
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 0 MESSAGE: Hello there, Pod 3, your team: 3
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Recieved P2P Count: 0
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Pod 4 [4] changed tyres to H
+Sending weather  19.108652 25.868086
+Sending wind  0 0
+Sending first leaderboard to car: rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Pod 4 [4] changed tyres to H
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 1 MESSAGE: Hello there, Pod 4, your team: 4
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Recieved P2P Count: 0
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+Spectator [] changed tyres to H
+Sending weather  19.108652 25.868086
+Sending wind  0 0
+Sending first leaderboard to car: rss_formula_americas_2020_oval (3) [Spectator []]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+Spectator [] changed tyres to H
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 3 MESSAGE: Hello there, Spectator, your team: 
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+Recieved P2P Count: 0
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Pod 5 [5] changed tyres to H
+Sending weather  19.108652 25.868086
+Sending wind  0 0
+Sending first leaderboard to car: rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+UDP_PLUGIN: Send chat to car 2 MESSAGE: Hello there, Pod 5, your team: 5
+TCP packet 80
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Pod 5 [5] changed tyres to H
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Recieved P2P Count: 0
+TCP packet 13
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Recieved P2P Count: 0
+TCP packet 68
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Checksums received from  Pod 3 [3]
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../indi/data/surfaces.ini  ok
+Car checksum  rss_formula_americas_2020_oval true
+TCP packet 68
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Checksums received from  Pod 4 [4]
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../indi/data/surfaces.ini  ok
+Car checksum  rss_formula_americas_2020_oval true
+TCP packet 68
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Checksums received from  Pod 5 [5]
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../indi/data/surfaces.ini  ok
+Car checksum  rss_formula_americas_2020_oval true
+TCP packet 68
+Dispatching TCP message to rss_formula_americas_2020_oval (3) [Spectator []]
+Checksums received from  Spectator []
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../indi/data/surfaces.ini  ok
+Car checksum  rss_formula_americas_2020_oval true
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 0 19305
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Car.onSplitCompleted 0 0 20075
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 0 20661
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 1 12852
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Car.onSplitCompleted 0 1 13051
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 1 13023
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 2 9827
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Car.onSplitCompleted 0 2 9728
+TCP packet 88
+Dispatching TCP message to rss_formula_americas_2020_oval (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 2 9819
+TCP packet 130
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 4 [4] AND ENVIRONMENT SPEED: 68.16039 WORLD POS: [-503.549286,11.656086,371.911194] REL POS: [-0.958416,-0.189840,-1.713758]
+TCP packet 130
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 3 [3] AND Pod 4 [4] SPEED: 576.60175 WORLD POS: [-236.138397,10.444988,367.752472] REL POS: [0.234099,-0.126489,2.771595]
+TCP packet 130
+Dispatching TCP message to rss_formula_americas_2020_oval (1) [Pod 4 [4]]
+RECEIVED 2 CLIENT EVENTS
+COLLISION BETWEEN: Pod 4 [4] AND Pod 3 [3] SPEED: 563.98926 WORLD POS: [-236.313263,10.435925,367.437836] REL POS: [-0.824570,-0.140035,2.444204]
+COLLISION BETWEEN: Pod 4 [4] AND ENVIRONMENT SPEED: 126.63819 WORLD POS: [-211.777664,10.480910,371.691986] REL POS: [-0.874385,-0.125392,2.742342]
+TCP packet 73
+Dispatching TCP message to rss_formula_americas_2020_oval (0) [Pod 3 [3]]
+Car.onLapCompleted
+LAP Pod 3 0:55:725
+SPLIT COUNT: 4
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 5 0:56:031
+SPLIT COUNT: 4
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 5 0:43:019
+SPLIT COUNT: 4
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 3 0:45:009
+SPLIT COUNT: 4
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 4 2:01:104
+SPLIT COUNT: 4
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 5 0:43:572
+SPLIT COUNT: 4
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
