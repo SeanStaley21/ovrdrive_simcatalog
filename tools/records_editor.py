@@ -1,6 +1,8 @@
 """Tkinter editor for the track records in db/userSetRecords.json."""
+import sys
 import tkinter as tk
 from datetime import date
+from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from check_track_records import CLASSES, is_blank
@@ -513,9 +515,18 @@ class App:
             self.root.destroy()
 
 
+def set_window_icon(root):
+    icon = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent)) / "records_editor.ico"
+    try:
+        root.iconbitmap(str(icon))
+    except tk.TclError:
+        pass
+
+
 def main():
     root = tk.Tk()
     root.withdraw()
+    set_window_icon(root)
     loaded = load_with_prompts(read_saved_path())
     if loaded is None:
         root.destroy()

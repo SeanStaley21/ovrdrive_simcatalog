@@ -44,6 +44,7 @@ A small Windows app for adding records to `userSetRecords.json` without editing 
 - Pick a track, then a layout, then fill Class, Car, Driver, Time and Year. Year defaults to the current year and only the year is saved.
 - The Car box autocompletes from `data/cars.json` but accepts any text.
 - Use New, Edit selected, Delete selected and Save.
+- The app icon is drawn by `tools/make_records_editor_icon.py`; regenerate it with `python tools/make_records_editor_icon.py`.
 - Save changes only the layout you touched, keeps the file's line endings and format, and adds records before the trailing blank record. It refuses files with duplicate keys or invalid JSON.
 - Saving does not publish anything. Commit and push the changed file afterward.
 - The exe is unsigned, so Windows SmartScreen may show "Windows protected your PC". Choose More info > Run anyway.
