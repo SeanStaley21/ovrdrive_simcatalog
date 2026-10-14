@@ -2,3 +2,4 @@ asset_data/
 tools/build/
 tools/dist/
 tools/__pycache__/
+tools/bestLapsTest.json*

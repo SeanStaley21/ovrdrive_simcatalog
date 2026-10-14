@@ -17,7 +17,6 @@ python tools/check_track_records.py --nested FILE. A sidecar FILE.state.json rem
 logs were already read; deleting it is always safe.
 """
 import argparse
-import copy
 import json
 import logging
 import os
@@ -185,9 +184,9 @@ def sort_records(data):
         return (ms is None, ms or 0)
 
     out = {}
-    for track in sorted(data):
+    for track in sorted(data, key=str.casefold):
         out[track] = {}
-        for layout in sorted(data[track]):
+        for layout in sorted(data[track], key=str.casefold):
             entry = dict(data[track][layout])
             entry["records"] = sorted(entry.get("records", []), key=lap_key)
             out[track][layout] = entry
@@ -236,13 +235,14 @@ def file_signature(path):
     return [stat.st_size, stat.st_mtime_ns]
 
 
-def run_pass(logs_dir, out_path, id_map, state, data, unmapped, reported):
-    """Read every changed log, merge its laps into data, write if anything improved.
+def run_pass(logs_dir, out_path, id_map, state, unmapped, reported):
+    """Read every changed log, merge its laps into the records file, write if anything improved.
 
-    Returns the updated data; the caller's data is left untouched if the write fails, so
-    the next pass redoes the merge. state is updated in place once the write succeeded.
+    The records file is loaded afresh each pass so hand edits made meanwhile are kept; an
+    invalid file raises OutputError before anything is written. state is updated in place
+    once the write succeeded, so a failed write is redone on the next pass.
     """
-    data = copy.deepcopy(data)
+    data = load_records(out_path)
     changed = not out_path.exists()
     seen = {}
     for path in sorted(logs_dir.glob("*.log")):
@@ -262,14 +262,12 @@ def run_pass(logs_dir, out_path, id_map, state, data, unmapped, reported):
             if merge_lap(data, *names, driver, ms):
                 changed = True
     if changed:
-        data = sort_records(data)
-        write_json(out_path, data)
+        write_json(out_path, sort_records(data))
         log.info("wrote %s", out_path.name)
     for item in sorted(unmapped - reported):
         log.warning("no id map entry for %s", item)
     reported |= unmapped
     state.update(seen)
-    return data
 
 
 def main(argv=None):
@@ -290,7 +288,7 @@ def main(argv=None):
         return 2
     try:
         id_map = load_id_map(Path(args.map))
-        data = load_records(out_path)
+        load_records(out_path)
     except (OSError, ValueError, OutputError) as exc:
         log.error("%s", exc if isinstance(exc, OutputError) else f"cannot load {type(exc).__name__}")
         return 2
@@ -301,10 +299,10 @@ def main(argv=None):
     try:
         while True:
             try:
-                data = run_pass(logs_dir, out_path, id_map, state, data, unmapped, reported)
+                run_pass(logs_dir, out_path, id_map, state, unmapped, reported)
                 write_json(state_path, {"files": state})
-            except OSError as exc:
-                log.warning("pass failed: %s", type(exc).__name__)
+            except (OSError, OutputError) as exc:
+                log.warning("pass skipped: %s", exc if isinstance(exc, OutputError) else type(exc).__name__)
                 if args.once:
                     return 1
             if args.once:

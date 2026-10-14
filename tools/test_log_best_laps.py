@@ -120,6 +120,14 @@ class MergeTests(unittest.TestCase):
         self.assertFalse(lbl.merge_lap(data, "T", "L", "C", "Pod 3", 95000))
         self.assertEqual(data["T"]["L"]["records"][0]["driver"], "Jane")
 
+    def test_tracks_and_layouts_sort_case_insensitively(self):
+        data = {}
+        for track, layout in [("b track", "z"), ("Zandvoort", "B"), ("a track", "a"), ("Zandvoort", "a")]:
+            lbl.merge_lap(data, track, layout, "C", "Pod 3", 90000)
+        out = lbl.sort_records(data)
+        self.assertEqual(list(out), ["a track", "b track", "Zandvoort"])
+        self.assertEqual(list(out["Zandvoort"]), ["a", "B"])
+
     def test_parse_time(self):
         self.assertEqual(lbl.parse_time("1:20.942"), 80942)
         self.assertEqual(lbl.parse_time("0:28.07"), 28070)
@@ -184,6 +192,29 @@ class PassTests(unittest.TestCase):
         self.out.write_text('{"T": []}', encoding="utf-8")
         self.assertEqual(self.run_main(), 2)
         self.assertEqual(self.out.read_text(encoding="utf-8"), '{"T": []}')
+
+    def test_hand_edit_between_passes_survives_a_later_write(self):
+        (self.logs / "a.log").write_text(make_log(laps=[("Pod 3", "1:00:000", 0)]), encoding="utf-8")
+        state, unmapped, reported = {}, set(), set()
+        lbl.run_pass(self.logs, self.out, ID_MAP, state, unmapped, reported)
+        data = json.loads(self.out.read_text(encoding="utf-8"))
+        data["Indianapolis Motor Speedway"]["Indianapolis Motor Speedway"]["records"][0]["driver"] = "Jane"
+        self.out.write_text(json.dumps(data), encoding="utf-8")
+        (self.logs / "b.log").write_text(
+            make_log(track="daytona_2017", layout="oval", laps=[("Pod 4", "2:00:000", 0)]), encoding="utf-8")
+        lbl.run_pass(self.logs, self.out, ID_MAP, state, unmapped, reported)
+        data = json.loads(self.out.read_text(encoding="utf-8"))
+        self.assertEqual(data["Indianapolis Motor Speedway"]["Indianapolis Motor Speedway"]["records"][0]["driver"], "Jane")
+        self.assertIn("Daytona International Speedway", data)
+
+    def test_invalid_output_mid_run_skips_the_pass_without_writing(self):
+        state = {}
+        lbl.run_pass(self.logs, self.out, ID_MAP, state, set(), set())
+        self.out.write_text("{ not json", encoding="utf-8")
+        (self.logs / "a.log").write_text(make_log(laps=[("Pod 3", "1:00:000", 0)]), encoding="utf-8")
+        with self.assertRaises(lbl.OutputError):
+            lbl.run_pass(self.logs, self.out, ID_MAP, state, set(), set())
+        self.assertEqual(self.out.read_text(encoding="utf-8"), "{ not json")
 
     def test_missing_logs_dir_fails(self):
         self.logs.rmdir()
