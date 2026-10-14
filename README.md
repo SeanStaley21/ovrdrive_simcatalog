@@ -26,7 +26,7 @@ The catalog loads its data with `fetch()`, so opening `index.html` directly (`fi
 - `cars/` — car photos referenced by the catalog data.
 - `tracks/` — track layout images (each track has a filled and an outline version per layout).
 - `thumbs/` — WebP card thumbnails generated from the car and track images by `tools/make_thumbs.py`.
-- `tools/` — maintenance scripts.
+- `tools/` — maintenance scripts, including the Records editor (`records_editor.py`, `records_file.py`, `test_records_file.py`, `build_records_editor.bat`).
 - `logos/` — OVRDRIVE branding assets.
 - `favicon.png` — site favicon.
 - `manifest.webmanifest`, `icons/` — web app manifest and its 192/512 px install icons.
@@ -53,6 +53,8 @@ The Records page in the top bar reads `db/userSetRecords.json`. It lists every t
 ```
 python tools/check_track_records.py
 ```
+
+Records can also be added with the Records editor app (`tools/records_editor.py`, or the built `OVRDrive Records Editor.exe`); see the "Records editor" section in `db/README.md`.
 
 Edits to this file go live without bumping `VERSION`: the service worker fetches it from the network first and only falls back to its cached copy when offline. A track or layout that is not in `data/tracks.json` is ignored and logged to the browser console.
 
