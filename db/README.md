@@ -1,8 +1,44 @@
 # db/
 
+Two record files live here:
+
+- `userSetRecords.json` is where records set on the rigs are entered. The Records page reads it.
+- `track-records.json` is seeded reference data from outside sources; it can also be edited by hand and is checked the same way. Not read by the site yet.
+
+## userSetRecords.json
+
+Records set here, grouped by track, then layout. It lists every track in `data/tracks.json` in alphabetical order, and each track holds its layouts in alphabetical order. Every layout ships with one blank record:
+
+```json
+"Laguna Seca": {
+  "Laguna Seca": {
+    "records": [
+      { "class": "", "car": "", "driver": "", "time": "" }
+    ]
+  }
+}
+```
+
+To add a record, type between the quotes of the blank record. `class`, `car`, `driver` and `time` are required; the optional fields in the table below are added only when needed. For a second record on the same layout, copy the line and add a comma after the first:
+
+```json
+"records": [
+  { "class": "GT", "car": "Porsche 911 GT3 R", "driver": "Jane Doe", "time": "1:20.942" },
+  { "class": "", "car": "", "driver": "", "time": "" }
+]
+```
+
+A record with all four required fields empty (and no other fields) is blank: the check and the site ignore it and it counts as no record. A half-filled record is an error.
+
+The `class` value is stored as in the allowed list below; the Records page shows `Formula` as Formula 1, `Prototype` as LMP and `Stock car` as NASCAR. Records are ranked fastest first within each class.
+
+In VS Code, Ctrl+K Ctrl+2 folds the file down to track names and Ctrl+K Ctrl+J unfolds everything. Ctrl+K Ctrl+3 shows the layouts under each track.
+
+Edits to this file go live without bumping `VERSION`: the service worker fetches it from the network first.
+
 ## track-records.json
 
-Lap records per track. Not read by the site yet; edit it by hand and run the check before committing.
+Seeded lap records per track. Not read by the site yet; edit it by hand and run the check before committing.
 
 ### Layout
 
@@ -16,6 +52,8 @@ One entry per `"Track::Layout"` key from `data/tracks.json`, kept in alphabetica
 ```
 
 ### Record fields
+
+These fields and the allowed values below apply to both files.
 
 | Field | Required | Default | Notes |
 | --- | --- | --- | --- |
@@ -47,7 +85,7 @@ To add a class, add it to `CLASSES` in `tools/check_track_records.py` and to the
 
 ### Adding a record
 
-Paste this into the `records` list of the track, with a comma between records:
+Paste this into the `records` list of the entry, with a comma between records:
 
 ```json
 { "class": "GT", "car": "Porsche 911 GT3 R", "driver": "Jane Doe", "time": "1:20.942" }
@@ -62,7 +100,9 @@ A track with no records looks like this:
 ### Checking
 
 ```
-python tools/check_track_records.py
+python tools/check_track_records.py                  # both files
+python tools/check_track_records.py PATH             # one file shaped like track-records.json
+python tools/check_track_records.py --nested PATH    # one file shaped like userSetRecords.json
 ```
 
-Prints each problem as `Track::Layout: problem` and exits 1, or prints `OK: ...` and exits 0. An entry order that is not alphabetical only prints a warning. To check another file, pass its path as an argument.
+With no arguments it checks `track-records.json` and `userSetRecords.json`. Each problem is printed with its track and layout. The exit code is 1 if any problem was found; otherwise each file prints `OK: ...` and the exit code is 0. A track or layout order that is not alphabetical only prints a warning.

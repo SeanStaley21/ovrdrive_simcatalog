@@ -1,4 +1,4 @@
-var VERSION = '20261013b';
+var VERSION = '20261013c';
 var CACHE_PREFIX = 'simcatalog-';
 var SHELL = CACHE_PREFIX + 'shell-' + VERSION;
 var IMG = CACHE_PREFIX + 'img-' + VERSION;
@@ -11,7 +11,7 @@ var PRECACHE = [
   'rigRecords/records.js',
   'data/cars.json',
   'data/tracks.json',
-  'data/rig-records.json',
+  'db/userSetRecords.json',
   'favicon.png',
   'manifest.webmanifest',
   'icons/icon-192.png',
@@ -91,7 +91,7 @@ self.addEventListener('fetch', function (e) {
     e.respondWith(cacheFirst(e, req, './', SHELL, isOk));
   } else if (req.destination === 'image' || IMAGE_DIRS.test(url.pathname)) {
     e.respondWith(cacheFirst(e, req, key, IMG, isOk));
-  } else if (/\/data\/rig-records\.json$/.test(url.pathname)) {
+  } else if (/\/db\/userSetRecords\.json$/.test(url.pathname)) {
     e.respondWith(networkFirst(e, req, key));
   } else {
     e.respondWith(cacheFirst(e, req, key, SHELL, isOk));

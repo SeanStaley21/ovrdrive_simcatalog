@@ -1,11 +1,12 @@
 (function(){
-var CLS=['Formula 1','LMP','GT','NASCAR'],COL={'Formula 1':'#ef4444','LMP':'#f97316','GT':'#00AEEF','NASCAR':'#eab308'};
+var CLS=['Formula','Prototype','GT','Stock car'],LABEL={'Formula':'Formula 1','Prototype':'LMP','GT':'GT','Stock car':'NASCAR'},COL={'Formula':'#ef4444','Prototype':'#f97316','GT':'#00AEEF','Stock car':'#eab308'};
 var OTHER_COL='#9ca3af';
 var page=document.getElementById('records-page'),btn=document.getElementById('rec-nav-btn');
 if(!page||!btn)return;
 var rows=[],loaded=false,ready=null,q='',cf='all',only=false,open={};
 function S(x){return String(x==null?'':x);}
 function esc(s){return S(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function lbl(c){return LABEL[c]||c;}
 function el(id){return document.getElementById(id);}
 function ms(t){
   var m=/^(?:(\d+):)?(\d+(?:\.\d+)?)$/.exec(t.trim());
@@ -17,7 +18,7 @@ page.innerHTML='<div class="rp-head"><h1 id="rp-title" tabindex="-1">Sim Records
 var fl=el('rp-filters');
 function chips(){
   var h='<button type="button" class="rp-chip'+(cf==='all'?' on':'')+'" data-c="all" aria-pressed="'+(cf==='all')+'">All classes</button>';
-  CLS.forEach(function(c){h+='<button type="button" class="rp-chip'+(cf===c?' on':'')+'" data-c="'+c+'" aria-pressed="'+(cf===c)+'" style="--rc:'+COL[c]+'"><i></i>'+c+'</button>';});
+  CLS.forEach(function(c){h+='<button type="button" class="rp-chip'+(cf===c?' on':'')+'" data-c="'+esc(c)+'" aria-pressed="'+(cf===c)+'" style="--rc:'+COL[c]+'"><i></i>'+esc(lbl(c))+'</button>';});
   h+='<span class="rp-sep"></span><button type="button" class="rp-chip'+(only?' on':'')+'" data-only="1" aria-pressed="'+only+'">Has times</button>';
   fl.innerHTML=h;
 }
@@ -28,25 +29,37 @@ fl.addEventListener('click',function(e){
 });
 el('rp-q').addEventListener('input',function(){q=this.value.trim().toLowerCase();el('rp-x').style.display=q?'block':'none';render();});
 el('rp-x').addEventListener('click',function(){var i=el('rp-q');i.value='';q='';this.style.display='none';i.focus();render();});
+function blank(e){
+  if(!e||typeof e!=='object'||Array.isArray(e))return false;
+  var k=Object.keys(e);
+  return k.length===4&&['class','car','driver','time'].every(function(f){return typeof e[f]==='string'&&!e[f].trim();});
+}
 function entries(list){
   if(!Array.isArray(list))return [];
-  return list.map(function(e){
+  return list.filter(function(e){return !blank(e);}).map(function(e){
     e=e&&typeof e==='object'?e:{};
-    var t=S(e.time);
-    return {driver:S(e.driver),car:S(e.car),cls:S(e.class),time:t,date:S(e.date),ms:ms(t)};
+    var t=S(e.time).trim();
+    return {driver:S(e.driver).trim(),car:S(e.car).trim(),cls:S(e.class).trim(),time:t,year:S(e.year).trim(),ms:ms(t)};
   }).sort(function(a,b){return a.ms<b.ms?-1:a.ms>b.ms?1:0;});
 }
 function load(){
-  return fetch('data/rig-records.json').then(function(r){
-    if(!r.ok)throw new Error('rig-records.json '+r.status);
+  return fetch('db/userSetRecords.json').then(function(r){
+    if(!r.ok)throw new Error('userSetRecords.json '+r.status);
     return r.json();
   }).catch(function(err){
     console.error(err);
     return {};
-  }).then(function(R){
-    R=R&&typeof R==='object'?R:{};
-    Object.keys(R).forEach(function(k){
-      if(!Object.prototype.hasOwnProperty.call(window.trackData,k))console.warn('rig-records.json: unknown track key',k);
+  }).then(function(U){
+    U=U&&typeof U==='object'?U:{};
+    var R={},has=Object.prototype.hasOwnProperty;
+    Object.keys(U).forEach(function(t){
+      var L=U[t];
+      if(!L||typeof L!=='object'||Array.isArray(L)){console.warn('userSetRecords.json: track is not an object',t);return;}
+      Object.keys(L).forEach(function(l){
+        var k=t+'::'+l,e=L[l];
+        if(!has.call(window.trackData,k))console.warn('userSetRecords.json: unknown track or layout',t+' / '+l);
+        R[k]=e&&typeof e==='object'?e.records:null;
+      });
     });
     Object.keys(window.trackData).forEach(function(k){
       var p=k.split('::'),d=window.trackData[k];
@@ -62,8 +75,8 @@ function detail(r){
   groups.forEach(function(c){
     var es=r.ents.filter(function(e){return e.cls===c;});
     if(!es.length||(cf!=='all'&&cf!==c))return;
-    h+='<div class="rp-cls" style="--rc:'+(COL[c]||OTHER_COL)+'"><h3>'+esc(c||'Other')+'</h3>';
-    es.forEach(function(e,i){h+='<div class="rp-ent"><span class="rp-rank">'+(i+1)+'</span><span class="rp-who">'+esc(e.driver)+'</span><span class="rp-time">'+esc(e.time)+'</span><span class="rp-car">'+esc(e.car)+(e.date?' · '+esc(e.date):'')+'</span></div>';});
+    h+='<div class="rp-cls" style="--rc:'+(COL[c]||OTHER_COL)+'"><h3>'+esc(lbl(c)||'Other')+'</h3>';
+    es.forEach(function(e,i){h+='<div class="rp-ent"><span class="rp-rank">'+(i+1)+'</span><span class="rp-who">'+esc(e.driver)+'</span><span class="rp-time">'+esc(e.time)+'</span><span class="rp-car">'+esc(e.car)+(e.year?' · '+esc(e.year):'')+'</span></div>';});
     h+='</div>';
   });
   if(!h)h='<div class="rp-none">No rig times for this selection</div>';
@@ -82,14 +95,14 @@ function render(){
   var withT=rows.filter(function(r){return r.ents.length;}).length;
   el('rp-meta').innerHTML='<span><b>'+list.length+'</b> layout'+(list.length===1?'':'s')+'</span><span>'+withT+' of '+rows.length+' have rig times</span>';
   var box=el('rp-list');
-  if(!list.length){var fs=[];if(q)fs.push('“'+esc(q)+'”');if(cf!=='all')fs.push(cf+' times');if(only)fs.push('rig times');box.innerHTML='<div class="rp-empty">No tracks match '+(fs.join(' + ')||'this search')+'.'+((cf!=='all'||only)?'<br><button type="button" class="rp-open" id="rp-reset" style="margin-top:14px">Clear filters</button>':'')+'</div>';var rb=el('rp-reset');if(rb)rb.onclick=function(){cf='all';only=false;chips();render();};return;}
+  if(!list.length){var fs=[];if(q)fs.push('“'+esc(q)+'”');if(cf!=='all')fs.push(lbl(cf)+' times');if(only)fs.push('rig times');box.innerHTML='<div class="rp-empty">No tracks match '+(fs.join(' + ')||'this search')+'.'+((cf!=='all'||only)?'<br><button type="button" class="rp-open" id="rp-reset" style="margin-top:14px">Clear filters</button>':'')+'</div>';var rb=el('rp-reset');if(rb)rb.onclick=function(){cf='all';only=false;chips();render();};return;}
   var h='';
   list.forEach(function(r){
     var sub=(r.layout.toLowerCase()!==r.name.toLowerCase()?r.layout+' · ':'')+[r.country,r.length].filter(Boolean).join(' · ');
     var right;
     if(!r.ents.length)right='<span class="rp-none">No rig time yet</span>';
     else if(cf!=='all'){var b=r.ents.filter(function(e){return e.cls===cf;})[0];right='<span class="rp-best">'+esc(b.time)+'</span><span class="rp-count">'+esc(b.driver)+'</span>';}
-    else{var cs=CLS.filter(function(c){return r.ents.some(function(e){return e.cls===c;});});right='<span class="rp-dots">'+cs.map(function(c){return '<i style="--rc:'+COL[c]+'" title="'+c+'"></i>';}).join('')+'</span><span class="rp-count">'+r.ents.length+' time'+(r.ents.length===1?'':'s')+'</span>';}
+    else{var cs=CLS.filter(function(c){return r.ents.some(function(e){return e.cls===c;});});right='<span class="rp-dots">'+cs.map(function(c){return '<i style="--rc:'+COL[c]+'" title="'+esc(lbl(c))+'"></i>';}).join('')+'</span><span class="rp-count">'+r.ents.length+' time'+(r.ents.length===1?'':'s')+'</span>';}
     h+='<div class="rp-item'+(open[r.key]?' open':'')+'" data-k="'+esc(r.key)+'"><button type="button" class="rp-row" aria-expanded="'+(open[r.key]?'true':'false')+'"><span class="rp-name"><b>'+esc(r.name)+'</b><span>'+esc(sub)+'</span></span><span class="rp-right">'+right+'</span><span class="rp-chev"></span></button><div class="rp-detail">'+(open[r.key]?detail(r):'')+'</div></div>';
   });
   box.innerHTML=h;
