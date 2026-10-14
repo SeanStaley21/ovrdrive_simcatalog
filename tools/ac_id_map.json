@@ -1,0 +1,422 @@
+{
+ "tracks": {
+  "aa_Bristol": {
+   "name": "Bristol Motor Speedway",
+   "layouts": {
+    "": "Bristol Motor Speedway"
+   }
+  },
+  "acu_chicago_street": {
+   "name": "Chicago Street Circuit",
+   "layouts": {
+    "normal": "Chicago Street Circuit"
+   }
+  },
+  "barber_motorsports_park": {
+   "name": "Barber Motorsports Park",
+   "layouts": {
+    "": "Barber Motorsports Park"
+   }
+  },
+  "bs_lagunaseca": {
+   "name": "Laguna Seca",
+   "layouts": {
+    "": "Laguna Seca"
+   }
+  },
+  "china-gp": {
+   "name": "Shanghai International Circuit",
+   "layouts": {
+    "": "Shanghai International Circuit"
+   }
+  },
+  "cota": {
+   "name": "Circuit of the Americas",
+   "layouts": {
+    "": "Circuit of the Americas"
+   }
+  },
+  "daytona_2017": {
+   "name": "Daytona International Speedway",
+   "layouts": {
+    "oval": "Nascar",
+    "roadcourse": "Road Course"
+   }
+  },
+  "drift": {
+   "name": "Drift",
+   "layouts": {
+    "": "Drift"
+   }
+  },
+  "gilles-villeneuve": {
+   "name": "Circuit Gilles Villeneuve",
+   "layouts": {
+    "": "Circuit Gilles Villeneuve"
+   }
+  },
+  "imola": {
+   "name": "Imola",
+   "layouts": {
+    "": "Imola"
+   }
+  },
+  "indi": {
+   "name": "Indianapolis Motor Speedway",
+   "layouts": {
+    "": "Indianapolis Motor Speedway"
+   }
+  },
+  "indif1": {
+   "name": "Indianapolis",
+   "layouts": {
+    "": "F1 GP"
+   }
+  },
+  "indifield": {
+   "name": "Indianapolis",
+   "layouts": {
+    "": "Infield"
+   }
+  },
+  "interlagos": {
+   "name": "Interlagos",
+   "layouts": {
+    "": "Interlagos"
+   }
+  },
+  "korea": {
+   "name": "Korea International Circuit",
+   "layouts": {
+    "": "Korea International Circuit"
+   }
+  },
+  "ks_barcelona": {
+   "name": "Barcelona-Catalunya",
+   "layouts": {
+    "layout_gp": "GP",
+    "layout_moto": "Moto"
+   }
+  },
+  "ks_black_cat_county": {
+   "name": "Black Cat County",
+   "layouts": {
+    "layout_int": "Black Cat County",
+    "layout_long": "Long",
+    "layout_short": "Short"
+   }
+  },
+  "ks_brands_hatch": {
+   "name": "Brands Hatch",
+   "layouts": {
+    "gp": "GP"
+   }
+  },
+  "ks_drag": {
+   "name": "Drag Strip",
+   "layouts": {
+    "drag200": "200m"
+   }
+  },
+  "ks_highlands": {
+   "name": "Highlands",
+   "layouts": {
+    "layout_drift": "Drift",
+    "layout_int": "Highlands",
+    "layout_long": "Long"
+   }
+  },
+  "ks_laguna_seca": {
+   "name": "Laguna Seca",
+   "layouts": {
+    "": "Laguna Seca"
+   }
+  },
+  "ks_monza66": {
+   "name": "Monza 1966 Historic",
+   "layouts": {
+    "full": "1966 - Full Course",
+    "road": "1966 - Road Course"
+   }
+  },
+  "ks_nordschleife": {
+   "name": "Nordschleife",
+   "layouts": {
+    "nordschleife": "Nordschleife"
+   }
+  },
+  "ks_nurburgring": {
+   "name": "Nurburgring",
+   "layouts": {
+    "layout_gp_a": "GP",
+    "layout_gp_b": "GP (GT)"
+   }
+  },
+  "ks_red_bull_ring": {
+   "name": "Red Bull Ring",
+   "layouts": {
+    "layout_gp": "GP",
+    "layout_national": "National"
+   }
+  },
+  "lemans_2017": {
+   "name": "Circuit de la Sarthe (Le Mans)",
+   "layouts": {
+    "no_lights": "No Lights",
+    "nochic_lights": "No Chicane Lights",
+    "nochic_no_lights": "No Chicane No Lights"
+   }
+  },
+  "lilski_watkins_glen": {
+   "name": "Watkins Glen",
+   "layouts": {
+    "boot": "Boot",
+    "boot_classic": "Boot Classic",
+    "short": "Short",
+    "short_classic": "Short Classic",
+    "short_classic_end": "Short Classic Endurance",
+    "short_end": "Short Endurance"
+   }
+  },
+  "limerock_raceway_fm7": {
+   "name": "Lime Rock Park",
+   "layouts": {
+    "chicane": "Rock Raceway - Chicane",
+    "no_chicane": "Rock Raceway - No Chicane"
+   }
+  },
+  "magione": {
+   "name": "Magione",
+   "layouts": {
+    "": "Magione"
+   }
+  },
+  "malagoli_fuji_speedway_gp": {
+   "name": "Fuji Speedway",
+   "layouts": {
+    "layout_gp": "Fuji Speedway"
+   }
+  },
+  "midohioch": {
+   "name": "Mid-Ohio Sports Car Course",
+   "layouts": {
+    "": "Mid-Ohio Sports Car Course"
+   }
+  },
+  "monaco_osrw_1.1": {
+   "name": "Monaco",
+   "layouts": {
+    "": "Monaco"
+   }
+  },
+  "monza": {
+   "name": "Monza",
+   "layouts": {
+    "": "Monza"
+   }
+  },
+  "mosport2012": {
+   "name": "Mosport (CTMP)",
+   "layouts": {
+    "": "Mosport (CTMP)"
+   }
+  },
+  "mt_tremblant": {
+   "name": "Circuit Mont-Tremblant",
+   "layouts": {
+    "standard": "Circuit Mont-Tremblant"
+   }
+  },
+  "mugello": {
+   "name": "Mugello",
+   "layouts": {
+    "": "Mugello"
+   }
+  },
+  "okayama": {
+   "name": "Okayama (TI Circuit Aida)",
+   "layouts": {
+    "circuit_gp": "Grand Prix"
+   }
+  },
+  "oulton_park": {
+   "name": "Oulton Park",
+   "layouts": {
+    "international": "International"
+   }
+  },
+  "projecttouge": {
+   "name": "Project Touge",
+   "layouts": {
+    "full": "Full"
+   }
+  },
+  "rainbowroad": {
+   "name": "Rainbow Road",
+   "layouts": {
+    "": "Rainbow Road"
+   }
+  },
+  "road_atlanta2018": {
+   "name": "Road Atlanta",
+   "layouts": {
+    "grandprix": "Grand Prix"
+   }
+  },
+  "rt_bathurst": {
+   "name": "Mount Panorama (Bathurst)",
+   "layouts": {
+    "": "Mount Panorama (Bathurst)"
+   }
+  },
+  "rt_daytona": {
+   "name": "Daytona International Speedway",
+   "layouts": {
+    "tri-oval": "Tri-Oval"
+   }
+  },
+  "rt_port_newark": {
+   "name": "Port Newark",
+   "layouts": {
+    "normal": ", NJ"
+   }
+  },
+  "rt_sonoma": {
+   "name": "Sonoma Raceway",
+   "layouts": {
+    "indy": "Indy Circuit",
+    "nascar": "Nascar Circuit"
+   }
+  },
+  "sebring_rtb_v08": {
+   "name": "Sebring International Raceway",
+   "layouts": {
+    "": "Sebring International Raceway"
+   }
+  },
+  "singapore": {
+   "name": "Marina Bay (Singapore)",
+   "layouts": {
+    "": "Marina Bay (Singapore)"
+   }
+  },
+  "sonoma": {
+   "name": "Sonoma Raceway",
+   "layouts": {
+    "indy": "Indy Circuit",
+    "long": "Long Circuit"
+   }
+  },
+  "spa": {
+   "name": "Spa-Francorchamps",
+   "layouts": {
+    "": "Spa-Francorchamps"
+   }
+  },
+  "sportsdrome_figure_8_north": {
+   "name": "Sportsdrome Figure 8 (North)",
+   "layouts": {
+    "": "Sportsdrome Figure 8 (North)"
+   }
+  },
+  "sportsdrome_figure_8_south": {
+   "name": "Sportsdrome Figure 8 (South)",
+   "layouts": {
+    "": "Sportsdrome Figure 8 (South)"
+   }
+  },
+  "topanga_canyon_v1": {
+   "name": "Topanga Canyon",
+   "layouts": {
+    "hillclimb": "01 Hillclimb"
+   }
+  },
+  "vir": {
+   "name": "Virginia International Raceway",
+   "layouts": {
+    "full course": "VIR Full Course",
+    "south course": "VIR South Course"
+   }
+  }
+ },
+ "cars": {
+  "bmw_m3_e30_drift": "BMW M3 E30 Drift",
+  "bmw_m3_e92_drift": "BMW M3 E92 drift",
+  "bmw_m3_gt2": "BMW M3 GT2",
+  "bmw_z4_drift": "BMW Z4 E89 Drift",
+  "bmw_z4_gt3": "BMW Z4 GT3",
+  "bz_viper_acr_aerokit_s1": "Dodge Viper ACR '16 Extreme Package Nordschleife",
+  "bz_viper_ta": "Dodge Viper TA '14",
+  "chevy_chevelle1970": "Chevelle SS 454 LS6",
+  "chevy_impala1964": "1964 Chevy Impala 409",
+  "corvette_zr1_1970": "Corvette ZR-1 1970",
+  "dodge_challenger_wb": "Dodge Challenger Widebody",
+  "dodge_viper_acr16": "Dodge Viper ACR 2016",
+  "ferrari_458_gt2": "Ferrari 458 GT2",
+  "ferrari_laferrari": "Ferrari LaFerrari",
+  "ford_f150_svt_raptor_2011": "Ford F-150 SVT Raptor 2011",
+  "ford_mustang_2015_r2": "Ford Mustang 2015 R2",
+  "gokart125s": "Kart 125 Shifter",
+  "jw_chevrolet_c8_stingray": "Chevrolet Corvette C8 Stingray 3LT",
+  "ks_audi_r18_etron_quattro": "Audi R18 e-tron quattro 2014",
+  "ks_audi_r8_lms": "Audi R8 LMS Ultra",
+  "ks_audi_r8_lms_2016": "Audi R8 LMS 2016",
+  "ks_audi_r8_plus": "Audi R8 V10 Plus",
+  "ks_audi_sport_quattro_rally": "Audi Sport quattro S1 E2",
+  "ks_bmw_m4": "BMW M4",
+  "ks_bmw_m4_akrapovic": "BMW M4 Akrapovic",
+  "ks_corvette_c7_stingray": "Chevrolet Corvette C7 Stingray",
+  "ks_corvette_c7r": "Chevrolet Corvette C7R",
+  "ks_ferrari_288_gto": "Ferrari GTO",
+  "ks_ferrari_488_gt3": "Ferrari 488 GT3",
+  "ks_ferrari_f138": "Ferrari F138",
+  "ks_ferrari_f2004": "Ferrari F2004",
+  "ks_ferrari_fxx_k": "Ferrari FXX K",
+  "ks_ferrari_sf15t": "Ferrari SF15-T",
+  "ks_ferrari_sf70h": "Ferrari SF70H",
+  "ks_ford_mustang_2015": "Ford Mustang 2015",
+  "ks_lamborghini_huracan_gt3": "Lamborghini Huracan GT3",
+  "ks_lamborghini_huracan_st": "Lamborghini Huracan ST",
+  "ks_lamborghini_sesto_elemento": "Lamborghini Sesto Elemento",
+  "ks_lotus_72d": "Lotus 72D",
+  "ks_maserati_gt_mc_gt4": "Maserati GranTurismo MC GT4",
+  "ks_mazda_miata": "Mazda Miata NA",
+  "ks_mazda_mx5_cup": "Mazda MX5 Cup",
+  "ks_mazda_mx5_nd": "Mazda MX5 ND",
+  "ks_mclaren_650_gt3": "McLaren 650S GT3",
+  "ks_mclaren_f1_gtr": "McLaren F1 GTR",
+  "ks_mclaren_p1_gtr": "McLaren P1™ GTR",
+  "ks_mercedes_190_evo2": "Mercedes-Benz 190E EVO II",
+  "ks_mercedes_amg_gt3": "Mercedes-Benz AMG GT3",
+  "ks_mercedes_c9": "Mercedes-Benz C9 1989 LM",
+  "ks_nissan_370z": "Nissan 370z Nismo",
+  "ks_nissan_gtr_gt3": "Nissan GT-R GT3",
+  "ks_nissan_skyline_r34": "Nissan Skyline GTR R34 V-Spec",
+  "ks_porsche_911_gt3_cup_2017": "Porsche 911 Cup 2017",
+  "ks_porsche_911_gt3_r_2016": "Porsche 911 GT3 R 2016",
+  "ks_porsche_911_gt3_rs": "Porsche 911 GT3 RS",
+  "ks_porsche_911_rsr_2017": "Porsche 911 GT3 RSR 2017",
+  "ks_porsche_917_30": "Porsche 917/30 Spyder",
+  "ks_porsche_919_hybrid_2015": "Porsche 919 Hybrid 2015",
+  "ks_porsche_919_hybrid_2016": "Porsche 919 Hybrid 2016",
+  "ks_praga_r1": "Praga R1",
+  "ks_toyota_ae86": "Toyota AE86",
+  "ks_toyota_gt86": "Toyota GT86",
+  "ks_toyota_supra_mkiv_drift": "Toyota Supra MKIV Drift",
+  "ktm_xbow_r": "KTM X-Bow R",
+  "lotus_49": "Lotus Type 49",
+  "lotus_98t": "Lotus 98T",
+  "lotus_exos_125": "Lotus Exos 125",
+  "lotus_exos_125_s1": "Lotus Exos 125 Stage 1",
+  "mclaren_mp412c_gt3": "McLaren MP4-12C GT3",
+  "pagani_zonda_r": "Pagani Zonda R",
+  "porsche_996_gt3_2001": "Porsche 911 (996) GT3 2001",
+  "rss_formula_americas_2020": "Formula Americas 2020",
+  "rss_formula_americas_2020_oval": "Formula Americas 2020 Oval",
+  "tatuusfa1": "Tatuus FA01",
+  "tnt_mustang": "RTR Mustang",
+  "urd_bayro_gt3": "Bayro 4 GT3",
+  "urd_egt_am": "Arthur Merlin",
+  "ford_shelby_gt350r_2016": "Ford Mustang Shelby GT350R 2016"
+ }
+}
