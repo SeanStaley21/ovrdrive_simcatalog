@@ -16,7 +16,7 @@ The catalog loads its data with `fetch()`, so opening `index.html` directly (`fi
 
 - `index.html` — the app: markup, style hooks, and JS. Cards, brand dividers and counts are rendered at load time from the JSON data files.
 - `data/cars.json`, `data/tracks.json` — all car and track data (stats, categories, brands, images, layouts, variant groups).
-- `db/userSetRecords.json` — lap times set on the rigs, grouped by track then layout; the only hand-edited records file (see "Rig records" below).
+- `db/userSetRecords.json` — lap times set on the rigs, grouped by track then layout; where records set on the rigs are entered and what the Records page shows (see "Rig records" below).
 - `db/track-records.json` — seeded real-world lap records per `"Track::Layout"` key, checked by `tools/check_track_records.py` (see "Track records" below). Not read by the site yet.
 - `css/main.css`, `css/mobile.css` — desktop and mobile styles.
 - `css/popups.css` — car and track popup styles.

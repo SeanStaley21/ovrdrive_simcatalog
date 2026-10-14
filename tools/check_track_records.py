@@ -194,7 +194,7 @@ def check_data(data, track_keys, duplicates, nested=False, bad_tracks=()):
         if "no_record_reason" in entry and not isinstance(entry["no_record_reason"], str):
             problems.append(f"{key}: 'no_record_reason' must be a string")
         for n, rec in enumerate(recs, 1):
-            if is_blank(rec):
+            if is_blank(rec) and not duplicates.get(id(rec)):
                 continue
             records += 1
             check_record(rec, f"{key} record {n}", problems, duplicates)

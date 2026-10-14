@@ -2,8 +2,8 @@
 
 Two record files live here:
 
-- `userSetRecords.json` is the only file edited by hand for records set on the rigs. The Records page reads it.
-- `track-records.json` is seeded reference data from outside sources. Not read by the site yet.
+- `userSetRecords.json` is where records set on the rigs are entered. The Records page reads it.
+- `track-records.json` is seeded reference data from outside sources; it can also be edited by hand and is checked the same way. Not read by the site yet.
 
 ## userSetRecords.json
 
@@ -32,7 +32,7 @@ A record with all four required fields empty (and no other fields) is blank: the
 
 The `class` value is stored as in the allowed list below; the Records page shows `Formula` as Formula 1, `Prototype` as LMP and `Stock car` as NASCAR. Records are ranked fastest first within each class.
 
-In VS Code, Ctrl+K Ctrl+1 folds the file down to track names and Ctrl+K Ctrl+J unfolds everything.
+In VS Code, Ctrl+K Ctrl+2 folds the file down to track names and Ctrl+K Ctrl+J unfolds everything. Ctrl+K Ctrl+3 shows the layouts under each track.
 
 Edits to this file go live without bumping `VERSION`: the service worker fetches it from the network first.
 
