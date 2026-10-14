@@ -20,7 +20,7 @@ The page loads the JSON with `fetch()`, which does not work from `file://`. Alwa
 ```
 { "cars": { "<exact car name>": { ... } }, "variantGroups": { ... } }
 ```
-- Each car is keyed by its exact displayed name. Fields: `brand` (must match the sidebar `data-brand`), `hp`, `tq` (torque), `drive` (`RWD`/`FWD`/`AWD`), `diff` (1=Beginner, 2=Intermediate, 3=Pro), `df` (grip), `ts` (top speed), `br` (braking) — `df`/`ts`/`br` are on a 0–10 scale, `img` (path into `cars/`; the card thumbnail is derived as `thumbs/<path without extension>.webp`).
+- Each car is keyed by its exact displayed name. Fields: `brand` (must match the sidebar `data-brand`), `hp`, `tq` (torque, ft-lb; `0` means unknown and shows as N/A), `drive` (`RWD`/`FWD`/`AWD`), `diff` (1=Beginner, 2=Intermediate, 3=Pro), `df` (grip), `ts` (top speed), `br` (braking) — `df`/`ts`/`br` are on a 0–10 scale, `img` (path into `cars/`; the card thumbnail is derived as `thumbs/<path without extension>.webp`).
 - `cats` (optional): list of category tabs the car also appears in — any of `gt3`, `formula`, `prototype`, `nascar`, `drift`, `fun`. Category tabs are sorted by name automatically.
 - `hidden: true` (optional): the car has stats (used for variants) but gets no card of its own.
 - **Order matters for the All Cars A–Z tab:** cars render in the order they appear in the file, and a brand divider is inserted whenever `brand` changes. Keep cars grouped by brand, brands alphabetical, cars alphabetical within the brand. A brand split into two runs would get two dividers.
