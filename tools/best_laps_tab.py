@@ -1,6 +1,7 @@
 """The Best Laps tab: a background scan of the AC server logs shown next to the records.
 
 Laps can be added to the records file or dismissed."""
+import copy
 import json
 import queue
 import threading
@@ -11,7 +12,7 @@ from tkinter import messagebox, ttk
 import best_laps as bl
 import log_best_laps as lbl
 from check_track_records import CLASSES
-from records_file import RecordsFileError, load_catalog_cars, load_catalog_tracks
+from records_file import RecordsFileError, load_catalog_cars, load_catalog_tracks, match_names
 
 TITLE = "Best Laps"
 POLL_MS = 500
@@ -19,6 +20,7 @@ NO_FOLDER_MESSAGE = "Best laps: no logs folder set (File > Set logs folder...)"
 COLUMNS = (("track", "Track", 180), ("layout", "Layout", 160), ("car", "Car", 200),
            ("driver", "Pod/Driver", 100), ("time", "Time", 90), ("status", "Status", 220))
 NO_ID_MAP = {"tracks": {}, "cars": {}}
+NAVIGATION_KEYS = {"Up", "Down", "Left", "Right", "Home", "End", "Prior", "Next", "Return", "Escape", "Tab"}
 
 
 def scan_worker(logs_dir, stop_event, scan_now, results):
@@ -81,11 +83,78 @@ def ask_lap(root, row):
     return result[0] if result else None
 
 
+def ask_match(root, row, catalog_tracks, catalog_cars):
+    """Ask which catalog track, layout and car row's ids belong to.
+
+    Returns (track, layout) or None, and car or None, for the parts the id map does not already resolve;
+    returns None if cancelled.
+    """
+    layouts = bl.catalog_layouts(catalog_tracks)
+    cars = sorted(catalog_cars)
+    dialog = tk.Toplevel(root)
+    dialog.title("Match lap")
+    dialog.transient(root)
+    dialog.resizable(False, False)
+    track = tk.StringVar(value=row.track if row.track in layouts else "")
+    layout = tk.StringVar(value=row.layout if row.layout in layouts.get(row.track, ()) else "")
+    car = tk.StringVar(value=row.car if row.car in catalog_cars else "")
+    error = tk.StringVar()
+    result = []
+    form = ttk.Frame(dialog, padding=10)
+    form.pack(fill="both", expand=True)
+    ttk.Label(form, text=f"Ids: {row.raw}").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 6))
+
+    def field(index, label, var, names, fixed):
+        ttk.Label(form, text=label).grid(row=index, column=0, sticky="w", pady=2)
+        if fixed:
+            widget = ttk.Label(form, text=var.get())
+        else:
+            widget = ttk.Combobox(form, textvariable=var, values=names(), width=40)
+
+            def on_key(event):
+                if event.keysym not in NAVIGATION_KEYS:
+                    widget.config(values=match_names(names(), var.get()))
+            widget.bind("<KeyRelease>", on_key)
+        widget.grid(row=index, column=1, sticky="ew", padx=(8, 0), pady=2)
+        return widget
+
+    field(1, "Track", track, lambda: sorted(layouts), row.map_track)
+    layout_box = field(2, "Layout", layout, lambda: layouts.get(track.get(), []), row.map_track)
+    if not row.map_track:
+        track.trace_add("write", lambda *_: layout_box.config(values=layouts.get(track.get(), [])))
+    field(3, "Car", car, lambda: cars, row.map_car)
+
+    def confirm():
+        message = bl.check_match(catalog_tracks, catalog_cars,
+                                 None if row.map_track else track.get(),
+                                 None if row.map_track else layout.get(),
+                                 None if row.map_car else car.get())
+        if message:
+            error.set(message)
+            return
+        result.append(((None if row.map_track else (track.get(), layout.get())),
+                       None if row.map_car else car.get()))
+        dialog.destroy()
+
+    ttk.Label(form, textvariable=error, foreground="red", wraplength=300).grid(
+        row=4, column=0, columnspan=2, sticky="w", pady=(4, 0))
+    buttons = ttk.Frame(form)
+    buttons.grid(row=5, column=0, columnspan=2, sticky="e", pady=(8, 0))
+    ttk.Button(buttons, text="OK", command=confirm).pack(side="left")
+    ttk.Button(buttons, text="Cancel", command=dialog.destroy).pack(side="left", padx=(6, 0))
+    dialog.bind("<Return>", lambda _e: confirm())
+    dialog.bind("<Escape>", lambda _e: dialog.destroy())
+    dialog.grab_set()
+    dialog.wait_window()
+    return result[0] if result else None
+
+
 class BestLapsTab:
     def __init__(self, root, notebook, before, add_records):
         self.root = root
         self.add_records = add_records
         self.handled = bl.read_handled()
+        self.matches = bl.read_matches()
         self.row_by_iid = {}
         self.logs_dir = None
         self.laps = []
@@ -110,6 +179,7 @@ class BestLapsTab:
                                        state="disabled")
         self.check_button.pack(side="left")
         ttk.Button(buttons, text="Add...", command=self.add_selected).pack(side="left", padx=(6, 0))
+        ttk.Button(buttons, text="Match...", command=self.match_selected).pack(side="left", padx=(6, 0))
         ttk.Button(buttons, text="Dismiss", command=self.dismiss_selected).pack(side="left", padx=(6, 0))
         table = ttk.Frame(frame)
         table.pack(fill="both", expand=True)
@@ -235,6 +305,39 @@ class BestLapsTab:
         if rows:
             self.remember(rows)
 
+    def match_selected(self):
+        rows = self.selected_rows()
+        if len(rows) != 1:
+            messagebox.showerror(TITLE, "Select one row to match.")
+            return
+        row = rows[0]
+        if row.map_track and row.map_car:
+            messagebox.showerror(TITLE, "This row is matched by the id map.")
+            return
+        if not self.catalog_tracks or not self.catalog_cars:
+            messagebox.showerror(TITLE, "The catalog (data/tracks.json and data/cars.json) could not be read.")
+            return
+        picked = ask_match(self.root, row, self.catalog_tracks, self.catalog_cars)
+        if picked is None:
+            return
+        track_layout, car = picked
+        track_id, layout_id, car_id = row.ids
+        old_matches = copy.deepcopy(self.matches)
+        if track_layout:
+            self.matches["tracks"].setdefault(track_id, {})[layout_id] = {
+                "track": track_layout[0], "layout": track_layout[1]}
+        if car:
+            self.matches["cars"][car_id] = car
+        self.handled = bl.migrate_handled(self.handled, self.laps, self.id_map or NO_ID_MAP, self.catalog_tracks,
+                                          self.catalog_cars, old_matches, self.matches)
+        try:
+            bl.write_matches(self.matches)
+            bl.write_handled(self.handled)
+        except OSError:
+            self.status.config(text="Could not save the match; it may be lost after a restart.")
+        self.shown = None
+        self.render()
+
     def remember(self, rows):
         self.handled.extend((row.track, row.layout, row.car, row.ms) for row in rows)
         try:
@@ -259,7 +362,8 @@ class BestLapsTab:
                                                   self.id_map is not None))
 
     def render(self):
-        rows = bl.best_laps(self.laps, self.id_map or NO_ID_MAP, self.catalog_tracks, self.catalog_cars)
+        rows = bl.best_laps(self.laps, self.id_map or NO_ID_MAP, self.catalog_tracks, self.catalog_cars,
+                           self.matches)
         rows = [row for row in rows if not bl.is_handled(row, self.handled)]
         items = []
         self.row_by_iid = {}

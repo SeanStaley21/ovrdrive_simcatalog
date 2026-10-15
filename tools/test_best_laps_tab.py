@@ -249,6 +249,159 @@ class AddDismissTests(unittest.TestCase):
         self.assertEqual(len(self.render(bl.read_handled()).row_by_iid), 2)
 
 
+class MatchTests(unittest.TestCase):
+    TRACKS = {"Track A::Full", "Track A::Short"}
+    CARS = {"Car A", "Car B"}
+    ID_MAP = {"tracks": {"ta": {"name": "Track A", "layouts": {"": "Full"}}}, "cars": {"car_b": "Car B"}}
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        patch = mock.patch.dict(os.environ, {"APPDATA": tmp.name})
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def unmatched_row(self, **fields):
+        values = dict(track="Track A", layout="Full", car="car_z", driver="Pod 1", ms=80000, raw="ta /  / car_z",
+                      matched=False, date="2026-05-06", ids=("ta", "", "car_z"), map_track=True, map_car=False)
+        return bl.BestLap(**{**values, **fields})
+
+    def make_tab(self, *rows):
+        fake = mock.Mock()
+        fake.catalog_tracks, fake.catalog_cars = set(self.TRACKS), set(self.CARS)
+        fake.matches = {"tracks": {}, "cars": {}}
+        fake.id_map = None
+        fake.laps = []
+        fake.handled = []
+        fake.selected_rows.return_value = list(rows)
+        return fake
+
+    def match(self, fake, picked):
+        with mock.patch.object(tab, "ask_match", return_value=picked) as ask, \
+                mock.patch.object(tab.messagebox, "showerror") as err:
+            tab.BestLapsTab.match_selected(fake)
+        return ask, err
+
+    def test_refusals_never_open_the_dialog(self):
+        full = self.unmatched_row(map_car=True)
+        cases = {
+            "no rows": (self.make_tab(), "Select one row to match."),
+            "two rows": (self.make_tab(self.unmatched_row(), self.unmatched_row(ms=81000)),
+                         "Select one row to match."),
+            "id map matches it": (self.make_tab(full), "This row is matched by the id map."),
+        }
+        for label, (fake, message) in cases.items():
+            with self.subTest(label):
+                ask, err = self.match(fake, ("x", "y"))
+                self.assertEqual(err.call_args.args[1], message)
+                ask.assert_not_called()
+        for label, empty in (("tracks", "catalog_tracks"), ("cars", "catalog_cars")):
+            with self.subTest(label):
+                fake = self.make_tab(self.unmatched_row())
+                setattr(fake, empty, set())
+                ask, err = self.match(fake, ("x", "y"))
+                self.assertIn("data/tracks.json", err.call_args.args[1])
+                self.assertIn("data/cars.json", err.call_args.args[1])
+                ask.assert_not_called()
+
+    def test_car_match_is_saved_and_applied(self):
+        fake = self.make_tab(self.unmatched_row())
+        ask, err = self.match(fake, (None, "Car A"))
+        ask.assert_called_once_with(fake.root, fake.selected_rows()[0], fake.catalog_tracks, fake.catalog_cars)
+        err.assert_not_called()
+        self.assertEqual(fake.matches, {"tracks": {}, "cars": {"car_z": "Car A"}})
+        self.assertEqual(bl.read_matches(), fake.matches)
+        self.assertIsNone(fake.shown)
+        fake.render.assert_called_once()
+
+    def test_track_match_is_saved_under_the_raw_ids(self):
+        row = self.unmatched_row(track="zz", layout="zz", map_track=False, map_car=True, car="Car A",
+                                 ids=("zz", "gp", "car_a"))
+        fake = self.make_tab(row)
+        self.match(fake, (("Track A", "Short"), None))
+        self.assertEqual(bl.read_matches(),
+                         {"tracks": {"zz": {"gp": {"track": "Track A", "layout": "Short"}}}, "cars": {}})
+
+    def laps(self, *items):
+        return [(track, "", car, "Pod 1", ms, "2026-05-06") for track, car, ms in items]
+
+    def visible(self, fake):
+        rows = bl.best_laps(fake.laps, fake.id_map, fake.catalog_tracks, fake.catalog_cars, fake.matches)
+        return [(r.track, r.car, r.ms) for r in rows if not bl.is_handled(r, fake.handled)]
+
+    def test_dismissed_while_unmatched_stays_hidden_after_matching(self):
+        fake = self.make_tab(self.unmatched_row())
+        fake.id_map = self.ID_MAP
+        fake.laps = self.laps(("ta", "car_z", 80000), ("ta", "car_z", 82000))
+        fake.handled = [("Track A", "Full", "car_z", 80000), ("Track A", "Full", "other", 80000)]
+        self.match(fake, (None, "Car A"))
+        self.assertEqual(fake.handled, [("Track A", "Full", "Car A", 80000), ("Track A", "Full", "other", 80000)])
+        self.assertEqual(bl.read_handled(), fake.handled)
+        self.assertEqual(self.visible(fake), [("Track A", "Car A", 82000)])
+
+    def test_car_match_keeps_the_same_car_id_hidden_on_other_tracks(self):
+        id_map = {"tracks": {"ta": self.ID_MAP["tracks"]["ta"], "tb": {"name": "Track B", "layouts": {"": "Main"}}},
+                  "cars": {}}
+        fake = self.make_tab(self.unmatched_row())
+        fake.id_map = id_map
+        fake.catalog_tracks.add("Track B::Main")
+        fake.laps = self.laps(("ta", "car_z", 80000), ("tb", "car_z", 81000))
+        fake.handled = [(t, l, "car_z", ms) for t, l, ms in (("Track A", "Full", 80000), ("Track B", "Main", 81000))]
+        self.match(fake, (None, "Car A"))
+        self.assertEqual(self.visible(fake), [])
+
+    def test_track_match_keeps_the_other_cars_on_the_layout_hidden(self):
+        id_map = {"tracks": {}, "cars": {"car_a": "Car A", "car_b": "Car B"}}
+        row = self.unmatched_row(track="zz", layout="gp", car="Car A", ids=("zz", "gp", "car_a"),
+                                 map_track=False, map_car=True)
+        fake = self.make_tab(row)
+        fake.id_map = id_map
+        fake.laps = [("zz", "gp", "car_a", "Pod 1", 80000, "d"), ("zz", "gp", "car_b", "Pod 1", 81000, "d")]
+        fake.handled = [("zz", "gp", "Car A", 80000), ("zz", "gp", "Car B", 81000)]
+        self.match(fake, (("Track A", "Short"), None))
+        self.assertEqual(self.visible(fake), [])
+        self.assertEqual(fake.handled, [("Track A", "Short", "Car A", 80000), ("Track A", "Short", "Car B", 81000)])
+
+    def test_rematching_one_id_leaves_another_id_with_the_old_car_hidden(self):
+        id_map = {"tracks": self.ID_MAP["tracks"], "cars": {"car_a": "Car A"}}
+        fake = self.make_tab(self.unmatched_row(matched=True, car="Car A"))
+        fake.id_map = id_map
+        fake.matches["cars"]["car_z"] = "Car A"
+        fake.laps = self.laps(("ta", "car_a", 80000), ("ta", "car_z", 81000))
+        fake.handled = [("Track A", "Full", "Car A", 80000), ("Track A", "Full", "Car A", 81000)]
+        self.match(fake, (None, "Car B"))
+        self.assertEqual(self.visible(fake), [])
+        self.assertIn(("Track A", "Full", "Car A", 80000), fake.handled)
+
+    def test_cancel_writes_nothing(self):
+        fake = self.make_tab(self.unmatched_row())
+        self.match(fake, None)
+        self.assertEqual(fake.matches, {"tracks": {}, "cars": {}})
+        self.assertFalse(bl.matches_path().exists())
+        self.assertFalse(bl.handled_path().exists())
+        fake.render.assert_not_called()
+
+    def test_failed_write_is_reported_and_kept_in_memory(self):
+        fake = self.make_tab(self.unmatched_row())
+        with mock.patch.object(bl, "write_matches", side_effect=OSError("denied")):
+            self.match(fake, (None, "Car A"))
+        self.assertIn("Could not save", fake.status.config.call_args.kwargs["text"])
+        self.assertEqual(fake.matches["cars"], {"car_z": "Car A"})
+        fake.render.assert_called_once()
+
+    def test_manually_matched_row_is_added(self):
+        row = self.unmatched_row(car="Car A", matched=True)
+        fake = mock.Mock()
+        fake.data = {"Track A": {"Full": {"records": []}}}
+        fake.handled = []
+        fake.selected_rows.return_value = [row]
+        fake.add_records.return_value = True
+        fake.remember = lambda picked: tab.BestLapsTab.remember(fake, picked)
+        with mock.patch.object(tab, "ask_lap", return_value={"car": "Car A"}):
+            tab.BestLapsTab.add_selected(fake)
+        fake.add_records.assert_called_once_with([("Track A", "Full", {"car": "Car A"})])
+
+
 class AppWriteTests(unittest.TestCase):
     def make_app(self):
         fake = mock.Mock()
