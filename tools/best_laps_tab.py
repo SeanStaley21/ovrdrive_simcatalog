@@ -136,10 +136,12 @@ def ask_match(root, row, catalog_tracks, catalog_cars):
                        None if row.map_car else car.get()))
         dialog.destroy()
 
+    ttk.Label(form, text="This applies to the log id shown above; other log ids need their own match.",
+              wraplength=300).grid(row=4, column=0, columnspan=2, sticky="w", pady=(4, 0))
     ttk.Label(form, textvariable=error, foreground="red", wraplength=300).grid(
-        row=4, column=0, columnspan=2, sticky="w", pady=(4, 0))
+        row=5, column=0, columnspan=2, sticky="w", pady=(4, 0))
     buttons = ttk.Frame(form)
-    buttons.grid(row=5, column=0, columnspan=2, sticky="e", pady=(8, 0))
+    buttons.grid(row=6, column=0, columnspan=2, sticky="e", pady=(8, 0))
     ttk.Button(buttons, text="OK", command=confirm).pack(side="left")
     ttk.Button(buttons, text="Cancel", command=dialog.destroy).pack(side="left", padx=(6, 0))
     dialog.bind("<Return>", lambda _e: confirm())
@@ -341,6 +343,8 @@ class BestLapsTab:
                 bl.write_handled(self.handled)
             except OSError:
                 self.status.config(text="The match was saved, but earlier dismissals may reappear after a restart.")
+            else:
+                self.show_status()
         self.shown = None
         self.render()
 

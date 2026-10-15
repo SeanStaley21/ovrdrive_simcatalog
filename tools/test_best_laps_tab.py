@@ -400,6 +400,14 @@ class MatchTests(unittest.TestCase):
         tab.BestLapsTab.dismiss_selected(fake)
         self.assertNotIn(("Track A", "Full", "Car A", 80000), bl.read_handled())
 
+    def test_a_later_successful_match_clears_the_error(self):
+        fake = self.make_tab(self.unmatched_row())
+        with mock.patch.object(bl, "write_matches", side_effect=OSError("denied")):
+            self.match(fake, (None, "Car A"))
+        fake.show_status.assert_not_called()
+        self.match(fake, (None, "Car A"))
+        fake.show_status.assert_called_once()
+
     def test_failed_handled_write_keeps_the_saved_match_and_says_so(self):
         fake = self.make_tab(self.unmatched_row())
         with mock.patch.object(bl, "write_handled", side_effect=OSError("denied")):
