@@ -128,4 +128,4 @@ Options: `--out` (default `bestLapsTest.json` next to the tool), `--map` (defaul
 
 The output is not `userSetRecords.json`, and `python tools/check_track_records.py --nested FILE` reports the blank `class` and every catalog layout without records. Fill in `class` before moving records into `userSetRecords.json`.
 
-To run it as a program, `tools/build_log_best_laps.bat` builds `tools/dist/log_best_laps.exe` with PyInstaller and copies `ac_id_map.json` next to it. Tests: `python -m unittest discover -s tools -p "test_*.py"`.
+Tests: `python -m unittest discover -s tools -p "test_*.py"`.

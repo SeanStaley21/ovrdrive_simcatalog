@@ -47,8 +47,6 @@ class OutputError(Exception):
 
 
 def base_dir():
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
     return Path(__file__).resolve().parent
 
 
