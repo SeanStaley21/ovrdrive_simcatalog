@@ -233,6 +233,32 @@ def file_signature(path):
     return [stat.st_size, stat.st_mtime_ns]
 
 
+def read_changed_logs(logs_dir, known):
+    """Read the logs in logs_dir whose signature differs from known ({name: signature}).
+
+    Returns (signatures, changed_laps, unreadable): the signature of every readable log,
+    the parsed laps of each log that was read again, and (name, exception type name) for
+    every log that could not be read.
+    """
+    signatures = {}
+    changed_laps = {}
+    unreadable = []
+    for path in sorted(logs_dir.glob("*.log")):
+        try:
+            signature = file_signature(path)
+            if known.get(path.name) == signature:
+                signatures[path.name] = signature
+                continue
+            text = path.read_bytes().decode("utf-8-sig", errors="replace")
+            laps = parse_log(text)
+        except Exception as exc:
+            unreadable.append((path.name, type(exc).__name__))
+            continue
+        signatures[path.name] = signature
+        changed_laps[path.name] = laps
+    return signatures, changed_laps, unreadable
+
+
 def run_pass(logs_dir, out_path, id_map, state, unmapped, reported):
     """Read every changed log, merge its laps into the records file, write if anything improved.
 
@@ -244,20 +270,11 @@ def run_pass(logs_dir, out_path, id_map, state, unmapped, reported):
     changed = not out_path.exists()
     if changed:
         state.clear()
-    seen = {}
-    for path in sorted(logs_dir.glob("*.log")):
-        try:
-            signature = file_signature(path)
-            seen[path.name] = signature
-            if state.get(path.name) == signature:
-                continue
-            text = path.read_bytes().decode("utf-8-sig", errors="replace")
-            laps = parse_log(text)
-        except Exception as exc:
-            seen.pop(path.name, None)
-            log.warning("cannot read %s: %s", path.name, type(exc).__name__)
-            continue
-        for track_id, layout_id, car_id, driver, ms in laps:
+    signatures, changed_laps, unreadable = read_changed_logs(logs_dir, state)
+    for name, error in unreadable:
+        log.warning("cannot read %s: %s", name, error)
+    for name in sorted(changed_laps):
+        for track_id, layout_id, car_id, driver, ms in changed_laps[name]:
             names = resolve_names(id_map, track_id, layout_id, car_id, unmapped)
             if merge_lap(data, *names, driver, ms):
                 changed = True
@@ -267,7 +284,7 @@ def run_pass(logs_dir, out_path, id_map, state, unmapped, reported):
     for item in sorted(unmapped - reported):
         log.warning("no id map entry for %s", item)
     reported |= unmapped
-    state.update(seen)
+    state.update(signatures)
 
 
 def main(argv=None):

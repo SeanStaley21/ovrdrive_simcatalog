@@ -49,6 +49,17 @@ A small Windows app for adding records to `userSetRecords.json` without editing 
 - Saving does not publish anything. Commit and push the changed file afterward.
 - The exe is unsigned, so Windows SmartScreen may show "Windows protected your PC". Choose More info > Run anyway.
 
+### Best Laps tab
+
+The Best Laps tab lists the fastest lap per track, layout and car from the Assetto Corsa server logs. It is read-only and never writes to `userSetRecords.json`.
+
+- The editor scans the logs folder when it starts and every 10 minutes while it is open. Check now scans straight away and is disabled while a scan runs. Logs that have not changed are not read again.
+- On first use the editor asks for the logs folder. It is saved as `logs_dir` in the same `config.json` as the records file path. Use File > Set logs folder... to change it. Cancelling the first prompt turns scanning off until the next launch.
+- Columns are Track, Layout, Car, Pod/Driver, Time and Status. There is one row per track, layout and car with its fastest lap; laps with cuts and the Spectator slot are skipped, and a log that cannot be read is skipped.
+- Status compares the lap with the fastest record for the same car on that layout in the open records file, any class: `beats`, `ties`, `trails` or `no record`. Record times that cannot be read, such as ones with four decimals, are ignored. After editing the file outside the editor, use File > Reload.
+- A lap whose track, layout or car is not in the id map, or whose names are not in `data/tracks.json` or `data/cars.json`, is grey and shows `unmatched:` with the raw ids (`track id / layout id / car id`). To fix it, add the ids to `tools/ac_id_map.json` or add the car or track to the catalog.
+- The status bar line "Best laps: ..." shows when the last check ran and when the next is due. If the logs folder is missing or cannot be read it says so and tries again every 10 minutes, and the rows from the last good scan stay. "id map not found" means `tools/ac_id_map.json` could not be read from the repo that holds the records file, so every lap is unmatched.
+
 Run from source:
 
 ```
@@ -148,6 +159,8 @@ With no arguments it checks `track-records.json` and `userSetRecords.json`. Each
 ```json
 { "class": "", "car": "Ferrari SF70H", "driver": "Pod 3", "time": "1:36.595", "source": "ac-server-log" }
 ```
+
+The Records editor's Best Laps tab uses the same parser and id map.
 
 `driver` is the pod name from the log and can be edited by hand; an edited record is kept until a faster lap beats it. `class` is left blank. Laps with cuts and the Spectator slot are skipped. Each log names one track, one layout and the cars, and both sessions in a log count.
 

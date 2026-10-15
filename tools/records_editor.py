@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+from best_laps_tab import BestLapsTab
 from check_track_records import CLASSES, is_blank
 from records_file import (
     ConflictError,
@@ -19,10 +20,12 @@ from records_file import (
     load_catalog_cars,
     match_names,
     normalize,
+    read_logs_dir,
     read_saved_path,
     replace,
     save,
     snap_car,
+    write_logs_dir,
     write_saved_path,
 )
 
@@ -80,6 +83,7 @@ class App:
         self.build_widgets()
         self.apply_loaded(loaded, announce=True)
         self.reset_form()
+        root.after_idle(self.start_best_laps)
 
     # ---- construction ----
 
@@ -88,6 +92,7 @@ class App:
         file_menu = tk.Menu(menubar, tearoff=False)
         file_menu.add_command(label="Change file...", command=self.change_file)
         file_menu.add_command(label="Reload", command=self.reload)
+        file_menu.add_command(label="Set logs folder...", command=self.set_logs_folder)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_close)
         menubar.add_cascade(label="File", menu=file_menu)
@@ -119,6 +124,7 @@ class App:
         tab = ttk.Frame(notebook, padding=6)
         notebook.add(tab, text="Records")
         self.build_records_tab(tab)
+        self.best_laps = BestLapsTab(self.root, notebook)
 
     def make_listbox(self, parent, height):
         frame = ttk.Frame(parent)
@@ -277,6 +283,7 @@ class App:
     # ---- loading ----
 
     def apply_loaded(self, loaded, announce=False, keep_reformat_confirmed=False):
+        self.best_laps.set_records(loaded)
         self.loaded = loaded
         if not keep_reformat_confirmed:
             self.reformat_confirmed = False
@@ -509,9 +516,32 @@ class App:
         self.apply_loaded(loaded, keep_reformat_confirmed=True)
         self.set_status(SAVED_MESSAGE)
 
+    def start_best_laps(self):
+        path = read_logs_dir()
+        if not path:
+            messagebox.showinfo(TITLE, "Select the AC server logs folder for the Best Laps tab.")
+            path = filedialog.askdirectory(title="Select the AC server logs folder")
+            if path:
+                self.save_logs_dir(path)
+        self.best_laps.set_logs_dir(path)
+
+    def set_logs_folder(self):
+        path = filedialog.askdirectory(title="Select the AC server logs folder",
+                                       initialdir=self.best_laps.logs_dir or None)
+        if path:
+            self.save_logs_dir(path)
+            self.best_laps.set_logs_dir(path)
+
+    def save_logs_dir(self, path):
+        try:
+            write_logs_dir(path)
+        except OSError:
+            self.set_status("Could not save the logs folder setting.")
+
     def on_close(self):
         self.hide_suggestions()
         if self.confirm_discard():
+            self.best_laps.stop()
             self.root.destroy()
 
 
