@@ -26,7 +26,7 @@ The catalog loads its data with `fetch()`, so opening `index.html` directly (`fi
 - `cars/` — car photos referenced by the catalog data.
 - `tracks/` — track layout images (each track has a filled and an outline version per layout).
 - `thumbs/` — WebP card thumbnails generated from the car and track images by `tools/make_thumbs.py`.
-- `tools/` — maintenance scripts, including the Records editor (`records_editor.py`, `records_file.py`, `test_records_file.py`, `build_records_editor.bat`) and `log_best_laps.py`, which keeps the best lap per track, layout and car from the Assetto Corsa server logs (see "Best laps from the server logs" in `db/README.md`).
+- `tools/` — maintenance scripts, including the Records editor (`records_editor.py`, `records_file.py`, `best_laps.py`, `best_laps_tab.py` (its Best Laps tab can add laps from the server logs), `test_records_file.py`, `test_best_laps.py`, `test_best_laps_tab.py`, `build_records_editor.bat`) and `log_best_laps.py`, which keeps the best lap per track, layout and car from the Assetto Corsa server logs (see "Best laps from the server logs" in `db/README.md`).
 - `logos/` — OVRDRIVE branding assets.
 - `favicon.png` — site favicon.
 - `manifest.webmanifest`, `icons/` — web app manifest and its 192/512 px install icons.
@@ -48,7 +48,7 @@ The Records page in the top bar reads `db/userSetRecords.json`. It lists every t
 { "class": "GT", "car": "Porsche 911 GT3 R", "driver": "Sean", "time": "1:42.315" }
 ```
 
-`class` is one of `Formula`, `Prototype`, `GT`, `Stock car` (shown on the page as Formula 1, LMP, GT, NASCAR). `time` is `m:ss.mmm`. An optional `year` is shown next to the car. Entries are ranked fastest first within each class. Blank records are ignored, and a half-filled record fails the check. See `db/README.md` for a second record, the other fields and the VS Code fold shortcuts. Then run the check:
+`class` is one of `Formula`, `Prototype`, `GT`, `Stock car` (shown on the page as Formula 1, LMP, GT, NASCAR). `time` is `m:ss.mmm`. An optional `year` is shown next to the car (it must match the year of `date` when both are set); an optional `date` (`YYYY-MM-DD`) is shown in its place when present. Entries are ranked fastest first within each class. Blank records are ignored, and a half-filled record fails the check. See `db/README.md` for a second record, the other fields and the VS Code fold shortcuts. Then run the check:
 
 ```
 python tools/check_track_records.py

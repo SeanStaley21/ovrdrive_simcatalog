@@ -234,6 +234,44 @@ class PassTests(unittest.TestCase):
         return [r["time"] for layouts in data.values() for e in layouts.values() for r in e["records"]]
 
 
+class ReadChangedLogsTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = Path(self.tmp.name)
+
+    def write(self, name, laps):
+        path = self.dir / name
+        path.write_text(make_log(laps=laps), encoding="utf-8")
+        return path
+
+    def test_unchanged_file_is_not_read_again(self):
+        self.write("a.log", [("Pod 3", "1:20:000", 0)])
+        signatures, changed, unreadable = lbl.read_changed_logs(self.dir, {})
+        self.assertEqual(list(changed), ["a.log"])
+        self.assertEqual(unreadable, [])
+        signatures, changed, unreadable = lbl.read_changed_logs(self.dir, signatures)
+        self.assertEqual(list(signatures), ["a.log"])
+        self.assertEqual(changed, {})
+
+    def test_appended_file_is_read_again(self):
+        path = self.write("a.log", [("Pod 3", "1:20:000", 0)])
+        signatures, _, _ = lbl.read_changed_logs(self.dir, {})
+        with open(path, "a", encoding="utf-8") as handle:
+            handle.write("LAP Pod 3 1:19:000\nResult.OnLapCompleted. Cuts: 0\n")
+        signatures, changed, _ = lbl.read_changed_logs(self.dir, signatures)
+        self.assertEqual([lap[4] for lap in changed["a.log"]], [80000, 79000])
+
+    def test_unreadable_entry_is_reported_and_the_rest_still_read(self):
+        (self.dir / "x.log").mkdir()
+        self.write("a.log", [("Pod 3", "1:20:000", 0)])
+        signatures, changed, unreadable = lbl.read_changed_logs(self.dir, {})
+        self.assertEqual(list(signatures), ["a.log"])
+        self.assertEqual(list(changed), ["a.log"])
+        self.assertEqual([name for name, _ in unreadable], ["x.log"])
+        self.assertIsInstance(unreadable[0][1], str)
+
+
 class AtomicWriteTests(unittest.TestCase):
     def test_replaces_file_and_leaves_no_temp(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -221,7 +221,7 @@ def load(path):
     return Loaded(Path(path), data, eol, bom, final_newline, warnings, reformats)
 
 
-def build_record(cls, car, driver, time, year_text, base=None):
+def build_record(cls, car, driver, time, year_text, date_text, base=None):
     rec = dict(base) if base is not None else {}
     for key, value in (("class", cls), ("car", car), ("driver", driver), ("time", time)):
         rec[key] = value.strip()
@@ -233,6 +233,11 @@ def build_record(cls, car, driver, time, year_text, base=None):
         if not re.fullmatch(r"[0-9]+", year_text) or not 1900 <= int(year_text) <= top:
             raise RecordsFileError(f"Year must be a whole number from 1900 to {top}, or left empty.")
         rec["year"] = int(year_text)
+    date_text = date_text.strip()
+    if date_text:
+        rec["date"] = date_text
+    else:
+        rec.pop("date", None)
     problems = []
     check_record(rec, "record", problems, {})
     if problems:
@@ -327,12 +332,20 @@ def save(path, apply):
         ) from None
 
 
-def load_catalog_cars(records_path):
+def _load_catalog_names(records_path, filename, key):
     try:
-        cars_file = Path(records_path).parent.parent / "data" / "cars.json"
-        return set(json.loads(cars_file.read_text(encoding="utf-8-sig"))["cars"])
+        catalog_file = Path(records_path).parent.parent / "data" / filename
+        return set(json.loads(catalog_file.read_text(encoding="utf-8-sig"))[key])
     except Exception:
         return set()
+
+
+def load_catalog_cars(records_path):
+    return _load_catalog_names(records_path, "cars.json", "cars")
+
+
+def load_catalog_tracks(records_path):
+    return _load_catalog_names(records_path, "tracks.json", "tracks")
 
 
 def load_cars(records_path, data):
@@ -398,15 +411,38 @@ def config_path():
     return root / "OVRDrive Records Editor" / "config.json"
 
 
-def read_saved_path():
+def read_config():
     try:
-        value = json.loads(config_path().read_text(encoding="utf-8"))["records_path"]
-        return value if isinstance(value, str) and value else None
+        value = json.loads(config_path().read_text(encoding="utf-8"))
     except Exception:
-        return None
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def write_config(**values):
+    config = read_config()
+    config.update(values)
+    target = config_path()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(config), encoding="utf-8")
+
+
+def _read_string(key):
+    value = read_config().get(key)
+    return value if isinstance(value, str) and value else None
+
+
+def read_saved_path():
+    return _read_string("records_path")
 
 
 def write_saved_path(path):
-    target = config_path()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps({"records_path": str(path)}), encoding="utf-8")
+    write_config(records_path=str(path))
+
+
+def read_logs_dir():
+    return _read_string("logs_dir")
+
+
+def write_logs_dir(path):
+    write_config(logs_dir=str(path))

@@ -12,6 +12,7 @@ Usage:
 import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,9 +41,10 @@ CLASSES = [
 LAP_TYPES = ["race", "qualifying", "track_record", "unknown", "demo", "exhibition"]
 CONFIDENCES = ["exact layout", "layout changed"]
 TIME_RE = re.compile(r"\d+:[0-5]\d\.\d{1,4}")
+DATE_RE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
 
 REQUIRED = ["class", "car", "driver", "time"]
-OPTIONAL = ["lap_type", "year", "source", "confidence", "verified", "speed_mph", "note"]
+OPTIONAL = ["lap_type", "year", "date", "source", "confidence", "verified", "speed_mph", "note"]
 ENTRY_FIELDS = ["records", "no_record_reason"]
 NESTED_SKIP = set(ENTRY_FIELDS) | set(REQUIRED) | set(OPTIONAL)
 
@@ -89,6 +91,16 @@ def sort_key(key):
     return tuple(part.casefold() for part in key.split("::"))
 
 
+def is_real_date(value):
+    if not isinstance(value, str) or not DATE_RE.fullmatch(value):
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
 def check_record(rec, label, problems, duplicates):
     if not isinstance(rec, dict):
         problems.append(f"{label}: record is not an object")
@@ -118,6 +130,10 @@ def check_record(rec, label, problems, duplicates):
         problems.append(f"{label}: 'verified' must be true or false")
     if "year" in rec and (not isinstance(rec["year"], int) or isinstance(rec["year"], bool)):
         problems.append(f"{label}: 'year' must be a whole number")
+    if "date" in rec and not is_real_date(rec["date"]):
+        problems.append(f"{label}: 'date' must be a real date written YYYY-MM-DD (e.g. 2026-10-12)")
+    if isinstance(rec.get("year"), int) and not isinstance(rec.get("year"), bool) and is_real_date(rec.get("date")) and rec["date"][:4] != str(rec["year"]):
+        problems.append(f"{label}: 'year' does not match the year in 'date'")
     if "speed_mph" in rec and not is_number(rec["speed_mph"]):
         problems.append(f"{label}: 'speed_mph' must be a number")
     for field in ("source", "note"):

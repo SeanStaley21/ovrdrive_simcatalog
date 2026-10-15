@@ -5,6 +5,8 @@ from datetime import date
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+import best_laps as bl
+from best_laps_tab import BestLapsTab
 from check_track_records import CLASSES, is_blank
 from records_file import (
     ConflictError,
@@ -19,10 +21,12 @@ from records_file import (
     load_catalog_cars,
     match_names,
     normalize,
+    read_logs_dir,
     read_saved_path,
     replace,
     save,
     snap_car,
+    write_logs_dir,
     write_saved_path,
 )
 
@@ -33,7 +37,7 @@ NAVIGATION_KEYS = {"Up", "Down", "Left", "Right", "Home", "End", "Return", "KP_E
                    "Alt_L", "Alt_R", "Caps_Lock"}
 SUGGEST_ROWS = 8
 COLUMNS = (("class", "Class", 90), ("car", "Car", 220), ("driver", "Driver", 140),
-           ("time", "Time", 90), ("year", "Year", 60))
+           ("time", "Time", 90), ("year", "Year", 60), ("date", "Date", 90))
 
 
 def load_with_prompts(path):
@@ -80,6 +84,7 @@ class App:
         self.build_widgets()
         self.apply_loaded(loaded, announce=True)
         self.reset_form()
+        root.after_idle(self.start_best_laps)
 
     # ---- construction ----
 
@@ -88,6 +93,7 @@ class App:
         file_menu = tk.Menu(menubar, tearoff=False)
         file_menu.add_command(label="Change file...", command=self.change_file)
         file_menu.add_command(label="Reload", command=self.reload)
+        file_menu.add_command(label="Set logs folder...", command=self.set_logs_folder)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_close)
         menubar.add_cascade(label="File", menu=file_menu)
@@ -119,6 +125,7 @@ class App:
         tab = ttk.Frame(notebook, padding=6)
         notebook.add(tab, text="Records")
         self.build_records_tab(tab)
+        self.best_laps = BestLapsTab(self.root, notebook, panes, self.add_from_best_laps)
 
     def make_listbox(self, parent, height):
         frame = ttk.Frame(parent)
@@ -152,7 +159,8 @@ class App:
         self.driver = tk.StringVar()
         self.time = tk.StringVar()
         self.year = tk.StringVar()
-        for var in (self.cls, self.car, self.driver, self.time, self.year):
+        self.date = tk.StringVar()
+        for var in (self.cls, self.car, self.driver, self.time, self.year, self.date):
             var.trace_add("write", lambda *_: self.update_dirty_title())
 
         ttk.Label(form, text="Class").grid(row=0, column=0, sticky="w")
@@ -180,13 +188,19 @@ class App:
         year_row.grid(row=4, column=1, sticky="ew", pady=2)
         ttk.Spinbox(year_row, textvariable=self.year, from_=1900, to=date.today().year + 1,
                     width=8).pack(side="left")
-        ttk.Label(year_row, text="Year (only the year is saved)").pack(side="left", padx=6)
-        ttk.Button(form, text="Save", command=self.save_record).grid(row=5, column=1, sticky="e", pady=(6, 0))
+        ttk.Label(year_row, text="Year (must match Date, if set)").pack(side="left", padx=6)
+        ttk.Label(form, text="Date").grid(row=5, column=0, sticky="w")
+        date_row = ttk.Frame(form)
+        date_row.grid(row=5, column=1, sticky="ew", pady=2)
+        ttk.Entry(date_row, textvariable=self.date, width=14).pack(side="left")
+        ttk.Label(date_row, text="YYYY-MM-DD, optional").pack(side="left", padx=6)
+        ttk.Button(form, text="Save", command=self.save_record).grid(row=6, column=1, sticky="e", pady=(6, 0))
 
     # ---- state ----
 
     def form_values(self):
-        return (self.cls.get(), self.car.get(), self.driver.get(), self.time.get(), self.year.get())
+        return (self.cls.get(), self.car.get(), self.driver.get(), self.time.get(), self.year.get(),
+                self.date.get())
 
     def is_dirty(self):
         return self.form_values() != self.baseline
@@ -253,14 +267,14 @@ class App:
         self.car_box.config(values=self.cars)
 
     def set_form(self, values):
-        for var, value in zip((self.cls, self.car, self.driver, self.time, self.year), values):
+        for var, value in zip((self.cls, self.car, self.driver, self.time, self.year, self.date), values):
             var.set(value)
         self.show_all_cars()
         self.baseline = self.form_values()
         self.update_dirty_title()
 
     def default_values(self):
-        return ("", "", "", "", str(date.today().year))
+        return ("", "", "", "", str(date.today().year), "")
 
     def reset_form(self):
         self.editing = None
@@ -277,6 +291,7 @@ class App:
     # ---- loading ----
 
     def apply_loaded(self, loaded, announce=False, keep_reformat_confirmed=False):
+        self.best_laps.set_records(loaded)
         self.loaded = loaded
         if not keep_reformat_confirmed:
             self.reformat_confirmed = False
@@ -448,7 +463,7 @@ class App:
             return
         self.editing = rec
         self.set_form((rec.get("class", ""), rec.get("car", ""), rec.get("driver", ""),
-                       rec.get("time", ""), str(rec.get("year", ""))))
+                       rec.get("time", ""), str(rec.get("year", "")), str(rec.get("date", ""))))
 
     def delete_selected(self):
         if not self.need_layout():
@@ -489,29 +504,67 @@ class App:
         if self.loaded.reformats and not self.reformat_confirmed:
             if not messagebox.askokcancel(
                     TITLE, "Saving will reformat the file; review the diff before committing. Continue?"):
-                return
+                return False
             self.reformat_confirmed = True
         try:
             loaded = save(self.loaded.path, apply)
         except ConflictError as err:
             messagebox.showerror(TITLE, str(err))
             self.reload_from_disk()
-            return
+            return False
         except SavedButUnreadableError as err:
             messagebox.showerror(TITLE, str(err))
             self.reset_form()
             self.reload_from_disk()
-            return
+            return True
         except RecordsFileError as err:
             messagebox.showerror(TITLE, str(err))
-            return
+            return False
         self.reset_form()
         self.apply_loaded(loaded, keep_reformat_confirmed=True)
         self.set_status(SAVED_MESSAGE)
+        return True
+
+    def add_from_best_laps(self, items):
+        if not self.confirm_discard():
+            return False
+
+        def apply(data):
+            for track, layout, rec in items:
+                duplicate = bl.duplicate_message(data, track, layout, rec["car"], rec["time"])
+                if duplicate:
+                    raise RecordsFileError(duplicate)
+            for track, layout, rec in items:
+                add(data, track, layout, rec)
+
+        return self.write(apply)
+
+    def start_best_laps(self):
+        path = read_logs_dir()
+        if not path:
+            messagebox.showinfo(TITLE, "Select the AC server logs folder for the Best Laps tab.")
+            path = filedialog.askdirectory(title="Select the AC server logs folder")
+            if path:
+                self.save_logs_dir(path)
+        self.best_laps.set_logs_dir(path)
+
+    def set_logs_folder(self):
+        path = filedialog.askdirectory(title="Select the AC server logs folder",
+                                       initialdir=self.best_laps.logs_dir or None)
+        if path:
+            self.save_logs_dir(path)
+            self.best_laps.set_logs_dir(path)
+
+    def save_logs_dir(self, path):
+        try:
+            write_logs_dir(path)
+        except OSError:
+            self.set_status("Could not save the logs folder setting.")
 
     def on_close(self):
         self.hide_suggestions()
         if self.confirm_discard():
+            self.best_laps.stop()
             self.root.destroy()
 
 
