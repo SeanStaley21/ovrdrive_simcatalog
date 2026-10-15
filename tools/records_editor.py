@@ -33,7 +33,7 @@ NAVIGATION_KEYS = {"Up", "Down", "Left", "Right", "Home", "End", "Return", "KP_E
                    "Alt_L", "Alt_R", "Caps_Lock"}
 SUGGEST_ROWS = 8
 COLUMNS = (("class", "Class", 90), ("car", "Car", 220), ("driver", "Driver", 140),
-           ("time", "Time", 90), ("year", "Year", 60))
+           ("time", "Time", 90), ("year", "Year", 60), ("date", "Date", 90))
 
 
 def load_with_prompts(path):
@@ -152,7 +152,8 @@ class App:
         self.driver = tk.StringVar()
         self.time = tk.StringVar()
         self.year = tk.StringVar()
-        for var in (self.cls, self.car, self.driver, self.time, self.year):
+        self.date = tk.StringVar()
+        for var in (self.cls, self.car, self.driver, self.time, self.year, self.date):
             var.trace_add("write", lambda *_: self.update_dirty_title())
 
         ttk.Label(form, text="Class").grid(row=0, column=0, sticky="w")
@@ -180,13 +181,19 @@ class App:
         year_row.grid(row=4, column=1, sticky="ew", pady=2)
         ttk.Spinbox(year_row, textvariable=self.year, from_=1900, to=date.today().year + 1,
                     width=8).pack(side="left")
-        ttk.Label(year_row, text="Year (only the year is saved)").pack(side="left", padx=6)
-        ttk.Button(form, text="Save", command=self.save_record).grid(row=5, column=1, sticky="e", pady=(6, 0))
+        ttk.Label(year_row, text="Year (must match Date, if set)").pack(side="left", padx=6)
+        ttk.Label(form, text="Date").grid(row=5, column=0, sticky="w")
+        date_row = ttk.Frame(form)
+        date_row.grid(row=5, column=1, sticky="ew", pady=2)
+        ttk.Entry(date_row, textvariable=self.date, width=14).pack(side="left")
+        ttk.Label(date_row, text="YYYY-MM-DD, optional").pack(side="left", padx=6)
+        ttk.Button(form, text="Save", command=self.save_record).grid(row=6, column=1, sticky="e", pady=(6, 0))
 
     # ---- state ----
 
     def form_values(self):
-        return (self.cls.get(), self.car.get(), self.driver.get(), self.time.get(), self.year.get())
+        return (self.cls.get(), self.car.get(), self.driver.get(), self.time.get(), self.year.get(),
+                self.date.get())
 
     def is_dirty(self):
         return self.form_values() != self.baseline
@@ -253,14 +260,14 @@ class App:
         self.car_box.config(values=self.cars)
 
     def set_form(self, values):
-        for var, value in zip((self.cls, self.car, self.driver, self.time, self.year), values):
+        for var, value in zip((self.cls, self.car, self.driver, self.time, self.year, self.date), values):
             var.set(value)
         self.show_all_cars()
         self.baseline = self.form_values()
         self.update_dirty_title()
 
     def default_values(self):
-        return ("", "", "", "", str(date.today().year))
+        return ("", "", "", "", str(date.today().year), "")
 
     def reset_form(self):
         self.editing = None
@@ -448,7 +455,7 @@ class App:
             return
         self.editing = rec
         self.set_form((rec.get("class", ""), rec.get("car", ""), rec.get("driver", ""),
-                       rec.get("time", ""), str(rec.get("year", ""))))
+                       rec.get("time", ""), str(rec.get("year", "")), str(rec.get("date", ""))))
 
     def delete_selected(self):
         if not self.need_layout():

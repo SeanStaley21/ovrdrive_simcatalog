@@ -41,7 +41,7 @@ Edits to this file go live without bumping `VERSION`: the service worker fetches
 A small Windows app for adding records to `userSetRecords.json` without editing the JSON by hand.
 
 - Double-click `OVRDrive Records Editor.exe`. The first launch asks you to pick `db/userSetRecords.json` and remembers it in `%APPDATA%\OVRDrive Records Editor\config.json`. Delete that file, or use File > Change file..., to point it at a different file.
-- Pick a track, then a layout, then fill Class, Car, Driver, Time and Year. Year defaults to the current year and only the year is saved.
+- Pick a track, then a layout, then fill Class, Car, Driver, Time and Year. Year defaults to the current year and must match the year of the Date when both are set. Date is optional (`YYYY-MM-DD`); to clear one, edit the record, empty the Date field and save.
 - The Car box autocompletes from `data/cars.json` but accepts any text.
 - Use New, Edit selected, Delete selected and Save.
 - The app icon is drawn by `tools/make_records_editor_icon.py`; regenerate it with `python tools/make_records_editor_icon.py`.
@@ -99,6 +99,7 @@ These fields and the allowed values below apply to both files.
 | `verified` | no | `false` | `true` or `false` |
 | `confidence` | no | none | `exact layout` or `layout changed` |
 | `year` | no | none | Whole number, e.g. `2019` |
+| `date` | no | none | Real calendar date written `YYYY-MM-DD`, e.g. `2026-10-12`; may sit beside `year`, whose value must equal the date's year |
 | `source` | no | none | Text, usually a URL |
 | `note` | no | none | Text |
 | `speed_mph` | no | none | Number |

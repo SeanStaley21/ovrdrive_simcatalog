@@ -97,6 +97,12 @@ class FormatText(unittest.TestCase):
             text,
         )
 
+    def test_date_round_trips_in_key_order(self):
+        rec = dict(REC, year=2026, date="2026-10-12", verified=True)
+        text = self.fmt({"T": {"L": {"records": [rec]}}})
+        self.assertIn('"year": 2026, "date": "2026-10-12", "verified": true }', text)
+        self.assertEqual(list(rf.parse_text(text)["T"]["L"]["records"][0]), list(rec))
+
     def test_commas_between_records_only(self):
         text = self.fmt({"T": {"L": {"records": [dict(REC), dict(BLANK)]}}})
         lines = text.split("\n")
@@ -197,7 +203,7 @@ class Ops(unittest.TestCase):
         data = sample_data()
         old = dict(REC, year=2020, verified=True)
         data["Track A"]["Layout 1"]["records"] = [dict(old), dict(BLANK)]
-        new = rf.build_record("GT", "Car A", "Bob", "1:20.942", "2020", base=old)
+        new = rf.build_record("GT", "Car A", "Bob", "1:20.942", "2020", "", base=old)
         rf.replace(data, "Track A", "Layout 1", old, new)
         stored = self.records(data)[0]
         self.assertEqual(list(stored), ["class", "car", "driver", "time", "year", "verified"])
@@ -224,47 +230,128 @@ class Ops(unittest.TestCase):
                 self.assertEqual(data, sample_data())
 
 
+class CheckRecordDate(unittest.TestCase):
+    def problems_for(self, **extra):
+        problems = []
+        check_record(dict(REC, **extra), "r", problems, {})
+        return problems
+
+    def test_valid_dates_pass(self):
+        for good in ("2026-10-12", "2024-02-29", "1999-12-31"):
+            with self.subTest(good=good):
+                self.assertEqual(self.problems_for(date=good), [])
+
+    def test_year_and_date_together_pass(self):
+        self.assertEqual(self.problems_for(year=2026, date="2026-10-12"), [])
+
+    def test_year_not_matching_date_is_a_problem(self):
+        self.assertEqual(
+            self.problems_for(year=2020, date="2026-10-12"),
+            ["r: 'year' does not match the year in 'date'"],
+        )
+
+    def test_boolean_year_is_only_a_whole_number_problem(self):
+        self.assertEqual(
+            self.problems_for(year=True, date="2026-10-12"),
+            ["r: 'year' must be a whole number"],
+        )
+
+    def test_bad_dates_refused_with_message(self):
+        bad_values = (
+            "2026-13-40", "2025-02-29", "2026-00-10", "10/12/2026", "2026-1-5",
+            "20261012", " 2026-10-12", "2026-10-12 ", "2026-10-12\n", "", "\u0662\u0660\u0662\u0666-10-12",
+            2026, None, True, 20261012.0, ["2026-10-12"],
+        )
+        for bad in bad_values:
+            with self.subTest(bad=bad):
+                self.assertEqual(
+                    self.problems_for(date=bad),
+                    ["r: 'date' must be a real date written YYYY-MM-DD (e.g. 2026-10-12)"],
+                )
+
+
 class BuildRecord(unittest.TestCase):
     def test_strips_and_omits_empty_year(self):
-        rec = rf.build_record(" GT ", " Car A ", " Ann ", " 1:20.942 ", "")
+        rec = rf.build_record(" GT ", " Car A ", " Ann ", " 1:20.942 ", "", "")
         self.assertEqual(rec, REC)
 
     def test_year_is_int(self):
-        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", " 2020 ")
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", " 2020 ", "")
         self.assertEqual(rec["year"], 2020)
 
     def test_empty_year_removes_existing_year(self):
-        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", base=dict(REC, year=2020))
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "", base=dict(REC, year=2020))
         self.assertNotIn("year", rec)
 
     def test_base_extra_fields_kept(self):
-        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", base=dict(REC, verified=True))
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "", base=dict(REC, verified=True))
         self.assertTrue(rec["verified"])
 
     def test_bad_years_refused(self):
         for bad in ("abc", "1899", "-1", "2020.5"):
             with self.assertRaises(rf.RecordsFileError):
-                rf.build_record("GT", "Car A", "Ann", "1:20.942", bad)
+                rf.build_record("GT", "Car A", "Ann", "1:20.942", bad, "")
+
+    def test_date_is_stripped_and_set(self):
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", " 2026-10-12 ")
+        self.assertEqual(rec["date"], "2026-10-12")
+
+    def test_year_not_matching_date_refused(self):
+        with self.assertRaises(rf.RecordsFileError) as caught:
+            rf.build_record("GT", "Car A", "Ann", "1:20.942", "2020", "2026-10-12")
+        self.assertIn("'year' does not match the year in 'date'", str(caught.exception))
+
+    def test_bad_time_and_year_mismatch_both_reported(self):
+        with self.assertRaises(rf.RecordsFileError) as caught:
+            rf.build_record("GT", "Car A", "Ann", "bad", "2020", "2026-10-12")
+        message = str(caught.exception)
+        self.assertIn("must look like m:ss.mmm", message)
+        self.assertIn("'year' does not match the year in 'date'", message)
+
+    def test_year_matching_date_accepted(self):
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "2026", "2026-10-12")
+        self.assertEqual((rec["year"], rec["date"]), (2026, "2026-10-12"))
+
+    def test_empty_date_removes_existing_date(self):
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "  ", base=dict(REC, date="2026-10-12"))
+        self.assertNotIn("date", rec)
+
+    def test_bad_date_refused(self):
+        for bad in ("2026-13-40", "10/12/2026", "abc"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(rf.RecordsFileError) as caught:
+                    rf.build_record("GT", "Car A", "Ann", "1:20.942", "", bad)
+                self.assertIn("'date' must be a real date", str(caught.exception))
+
+    def test_new_date_is_appended_after_existing_keys(self):
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "2026", "2026-10-12", base=dict(REC, year=2026, verified=True))
+        self.assertEqual(list(rec), ["class", "car", "driver", "time", "year", "verified", "date"])
+
+    def test_edit_keeps_date_position(self):
+        old = dict(REC, date="2026-10-12", verified=True)
+        rec = rf.build_record("GT", "Car A", "Bob", "1:20.942", "", "2026-10-13", base=old)
+        self.assertEqual(list(rec), ["class", "car", "driver", "time", "date", "verified"])
+        self.assertEqual(rec["date"], "2026-10-13")
 
     def test_checker_problems_refused(self):
         with self.assertRaises(rf.RecordsFileError):
-            rf.build_record("GT", "Car A", "Ann", "bad", "")
+            rf.build_record("GT", "Car A", "Ann", "bad", "", "")
         with self.assertRaises(rf.RecordsFileError):
-            rf.build_record("GT", "", "Ann", "1:20.942", "")
+            rf.build_record("GT", "", "Ann", "1:20.942", "", "")
 
     def test_empty_driver_unknown_and_empty_class_refused(self):
         for args in (("GT", "Car A", "  ", "1:20.942"),
                      ("Nope", "Car A", "Ann", "1:20.942"),
                      ("", "Car A", "Ann", "1:20.942")):
             with self.assertRaises(rf.RecordsFileError):
-                rf.build_record(*args, "")
+                rf.build_record(*args, "", "")
 
     def test_year_above_next_year_refused(self):
         too_far = str(date.today().year + 2)
         with self.assertRaises(rf.RecordsFileError):
-            rf.build_record("GT", "Car A", "Ann", "1:20.942", too_far)
+            rf.build_record("GT", "Car A", "Ann", "1:20.942", too_far, "")
         self.assertEqual(
-            rf.build_record("GT", "Car A", "Ann", "1:20.942", str(date.today().year + 1))["year"],
+            rf.build_record("GT", "Car A", "Ann", "1:20.942", str(date.today().year + 1), "")["year"],
             date.today().year + 1)
 
 
@@ -346,6 +433,31 @@ class Save(TempFileCase):
         self.assertNotIn(b"\n", after.replace(b"\r\n", b""))
         self.assertEqual(loaded.data["Track A"]["Layout 1"]["records"][1], new)
         self.assertEqual(os.listdir(self.path.parent), [self.path.name])
+
+    def test_date_added_changes_one_line_and_keeps_crlf(self):
+        self.write(sample_data())
+        before = self.path.read_bytes()
+        new = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "2026-10-12", base=dict(REC))
+
+        def apply(data):
+            rf.replace(data, "Track A", "Layout 1", dict(REC), new)
+
+        loaded = rf.save(self.path, apply)
+        after = self.path.read_bytes()
+        changes = self.line_changes(before, after)
+        self.assertEqual(len(changes), 2)
+        self.assertTrue(any('"date": "2026-10-12"' in c for c in changes))
+        self.assertNotIn(b"\n", after.replace(b"\r\n", b""))
+        self.assertEqual(loaded.data["Track A"]["Layout 1"]["records"][0]["date"], "2026-10-12")
+
+    def test_clearing_date_returns_original_bytes(self):
+        self.write(sample_data())
+        original = self.path.read_bytes()
+        dated = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "2026-10-12", base=dict(REC))
+        rf.save(self.path, lambda d: rf.replace(d, "Track A", "Layout 1", dict(REC), dated))
+        cleared = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "", base=dated)
+        rf.save(self.path, lambda d: rf.replace(d, "Track A", "Layout 1", dated, cleared))
+        self.assertEqual(self.path.read_bytes(), original)
 
     def test_bom_and_lf_preserved(self):
         self.write(sample_data(), eol="\n", bom=True, final_newline=False)
