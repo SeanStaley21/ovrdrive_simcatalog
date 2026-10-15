@@ -165,7 +165,7 @@ class AddDismissTests(unittest.TestCase):
         fake.data["Track A"]["Full"]["records"] = [{"car": "Car A", "time": "1:20.000"}]
         with mock.patch.object(tab, "ask_lap") as ask, mock.patch.object(tab.messagebox, "showerror") as err:
             tab.BestLapsTab.add_selected(fake)
-        self.assertEqual(err.call_args.args[1], "Car A already has 1:20.000 on Track A / Full.")
+        self.assertEqual(err.call_args.args[1], "Car A already has 1:20.000 on Track A / Full. Dismiss it to hide it.")
         ask.assert_not_called()
         fake.add_records.assert_not_called()
 
@@ -282,11 +282,43 @@ class AppWriteTests(unittest.TestCase):
         fake = self.make_app()
         fake.confirm_discard.return_value = True
         fake.write.return_value = True
-        items = [("T", "L", {"car": "A"}), ("T", "L", {"car": "B"})]
+        items = [("T", "L", {"car": "A", "time": "1:00.000"}), ("T", "L", {"car": "B", "time": "1:00.000"})]
         self.assertTrue(editor.App.add_from_best_laps(fake, items))
         data = {"T": {"L": {"records": []}}}
         fake.write.call_args.args[0](data)
         self.assertEqual([r.get("car") for r in data["T"]["L"]["records"]], ["A", "B", ""])
+
+    def save_batch(self, on_disk):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "userSetRecords.json")
+            with open(path, "wb") as handle:
+                handle.write(rf.format_text(on_disk, "\n", True).encode("utf-8"))
+            before = open(path, "rb").read()
+            fake = self.make_app()
+            fake.loaded.path = path
+            fake.confirm_discard.return_value = True
+            fake.write = lambda apply: editor.App.write(fake, apply)
+            items = [("T", "L", {"car": "A", "time": "1:00.000"}),
+                     ("T", "L", {"car": "B", "time": "1:10.000"})]
+            with mock.patch.object(editor.messagebox, "showerror") as err,                     mock.patch.object(editor, "load"):
+                result = editor.App.add_from_best_laps(fake, items)
+            return result, open(path, "rb").read() == before, err
+
+    def test_duplicate_on_disk_after_load_refuses_the_whole_batch(self):
+        blank = {"class": "", "car": "", "driver": "", "time": ""}
+        taken = {"class": "GT", "car": "B", "driver": "Ann", "time": "1:10.00"}
+        result, unchanged, err = self.save_batch({"T": {"L": {"records": [taken, blank]}}})
+        self.assertFalse(result)
+        self.assertTrue(unchanged)
+        self.assertEqual(err.call_args.args[1], "B already has 1:10.000 on T / L. Dismiss it to hide it.")
+
+    def test_batch_without_a_duplicate_is_written(self):
+        blank = {"class": "", "car": "", "driver": "", "time": ""}
+        other = {"class": "GT", "car": "B", "driver": "Ann", "time": "1:11.000"}
+        result, unchanged, err = self.save_batch({"T": {"L": {"records": [other, blank]}}})
+        self.assertTrue(result)
+        self.assertFalse(unchanged)
+        err.assert_not_called()
 
     def test_add_from_best_laps_stops_when_unsaved_edits_are_kept(self):
         fake = self.make_app()

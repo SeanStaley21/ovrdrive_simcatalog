@@ -130,6 +130,16 @@ def marker(row, data):
     return "ties" if row.ms == fastest else "trails"
 
 
+def duplicate_message(data, track, layout, car, time_text):
+    """The refusal text when data already holds this car's time on the layout, else None."""
+    ms = lbl.parse_time(time_text)
+    records = data.get(track, {}).get(layout, {}).get("records", [])
+    if any(isinstance(rec, dict) and rec.get("car") == car and lbl.parse_time(rec.get("time")) == ms
+           for rec in records):
+        return f"{car} already has {time_text} on {track} / {layout}. Dismiss it to hide it."
+    return None
+
+
 def handled_path():
     return config_path().with_name("best_laps_handled.json")
 

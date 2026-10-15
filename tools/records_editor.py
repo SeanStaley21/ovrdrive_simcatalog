@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+import best_laps as bl
 from best_laps_tab import BestLapsTab
 from check_track_records import CLASSES, is_blank
 from records_file import (
@@ -527,7 +528,16 @@ class App:
     def add_from_best_laps(self, items):
         if not self.confirm_discard():
             return False
-        return self.write(lambda data: [add(data, t, l, r) for t, l, r in items])
+
+        def apply(data):
+            for track, layout, rec in items:
+                duplicate = bl.duplicate_message(data, track, layout, rec["car"], rec["time"])
+                if duplicate:
+                    raise RecordsFileError(duplicate)
+            for track, layout, rec in items:
+                add(data, track, layout, rec)
+
+        return self.write(apply)
 
     def start_best_laps(self):
         path = read_logs_dir()

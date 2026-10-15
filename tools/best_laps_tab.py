@@ -216,12 +216,10 @@ class BestLapsTab:
                     TITLE, f"{row.track} / {row.layout} is not in the records file. "
                            "Add the layout to the file first.")
                 return
-            time_text = lbl.format_time(row.ms)
-            records = self.data[row.track][row.layout].get("records", [])
-            if any(isinstance(rec, dict) and rec.get("car") == row.car
-                   and lbl.parse_time(rec.get("time")) == row.ms for rec in records):
-                messagebox.showerror(
-                    TITLE, f"{row.car} already has {time_text} on {row.track} / {row.layout}.")
+            duplicate = bl.duplicate_message(self.data, row.track, row.layout, row.car,
+                                             lbl.format_time(row.ms))
+            if duplicate:
+                messagebox.showerror(TITLE, duplicate)
                 return
         items = []
         for row in rows:
