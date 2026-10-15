@@ -56,7 +56,7 @@ def _modified_date(signature):
 def scan(logs_dir, cache):
     """Read the logs in logs_dir that changed since the last scan and return all their laps.
 
-    Each lap is the parsed lap plus the log file's modified date as YYYY-MM-DD. cache is {log name: (signature, laps)} and is updated in place. Returns
+    Each lap is the parsed lap plus the log file's modified date as YYYY-MM-DD and the log name. cache is {log name: (signature, laps)} and is updated in place. Returns
     (laps, number of logs re-read, [(log name, exception type name)] for unreadable logs).
     A log that cannot be read keeps the laps cached from its last good read.
     """
@@ -75,7 +75,7 @@ def scan(logs_dir, cache):
             fresh[name] = cache[name]
     cache.clear()
     cache.update(fresh)
-    laps = [lap + (_modified_date(cache[name][0]),) for name in sorted(cache) for lap in cache[name][1]]
+    laps = [lap + (_modified_date(cache[name][0]), name) for name in sorted(cache) for lap in cache[name][1]]
     return laps, len(changed), unreadable
 
 
@@ -121,17 +121,25 @@ def resolve_lap(id_map, catalog_tracks, catalog_cars, matches, track_id, layout_
 
 
 def best_laps(laps, id_map, catalog_tracks, catalog_cars, matches=None):
-    """Up to TOP_LAPS BestLap rows per (track, layout, car): the fastest distinct times, the first lap on a tie."""
+    """Up to TOP_LAPS BestLap rows per (track, layout, car): the fastest distinct times, the first lap on a tie.
+
+    Each log is one race and each driver counts only with their fastest lap in it.
+    """
     matches = matches or {"tracks": {}, "cars": {}}
-    found = {}
-    for track_id, layout_id, car_id, driver, ms, date in laps:
+    fastest = {}
+    for index, (track_id, layout_id, car_id, driver, ms, date, log_name) in enumerate(laps):
         track, layout, car, matched, map_track, map_car = resolve_lap(
             id_map, catalog_tracks, catalog_cars, matches, track_id, layout_id, car_id)
-        key = (track, layout, car)
-        if all(row.ms != ms for row in found.get(key, [])):
-            found.setdefault(key, []).append(BestLap(
+        key = (log_name, driver, track, layout, car)
+        if key not in fastest or ms < fastest[key][1].ms:
+            fastest[key] = (index, BestLap(
                 track, layout, car, driver, ms, f"{track_id} / {layout_id} / {car_id}", matched, date,
                 (track_id, layout_id, car_id), map_track, map_car))
+    found = {}
+    for _, best in sorted(fastest.values(), key=lambda item: item[0]):
+        key = (best.track, best.layout, best.car)
+        if all(row.ms != best.ms for row in found.get(key, [])):
+            found.setdefault(key, []).append(best)
     rows = []
     for key_rows in found.values():
         rows.extend(sorted(key_rows, key=lambda row: row.ms)[:TOP_LAPS])
@@ -225,7 +233,7 @@ def migrate_handled(handled, laps, id_map, catalog_tracks, catalog_cars, old_mat
     moved laps' new entries are added beside it.
     """
     moves, stays = {}, set()
-    for track_id, layout_id, car_id, _, ms, _ in laps:
+    for track_id, layout_id, car_id, _, ms, *_ in laps:
         ids = (track_id, layout_id, car_id)
         old = resolve_lap(id_map, catalog_tracks, catalog_cars, old_matches, *ids)[:3] + (ms,)
         new = resolve_lap(id_map, catalog_tracks, catalog_cars, new_matches, *ids)[:3] + (ms,)

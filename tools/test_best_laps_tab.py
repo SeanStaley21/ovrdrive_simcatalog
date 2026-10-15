@@ -323,7 +323,7 @@ class MatchTests(unittest.TestCase):
                          {"tracks": {"zz": {"gp": {"track": "Track A", "layout": "Short"}}}, "cars": {}})
 
     def laps(self, *items):
-        return [(track, "", car, "Pod 1", ms, "2026-05-06") for track, car, ms in items]
+        return [(track, "", car, "Pod 1", ms, "2026-05-06", f"{ms}.log") for track, car, ms in items]
 
     def visible(self, fake):
         rows = bl.best_laps(fake.laps, fake.id_map, fake.catalog_tracks, fake.catalog_cars, fake.matches)
@@ -356,7 +356,7 @@ class MatchTests(unittest.TestCase):
                                  map_track=False, map_car=True)
         fake = self.make_tab(row)
         fake.id_map = id_map
-        fake.laps = [("zz", "gp", "car_a", "Pod 1", 80000, "d"), ("zz", "gp", "car_b", "Pod 1", 81000, "d")]
+        fake.laps = [("zz", "gp", "car_a", "Pod 1", 80000, "d", "a.log"), ("zz", "gp", "car_b", "Pod 1", 81000, "d", "a.log")]
         fake.handled = [("zz", "gp", "Car A", 80000), ("zz", "gp", "Car B", 81000)]
         self.match(fake, (("Track A", "Short"), None))
         self.assertEqual(self.visible(fake), [])

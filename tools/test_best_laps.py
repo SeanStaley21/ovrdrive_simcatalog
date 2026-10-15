@@ -27,8 +27,8 @@ CATALOG_TRACKS = {f"{INDI}::{INDI}"}
 CATALOG_CARS = {"Car A", "Car B"}
 
 
-def lap(ms, track="indi", layout="", car="car_a", driver="Pod 1", date="2026-01-01"):
-    return (track, layout, car, driver, ms, date)
+def lap(ms, track="indi", layout="", car="car_a", driver="Pod 1", date="2026-01-01", log=None):
+    return (track, layout, car, driver, ms, date, log or f"{ms}.log")
 
 
 def rows_for(laps, id_map=ID_MAP, tracks=CATALOG_TRACKS, cars=CATALOG_CARS):
@@ -144,7 +144,7 @@ class RealDataTests(unittest.TestCase):
         id_map = bl.load_editor_id_map(records_path)
         tracks = rf.load_catalog_tracks(records_path)
         cars = set(json.loads((ROOT / "data" / "cars.json").read_text(encoding="utf-8-sig"))["cars"])
-        laps = [item + ("2026-01-01",) for item in
+        laps = [item + ("2026-01-01", "two_sessions.log") for item in
                 lbl.parse_log((HERE / "sample_logs" / "two_sessions.log").read_text(encoding="utf-8"))]
         best = bl.best_laps(laps, id_map, tracks, cars)[0]
         self.assertEqual((best.track, best.layout, best.car), (INDI, INDI, FORMULA))
@@ -219,6 +219,43 @@ class BestLapsTests(unittest.TestCase):
     def test_identical_times_count_once_and_keep_the_earlier_lap(self):
         rows = rows_for([lap(60000, driver="Pod 1"), lap(60000, driver="Pod 2"), lap(61000)])
         self.assertEqual([(r.ms, r.driver) for r in rows], [(60000, "Pod 1"), (61000, "Pod 1")])
+
+    def test_a_pod_counts_once_per_race_with_its_fastest_lap(self):
+        rows = rows_for([lap(62000, log="a.log"), lap(60000, log="a.log"), lap(61000, log="a.log")])
+        self.assertEqual([r.ms for r in rows], [60000])
+
+    def test_a_tie_between_pods_goes_to_the_pod_that_set_the_time_first(self):
+        rows = rows_for([lap(62000, log="a.log"), lap(60000, driver="Pod 2", log="a.log"),
+                         lap(60000, log="a.log")])
+        self.assertEqual([(r.driver, r.ms) for r in rows], [("Pod 2", 60000)])
+
+    def test_each_pod_in_a_race_gets_a_row(self):
+        rows = rows_for([lap(60000, log="a.log"), lap(61000, driver="Pod 2", log="a.log"),
+                         lap(62000, driver="Pod 2", log="a.log")])
+        self.assertEqual([(r.driver, r.ms) for r in rows], [("Pod 1", 60000), ("Pod 2", 61000)])
+
+    def test_the_same_pod_in_two_races_gets_two_rows(self):
+        rows = rows_for([lap(60000, log="a.log"), lap(61000, log="b.log"), lap(59000, log="b.log")])
+        self.assertEqual([r.ms for r in rows], [59000, 60000])
+
+    def test_top_three_is_chosen_among_the_race_bests(self):
+        laps = [lap(50000, log="a.log"), lap(50100, log="a.log"), lap(50200, log="a.log"),
+                lap(60000, driver="Pod 2", log="a.log"), lap(61000, log="b.log"),
+                lap(62000, log="c.log"), lap(63000, log="d.log")]
+        self.assertEqual([r.ms for r in rows_for(laps)], [50000, 60000, 61000])
+
+    def test_best_per_key_matches_the_best_of_the_per_race_pod_bests(self):
+        laps = [("Pod 1", "a", 61000), ("Pod 1", "a", 60000), ("Pod 2", "a", 62000), ("Pod 1", "b", 63000),
+                ("Pod 2", "b", 59000), ("Pod 2", "b", 58000)]
+        everything, reduced = {}, {}
+        for driver, log_name, ms in laps:
+            lbl.merge_lap(everything, "T", "L", "C", driver, ms)
+        bests = {}
+        for driver, log_name, ms in laps:
+            bests[(driver, log_name)] = min(ms, bests.get((driver, log_name), ms))
+        for (driver, _), ms in bests.items():
+            lbl.merge_lap(reduced, "T", "L", "C", driver, ms)
+        self.assertEqual(everything, reduced)
 
     def test_each_row_keeps_its_own_date_and_driver(self):
         rows = rows_for([lap(60000, date="2026-01-01"), lap(59000, driver="Pod 2", date="2026-02-02"),
