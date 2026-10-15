@@ -51,12 +51,16 @@ A small Windows app for adding records to `userSetRecords.json` without editing 
 
 ### Best Laps tab
 
-The Best Laps tab lists the fastest lap per track, layout and car from the Assetto Corsa server logs. It is read-only and never writes to `userSetRecords.json`.
+The Best Laps tab lists the three fastest laps per track, layout and car from the Assetto Corsa server logs. A lap is written to `userSetRecords.json` only when you add it and confirm the prompt.
 
 - The editor scans the logs folder when it starts and every 10 minutes while it is open. Check now scans straight away and is disabled while a scan runs. Logs that have not changed are not read again.
 - On first use the editor asks for the logs folder. It is saved as `logs_dir` in the same `config.json` as the records file path. Use File > Set logs folder... to change it. Cancelling the first prompt turns scanning off until the next launch.
-- Columns are Track, Layout, Car, Pod/Driver, Time and Status. There is one row per track, layout and car with its fastest lap; laps with cuts and the Spectator slot are skipped, and a log that cannot be read is skipped.
-- Status compares the lap with the fastest record for the same car on that layout in the open records file, any class: `beats`, `ties`, `trails` or `no record`. Record times that cannot be read, such as ones with four decimals, are ignored. After editing the file outside the editor, use File > Reload.
+- Columns are Track, Layout, Car, Pod/Driver, Time and Status. There are up to three rows per track, layout and car, one for each of its three fastest lap times (a time shared by several laps counts once); laps with cuts and the Spectator slot are skipped, and a log that cannot be read is skipped.
+- Status compares the lap with the fastest record for the same car on that layout in the open records file, any class: `beats current record`, `ties`, `trails` or `no record`. Record times that cannot be read, such as ones with four decimals, are ignored. After editing the file outside the editor, use File > Reload.
+- Add... opens a prompt for each selected row, one after the other, with Name (prefilled with the pod name), Class (required, no default) and Date (prefilled with the log file's last-modified date, which you can edit; `YYYY-MM-DD`). Confirming saves all the selected laps in one write with `source` set to `ac-server-log`. Cancelling any prompt writes nothing, and leaving Class unchosen blocks the save. A lap that beats the current record is added next to it; the old record is untouched, and replacing it stays a manual edit on the Records tab.
+- Only a car's three fastest laps are ever listed, and added or dismissed laps still use up one of those three slots.
+- Unmatched rows cannot be added, and neither can a row whose track and layout are not in the records file; add the layout to the file first.
+- Dismiss hides the selected rows (matched or not) without writing to `userSetRecords.json`. Added and dismissed laps stay hidden after a restart, but only for the exact lap time: a different lap time for the same car and layout, such as a new faster lap, shows as a new row. They are remembered in `best_laps_handled.json` next to `config.json` in `%APPDATA%\OVRDrive Records Editor\`; deleting that file is safe and brings the rows back.
 - A lap whose track, layout or car is not in the id map, or whose names are not in `data/tracks.json` or `data/cars.json`, is grey and shows `unmatched:` with the raw ids (`track id / layout id / car id`). To fix it, add the ids to `tools/ac_id_map.json` or add the car or track to the catalog.
 - The status bar line "Best laps: ..." shows when the last check ran and when the next is due. If the logs folder is missing or cannot be read it says so and tries again every 10 minutes, and the rows from the last good scan stay. "id map missing or unusable" means `tools/ac_id_map.json` is missing from the repo that holds the records file or is not a valid id map, so every lap is unmatched. "readable logs" counts logs that have been read successfully; unreadable ones are counted separately.
 
@@ -111,7 +115,7 @@ These fields and the allowed values below apply to both files.
 | `confidence` | no | none | `exact layout` or `layout changed` |
 | `year` | no | none | Whole number, e.g. `2019` |
 | `date` | no | none | Real calendar date written `YYYY-MM-DD`, e.g. `2026-10-12`; may sit beside `year`, whose value must equal the date's year |
-| `source` | no | none | Text, usually a URL |
+| `source` | no | none | Text, usually a URL; `ac-server-log` for laps added from the server logs |
 | `note` | no | none | Text |
 | `speed_mph` | no | none | Number |
 
@@ -161,7 +165,7 @@ With no arguments it checks `track-records.json` and `userSetRecords.json`. Each
 { "class": "", "car": "Ferrari SF70H", "driver": "Pod 3", "time": "1:36.595", "source": "ac-server-log" }
 ```
 
-The Records editor's Best Laps tab uses the same parser and id map.
+The Records editor's Best Laps tab uses the same parser and id map, and can add these laps to `userSetRecords.json` with `source` `"ac-server-log"`.
 
 `driver` is the pod name from the log and can be edited by hand; an edited record is kept until a faster lap beats it. `class` is left blank. Laps with cuts and the Spectator slot are skipped. Each log names one track, one layout and the cars, and both sessions in a log count.
 

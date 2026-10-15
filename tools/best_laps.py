@@ -2,15 +2,18 @@
 
 The logic behind the Best Laps tab.
 """
+import json
 import os
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import log_best_laps as lbl
 from check_track_records import is_blank
+from records_file import RecordsFileError, build_record, config_path
 
 INTERVAL = 600
+TOP_LAPS = 3
 
 
 class LogsFolderError(Exception):
@@ -30,6 +33,7 @@ class BestLap:
     ms: int
     raw: str
     matched: bool
+    date: str = ""
 
 
 def _probe(logs_dir):
@@ -42,10 +46,14 @@ def _probe(logs_dir):
         raise LogsFolderError("unreachable", f"({type(exc).__name__})") from exc
 
 
+def _modified_date(signature):
+    return datetime.fromtimestamp(signature[1] // 10**9).strftime("%Y-%m-%d")
+
+
 def scan(logs_dir, cache):
     """Read the logs in logs_dir that changed since the last scan and return all their laps.
 
-    cache is {log name: (signature, laps)} and is updated in place. Returns
+    Each lap is the parsed lap plus the log file's modified date as YYYY-MM-DD. cache is {log name: (signature, laps)} and is updated in place. Returns
     (laps, number of logs re-read, [(log name, exception type name)] for unreadable logs).
     A log that cannot be read keeps the laps cached from its last good read.
     """
@@ -64,7 +72,8 @@ def scan(logs_dir, cache):
             fresh[name] = cache[name]
     cache.clear()
     cache.update(fresh)
-    return [lap for name in sorted(cache) for lap in cache[name][1]], len(changed), unreadable
+    laps = [lap + (_modified_date(cache[name][0]),) for name in sorted(cache) for lap in cache[name][1]]
+    return laps, len(changed), unreadable
 
 
 def load_editor_id_map(records_path):
@@ -87,23 +96,20 @@ def load_editor_id_map(records_path):
 
 
 def best_laps(laps, id_map, catalog_tracks, catalog_cars):
-    """One BestLap per (track, layout, car): the fastest lap, the first one on a tie."""
-    data = {}
-    details = {}
-    for track_id, layout_id, car_id, driver, ms in laps:
+    """Up to TOP_LAPS BestLap rows per (track, layout, car): the fastest distinct times, the first lap on a tie."""
+    found = {}
+    for track_id, layout_id, car_id, driver, ms, date in laps:
         unmapped = set()
         track, layout, car = lbl.resolve_names(id_map, track_id, layout_id, car_id, unmapped)
-        if lbl.merge_lap(data, track, layout, car, driver, ms):
-            matched = (not unmapped and f"{track}::{layout}" in catalog_tracks
-                       and car in catalog_cars)
-            details[(track, layout, car)] = (f"{track_id} / {layout_id} / {car_id}", matched)
+        matched = (not unmapped and f"{track}::{layout}" in catalog_tracks
+                   and car in catalog_cars)
+        key = (track, layout, car)
+        if all(row.ms != ms for row in found.get(key, [])):
+            found.setdefault(key, []).append(BestLap(
+                track, layout, car, driver, ms, f"{track_id} / {layout_id} / {car_id}", matched, date))
     rows = []
-    for track, layouts in data.items():
-        for layout, entry in layouts.items():
-            for record in entry["records"]:
-                raw, matched = details[(track, layout, record["car"])]
-                rows.append(BestLap(track, layout, record["car"], record["driver"],
-                                    lbl.parse_time(record["time"]), raw, matched))
+    for key_rows in found.values():
+        rows.extend(sorted(key_rows, key=lambda row: row.ms)[:TOP_LAPS])
     rows.sort(key=lambda row: (not row.matched, row.track.casefold(), row.layout.casefold(), row.ms))
     return rows
 
@@ -120,8 +126,61 @@ def marker(row, data):
         return "no record"
     fastest = min(times)
     if row.ms < fastest:
-        return "beats"
+        return "beats current record"
     return "ties" if row.ms == fastest else "trails"
+
+
+def duplicate_message(data, track, layout, car, time_text):
+    """The refusal text when data already holds this car's time on the layout, else None."""
+    ms = lbl.parse_time(time_text)
+    records = data.get(track, {}).get(layout, {}).get("records", [])
+    if any(isinstance(rec, dict) and rec.get("car") == car and lbl.parse_time(rec.get("time")) == ms
+           for rec in records):
+        return f"{car} already has {time_text} on {track} / {layout}. Dismiss it to hide it."
+    return None
+
+
+def handled_path():
+    return config_path().with_name("best_laps_handled.json")
+
+
+def read_handled():
+    """The (track, layout, car, ms) of every added or dismissed lap; unusable data gives []."""
+    try:
+        value = json.loads(handled_path().read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    entries = value.get("handled") if isinstance(value, dict) else None
+    if not isinstance(entries, list):
+        return []
+    handled = []
+    for entry in entries:
+        if (isinstance(entry, dict)
+                and all(isinstance(entry.get(key), str) for key in ("track", "layout", "car"))
+                and isinstance(entry.get("ms"), int) and not isinstance(entry["ms"], bool)):
+            handled.append((entry["track"], entry["layout"], entry["car"], entry["ms"]))
+    return handled
+
+
+def write_handled(handled):
+    target = handled_path()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    entries = [{"track": t, "layout": l, "car": c, "ms": ms} for t, l, c, ms in handled]
+    target.write_text(json.dumps({"handled": entries}), encoding="utf-8")
+
+
+def is_handled(row, handled):
+    """True when this exact lap time for the same car was already added or dismissed."""
+    return (row.track, row.layout, row.car, row.ms) in handled
+
+
+def lap_record(row, name, cls, date_text):
+    """The record for row's lap, ready for records_file.add."""
+    if not cls:
+        raise RecordsFileError("Choose a class.")
+    rec = build_record(cls, row.car, name, lbl.format_time(row.ms), "", date_text)
+    rec["source"] = lbl.SOURCE
+    return rec
 
 
 def error_message(logs_dir, kind, detail):

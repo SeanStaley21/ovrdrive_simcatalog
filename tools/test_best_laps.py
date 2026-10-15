@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -9,7 +10,9 @@ from unittest import mock
 import best_laps as bl
 import log_best_laps as lbl
 import records_file as rf
+from check_track_records import check_record
 from test_log_best_laps import make_log
+from test_records_file import REC, TempFileCase
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -24,8 +27,8 @@ CATALOG_TRACKS = {f"{INDI}::{INDI}"}
 CATALOG_CARS = {"Car A", "Car B"}
 
 
-def lap(ms, track="indi", layout="", car="car_a", driver="Pod 1"):
-    return (track, layout, car, driver, ms)
+def lap(ms, track="indi", layout="", car="car_a", driver="Pod 1", date="2026-01-01"):
+    return (track, layout, car, driver, ms, date)
 
 
 def rows_for(laps, id_map=ID_MAP, tracks=CATALOG_TRACKS, cars=CATALOG_CARS):
@@ -60,6 +63,12 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(len(laps), 9)
         self.assertNotIn(70000, times)
         self.assertIn(43019, times)
+
+    def test_laps_carry_the_log_files_modified_date(self):
+        stamp = datetime(2026, 3, 4, 12, 0).timestamp()
+        os.utime(self.logs / "cut_lap.log", (stamp, stamp))
+        laps, _, _ = bl.scan(self.logs, self.cache)
+        self.assertIn("2026-03-04", {item[5] for item in laps})
 
     def test_second_scan_does_not_parse_again(self):
         bl.scan(self.logs, self.cache)
@@ -135,8 +144,9 @@ class RealDataTests(unittest.TestCase):
         id_map = bl.load_editor_id_map(records_path)
         tracks = rf.load_catalog_tracks(records_path)
         cars = set(json.loads((ROOT / "data" / "cars.json").read_text(encoding="utf-8-sig"))["cars"])
-        laps = lbl.parse_log((HERE / "sample_logs" / "two_sessions.log").read_text(encoding="utf-8"))
-        [best] = bl.best_laps(laps, id_map, tracks, cars)
+        laps = [item + ("2026-01-01",) for item in
+                lbl.parse_log((HERE / "sample_logs" / "two_sessions.log").read_text(encoding="utf-8"))]
+        best = bl.best_laps(laps, id_map, tracks, cars)[0]
         self.assertEqual((best.track, best.layout, best.car), (INDI, INDI, FORMULA))
         self.assertEqual((best.driver, best.ms, best.matched), ("Pod 5", 43019, True))
 
@@ -196,10 +206,25 @@ class BestLapsTests(unittest.TestCase):
         self.assertFalse(best.matched)
         self.assertTrue(bl.marker(best, {}).startswith("unmatched: indi"))
 
-    def test_fastest_lap_per_car_wins(self):
+    def test_fastest_laps_per_car_are_listed_fastest_first(self):
         rows = rows_for([lap(60000), lap(59000, driver="Pod 2"), lap(61000, car="car_b")])
         self.assertEqual([(r.car, r.ms, r.driver) for r in rows],
-                         [("Car A", 59000, "Pod 2"), ("Car B", 61000, "Pod 1")])
+                         [("Car A", 59000, "Pod 2"), ("Car A", 60000, "Pod 1"), ("Car B", 61000, "Pod 1")])
+
+    def test_only_the_three_fastest_laps_per_car_are_kept(self):
+        rows = rows_for([lap(64000), lap(61000), lap(63000), lap(62000), lap(60000, car="car_b")])
+        self.assertEqual([(r.car, r.ms) for r in rows],
+                         [("Car B", 60000), ("Car A", 61000), ("Car A", 62000), ("Car A", 63000)])
+
+    def test_identical_times_count_once_and_keep_the_earlier_lap(self):
+        rows = rows_for([lap(60000, driver="Pod 1"), lap(60000, driver="Pod 2"), lap(61000)])
+        self.assertEqual([(r.ms, r.driver) for r in rows], [(60000, "Pod 1"), (61000, "Pod 1")])
+
+    def test_each_row_keeps_its_own_date_and_driver(self):
+        rows = rows_for([lap(60000, date="2026-01-01"), lap(59000, driver="Pod 2", date="2026-02-02"),
+                         lap(59000, date="2026-03-03")])
+        self.assertEqual([(r.ms, r.driver, r.date) for r in rows],
+                         [(59000, "Pod 2", "2026-02-02"), (60000, "Pod 1", "2026-01-01")])
 
     def test_tie_keeps_first_lap(self):
         [best] = rows_for([lap(60000, driver="Pod 1"), lap(60000, driver="Pod 2")])
@@ -224,10 +249,117 @@ class BestLapsTests(unittest.TestCase):
         ])
 
 
+class HandledTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        patch = mock.patch.dict(os.environ, {"APPDATA": tmp.name})
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_round_trip(self):
+        handled = [(INDI, INDI, "Car A", 80000), ("T", "L", "Car B", 1)]
+        bl.write_handled(handled)
+        self.assertEqual(bl.read_handled(), handled)
+        self.assertEqual(bl.handled_path().name, "best_laps_handled.json")
+
+    def test_missing_or_bad_files_read_as_empty(self):
+        self.assertEqual(bl.read_handled(), [])
+        bl.handled_path().parent.mkdir(parents=True)
+        for text in ("not json", "[]", '{"handled": 5}', '{"other": []}'):
+            with self.subTest(text):
+                bl.handled_path().write_text(text, encoding="utf-8")
+                self.assertEqual(bl.read_handled(), [])
+
+    def test_bad_entries_are_skipped(self):
+        good = {"track": "T", "layout": "L", "car": "C", "ms": 5}
+        bad = [5, {**good, "track": 1}, {**good, "layout": None}, {**good, "car": 2},
+               {**good, "ms": True}, {**good, "ms": 5.5}, {**good, "ms": "5"}, {"track": "T"}]
+        bl.handled_path().parent.mkdir(parents=True)
+        bl.handled_path().write_text(json.dumps({"handled": bad + [good]}), encoding="utf-8")
+        self.assertEqual(bl.read_handled(), [("T", "L", "C", 5)])
+
+    def test_is_handled_matches_the_exact_lap_only(self):
+        handled = [(INDI, INDI, "Car A", 80000)]
+        self.assertTrue(bl.is_handled(row(80000), handled))
+        self.assertFalse(bl.is_handled(row(81000), handled))
+        self.assertFalse(bl.is_handled(row(79999), handled))
+        self.assertFalse(bl.is_handled(row(80000, car="Car B"), handled))
+        self.assertFalse(bl.is_handled(row(80000), []))
+
+
+class LapRecordTests(unittest.TestCase):
+    def test_fields_order_and_source(self):
+        rec = bl.lap_record(row(80940), "Ann", "GT", "2026-05-06")
+        self.assertEqual(list(rec.items()), [
+            ("class", "GT"), ("car", "Car A"), ("driver", "Ann"), ("time", "1:20.940"),
+            ("date", "2026-05-06"), ("source", "ac-server-log")])
+        self.assertNotIn("year", rec)
+
+    def test_empty_date_is_left_out(self):
+        self.assertNotIn("date", bl.lap_record(row(80940), "Ann", "GT", ""))
+
+    def test_no_class_is_refused(self):
+        with self.assertRaises(rf.RecordsFileError) as caught:
+            bl.lap_record(row(80940), "Ann", "", "2026-05-06")
+        self.assertEqual(str(caught.exception), "Choose a class.")
+
+    def test_bad_date_is_refused(self):
+        with self.assertRaises(rf.RecordsFileError):
+            bl.lap_record(row(80940), "Ann", "GT", "yesterday")
+
+
+class AddLapTests(TempFileCase):
+    def data(self):
+        slower = dict(REC, car="Car A", time="1:30.000")
+        blank = {"class": "", "car": "", "driver": "", "time": ""}
+        return {"Track A": {"Layout 1": {"records": [slower, blank]}}}
+
+    def add_lap(self, data):
+        rf.add(data, "Track A", "Layout 1", bl.lap_record(row(80940), "Ann", "GT", "2026-05-06"))
+
+    def test_lap_is_added_before_the_blank_and_old_record_is_untouched(self):
+        for eol, bom in (("\r\n", False), ("\n", True), ("\r\n", True)):
+            with self.subTest(eol=eol, bom=bom):
+                self.write(self.data(), eol=eol, bom=bom)
+                loaded = rf.save(self.path, self.add_lap)
+                after = self.path.read_bytes()
+                self.assertEqual(after.startswith(rf.BOM), bom)
+                self.assertEqual(b"\r\n" in after, eol == "\r\n")
+                old = rf.format_record(self.data()["Track A"]["Layout 1"]["records"][0])
+                self.assertIn(old.replace("\n", eol).encode("utf-8"), after)
+                records = loaded.data["Track A"]["Layout 1"]["records"]
+                self.assertEqual([r["time"] for r in records], ["1:30.000", "1:20.940", ""])
+                self.assertEqual(records[1]["source"], "ac-server-log")
+                rf.parse_text(after.decode("utf-8-sig"))
+                problems = []
+                for rec in records[:2]:
+                    check_record(rec, "record", problems, {})
+                self.assertEqual(problems, [])
+
+    def test_other_edit_on_disk_after_load_is_kept(self):
+        self.write(self.data())
+        rf.load(self.path)
+        other = self.data()
+        other["Track B"] = {"Full": {"records": [{"class": "", "car": "", "driver": "", "time": ""}]}}
+        self.write(other)
+        loaded = rf.save(self.path, self.add_lap)
+        self.assertIn("Track B", loaded.data)
+        self.assertEqual(len(loaded.data["Track A"]["Layout 1"]["records"]), 3)
+
+    def test_layout_removed_on_disk_conflicts_and_changes_nothing(self):
+        self.write({"Track A": {"Other": {"records": []}}})
+        before = self.path.read_bytes()
+        with self.assertRaises(rf.ConflictError):
+            rf.save(self.path, lambda d: [self.add_lap(d), rf.add(d, "Track A", "Layout 1", dict(REC))])
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(sorted(p.name for p in self.path.parent.iterdir()), [self.path.name])
+
+
 class MarkerTests(unittest.TestCase):
     def test_beats_ties_trails(self):
         data = records_data(record("Car A", "1:20.940"))
-        self.assertEqual(bl.marker(row(80000), data), "beats")
+        self.assertEqual(bl.marker(row(80000), data), "beats current record")
         self.assertEqual(bl.marker(row(80940), data), "ties")
         self.assertEqual(bl.marker(row(81000), data), "trails")
 
