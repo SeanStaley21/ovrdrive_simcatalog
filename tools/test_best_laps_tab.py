@@ -160,6 +160,24 @@ class AddDismissTests(unittest.TestCase):
         ask.assert_not_called()
         fake.add_records.assert_not_called()
 
+    def test_existing_record_with_the_same_car_and_time_is_refused(self):
+        fake = self.make_tab(make_row())
+        fake.data["Track A"]["Full"]["records"] = [{"car": "Car A", "time": "1:20.000"}]
+        with mock.patch.object(tab, "ask_lap") as ask, mock.patch.object(tab.messagebox, "showerror") as err:
+            tab.BestLapsTab.add_selected(fake)
+        self.assertEqual(err.call_args.args[1], "Car A already has 1:20.000 on Track A / Full.")
+        ask.assert_not_called()
+        fake.add_records.assert_not_called()
+
+    def test_different_time_or_car_is_still_allowed(self):
+        fake = self.make_tab(make_row())
+        fake.data["Track A"]["Full"]["records"] = [{"car": "Car A", "time": "1:20.001"},
+                                                   {"car": "Car B", "time": "1:20.000"}]
+        with mock.patch.object(tab, "ask_lap", return_value={"car": "Car A"}) as ask:
+            tab.BestLapsTab.add_selected(fake)
+        ask.assert_called_once()
+        fake.add_records.assert_called_once()
+
     def test_cancel_aborts_with_nothing_written(self):
         fake = self.make_tab(make_row(), make_row(car="Car B"))
         with mock.patch.object(tab, "ask_lap", side_effect=[{"car": "Car A"}, None]) as ask:

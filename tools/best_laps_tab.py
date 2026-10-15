@@ -51,7 +51,7 @@ def ask_lap(root, row):
     form.pack(fill="both", expand=True)
     ttk.Label(form, text=f"{row.track} / {row.layout} / {row.car}  {lbl.format_time(row.ms)}").grid(
         row=0, column=0, columnspan=2, sticky="w", pady=(0, 6))
-    for index, (label, var) in enumerate((("Name", name), ("Class", cls), ("Date", date_text)), 1):
+    for index, (label, var) in enumerate((("Name", name), ("Class", cls), ("Date (log file date)", date_text)), 1):
         ttk.Label(form, text=label).grid(row=index, column=0, sticky="w", pady=2)
         if label == "Class":
             widget = ttk.Combobox(form, textvariable=var, values=CLASSES, state="readonly", width=28)
@@ -69,7 +69,9 @@ def ask_lap(root, row):
         dialog.destroy()
 
     buttons = ttk.Frame(form)
-    buttons.grid(row=4, column=0, columnspan=2, sticky="e", pady=(8, 0))
+    buttons.grid(row=5, column=0, columnspan=2, sticky="e", pady=(8, 0))
+    ttk.Label(form, text="The date is the log file's last-modified date; edit it if needed (YYYY-MM-DD).",
+              wraplength=300).grid(row=4, column=0, columnspan=2, sticky="w", pady=(4, 0))
     ttk.Button(buttons, text="OK", command=confirm).pack(side="left")
     ttk.Button(buttons, text="Cancel", command=dialog.destroy).pack(side="left", padx=(6, 0))
     dialog.bind("<Return>", lambda _e: confirm())
@@ -213,6 +215,13 @@ class BestLapsTab:
                 messagebox.showerror(
                     TITLE, f"{row.track} / {row.layout} is not in the records file. "
                            "Add the layout to the file first.")
+                return
+            time_text = lbl.format_time(row.ms)
+            records = self.data[row.track][row.layout].get("records", [])
+            if any(isinstance(rec, dict) and rec.get("car") == row.car
+                   and lbl.parse_time(rec.get("time")) == row.ms for rec in records):
+                messagebox.showerror(
+                    TITLE, f"{row.car} already has {time_text} on {row.track} / {row.layout}.")
                 return
         items = []
         for row in rows:
