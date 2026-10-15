@@ -7,7 +7,7 @@ from tkinter import ttk
 
 import best_laps as bl
 import log_best_laps as lbl
-from records_file import load_catalog_cars
+from records_file import load_catalog_cars, load_catalog_tracks
 
 POLL_MS = 500
 NO_FOLDER_MESSAGE = "Best laps: no logs folder set (File > Set logs folder...)"
@@ -23,17 +23,17 @@ def scan_worker(logs_dir, stop_event, scan_now, results):
         results.put(("scanning",))
         try:
             laps, files, unreadable = bl.scan(logs_dir, cache)
-            results.put(("ok", laps, files, unreadable))
+            results.put(("ok", laps, len(cache), files, unreadable))
         except bl.LogsFolderError as exc:
-            results.put(("error", str(exc)))
+            results.put(("error", exc.kind, str(exc)))
         except Exception as exc:
-            results.put(("error", f"scan failed ({type(exc).__name__})"))
+            results.put(("error", "failed", f"scan failed ({type(exc).__name__})"))
         scan_now.wait(bl.INTERVAL)
         scan_now.clear()
 
 
 class BestLapsTab:
-    def __init__(self, root, notebook):
+    def __init__(self, root, notebook, before):
         self.root = root
         self.logs_dir = None
         self.laps = []
@@ -48,7 +48,7 @@ class BestLapsTab:
         self.results = None
 
         self.status = ttk.Label(root, anchor="w", relief="sunken")
-        self.status.pack(side="bottom", fill="x", before=notebook.master)
+        self.status.pack(side="bottom", fill="x", before=before)
 
         frame = ttk.Frame(notebook, padding=6)
         notebook.add(frame, text="Best Laps")
@@ -78,7 +78,7 @@ class BestLapsTab:
     def set_records(self, loaded):
         self.data = loaded.data
         self.id_map = bl.load_editor_id_map(loaded.path)
-        self.catalog_tracks = bl.load_catalog_tracks(loaded.path)
+        self.catalog_tracks = load_catalog_tracks(loaded.path)
         self.catalog_cars = load_catalog_cars(loaded.path)
         self.render()
         self.show_status()
@@ -137,10 +137,10 @@ class BestLapsTab:
 
     def apply_result(self, item):
         if item[0] == "ok":
-            _, self.laps, files, unreadable = item
-            self.outcome = ("ok", datetime.now(), files, unreadable)
+            _, self.laps, total, reread, unreadable = item
+            self.outcome = ("ok", datetime.now(), total, reread, unreadable)
         else:
-            self.outcome = ("error", item[1])
+            self.outcome = ("error", item[1], item[2])
         self.render()
         self.show_status()
 
@@ -152,10 +152,11 @@ class BestLapsTab:
         elif self.outcome is None:
             self.status.config(text="Best laps: checking...")
         elif self.outcome[0] == "error":
-            self.status.config(text=bl.error_message(self.logs_dir, self.outcome[1]))
+            self.status.config(text=bl.error_message(self.logs_dir, *self.outcome[1:]))
         else:
-            _, checked, files, unreadable = self.outcome
-            self.status.config(text=bl.ok_message(checked, files, unreadable, self.id_map is not None))
+            _, checked, total, reread, unreadable = self.outcome
+            self.status.config(text=bl.ok_message(checked, total, reread, unreadable,
+                                                  self.id_map is not None))
 
     def render(self):
         rows = bl.best_laps(self.laps, self.id_map or NO_ID_MAP, self.catalog_tracks, self.catalog_cars)

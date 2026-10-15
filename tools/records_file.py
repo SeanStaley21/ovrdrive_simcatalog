@@ -327,12 +327,20 @@ def save(path, apply):
         ) from None
 
 
-def load_catalog_cars(records_path):
+def _load_catalog_names(records_path, filename, key):
     try:
-        cars_file = Path(records_path).parent.parent / "data" / "cars.json"
-        return set(json.loads(cars_file.read_text(encoding="utf-8-sig"))["cars"])
+        catalog_file = Path(records_path).parent.parent / "data" / filename
+        return set(json.loads(catalog_file.read_text(encoding="utf-8-sig"))[key])
     except Exception:
         return set()
+
+
+def load_catalog_cars(records_path):
+    return _load_catalog_names(records_path, "cars.json", "cars")
+
+
+def load_catalog_tracks(records_path):
+    return _load_catalog_names(records_path, "tracks.json", "tracks")
 
 
 def load_cars(records_path, data):

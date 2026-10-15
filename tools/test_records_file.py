@@ -488,6 +488,13 @@ class Load(TempFileCase):
         self.assertEqual(rf.load_catalog_cars(self.path), {"Alpha"})
         self.assertEqual(rf.load_catalog_cars(self.root / "data" / "x" / "y.json"), set())
 
+    def test_load_catalog_tracks_reads_the_catalog(self):
+        (self.root / "data").mkdir()
+        (self.root / "data" / "tracks.json").write_text(
+            json.dumps({"tracks": {"T::L": {}}}), encoding="utf-8")
+        self.assertEqual(rf.load_catalog_tracks(self.path), {"T::L"})
+        self.assertEqual(rf.load_catalog_tracks(self.root / "data" / "x" / "y.json"), set())
+
     def test_load_cars_fallback_when_missing(self):
         self.assertEqual(rf.load_cars(self.path, sample_data()), ["Car A"])
 

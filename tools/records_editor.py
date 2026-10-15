@@ -124,7 +124,7 @@ class App:
         tab = ttk.Frame(notebook, padding=6)
         notebook.add(tab, text="Records")
         self.build_records_tab(tab)
-        self.best_laps = BestLapsTab(self.root, notebook)
+        self.best_laps = BestLapsTab(self.root, notebook, panes)
 
     def make_listbox(self, parent, height):
         frame = ttk.Frame(parent)

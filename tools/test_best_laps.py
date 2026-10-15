@@ -8,6 +8,7 @@ from unittest import mock
 
 import best_laps as bl
 import log_best_laps as lbl
+import records_file as rf
 from test_log_best_laps import make_log
 
 HERE = Path(__file__).resolve().parent
@@ -98,12 +99,14 @@ class ScanTests(unittest.TestCase):
         with self.assertRaises(bl.LogsFolderError) as caught:
             bl.scan(self.logs / "nope", self.cache)
         self.assertEqual(str(caught.exception), "not found")
+        self.assertEqual(caught.exception.kind, "not_found")
 
     def test_scandir_permission_error_is_unreachable(self):
         with mock.patch.object(bl.os, "scandir", side_effect=PermissionError("denied")):
             with self.assertRaises(bl.LogsFolderError) as caught:
                 bl.scan(self.logs, self.cache)
-        self.assertEqual(str(caught.exception), "unreachable (PermissionError)")
+        self.assertEqual(str(caught.exception), "(PermissionError)")
+        self.assertEqual(caught.exception.kind, "unreachable")
 
     def test_empty_listing_with_failing_probe_is_an_error(self):
         probes = []
@@ -111,7 +114,7 @@ class ScanTests(unittest.TestCase):
         def probe(path):
             probes.append(path)
             if len(probes) > 1:
-                raise bl.LogsFolderError("unreachable (OSError)")
+                raise bl.LogsFolderError("unreachable", "(OSError)")
 
         with mock.patch.object(bl, "_probe", probe):
             with mock.patch.object(lbl, "read_changed_logs", return_value=({}, {}, [])):
@@ -130,7 +133,7 @@ class RealDataTests(unittest.TestCase):
     def test_two_sessions_matches_the_catalog(self):
         records_path = ROOT / "db" / "userSetRecords.json"
         id_map = bl.load_editor_id_map(records_path)
-        tracks = bl.load_catalog_tracks(records_path)
+        tracks = rf.load_catalog_tracks(records_path)
         cars = set(json.loads((ROOT / "data" / "cars.json").read_text(encoding="utf-8-sig"))["cars"])
         laps = lbl.parse_log((HERE / "sample_logs" / "two_sessions.log").read_text(encoding="utf-8"))
         [best] = bl.best_laps(laps, id_map, tracks, cars)
@@ -149,8 +152,22 @@ class RealDataTests(unittest.TestCase):
 
     def test_catalog_and_id_map_loaders_fail_soft(self):
         missing = Path(tempfile.gettempdir()) / "no_such_repo" / "db" / "userSetRecords.json"
-        self.assertEqual(bl.load_catalog_tracks(missing), set())
+        self.assertEqual(rf.load_catalog_tracks(missing), set())
         self.assertIsNone(bl.load_editor_id_map(missing))
+
+    def test_id_map_with_the_wrong_shape_is_ignored(self):
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root)
+        (root / "tools").mkdir()
+        records_path = root / "db" / "userSetRecords.json"
+        shapes = ["[]", '{"tracks": []}', '{"tracks": {"a": 1}}', '{"tracks": {"a": {"layouts": []}}}',
+                  '{"cars": []}', "not json", '{"tracks": {"t": {"name": 5}}, "cars": {}}',
+                  '{"tracks": {}, "cars": {"c": ["x"]}}',
+                  '{"tracks": {"t": {"layouts": {"L": {}}}}, "cars": {}}']
+        for text in shapes:
+            with self.subTest(text):
+                (root / "tools" / "ac_id_map.json").write_text(text, encoding="utf-8")
+                self.assertIsNone(bl.load_editor_id_map(records_path))
 
 
 class BestLapsTests(unittest.TestCase):
@@ -241,19 +258,19 @@ class MarkerTests(unittest.TestCase):
 
 class StatusMessageTests(unittest.TestCase):
     def test_error_messages(self):
-        self.assertEqual(bl.error_message("D:/logs", "not found"),
+        self.assertEqual(bl.error_message("D:/logs", "not_found", "not found"),
                          "Best laps: logs folder not found: D:/logs. Retrying every 10 min.")
-        self.assertEqual(bl.error_message("D:/logs", "unreachable (PermissionError)"),
+        self.assertEqual(bl.error_message("D:/logs", "unreachable", "(PermissionError)"),
                          "Best laps: cannot read logs folder D:/logs (PermissionError). Retrying every 10 min.")
-        self.assertEqual(bl.error_message("D:/logs", "scan failed (ValueError)"),
+        self.assertEqual(bl.error_message("D:/logs", "failed", "scan failed (ValueError)"),
                          "Best laps: scan failed (ValueError). Retrying every 10 min.")
 
     def test_ok_messages(self):
         checked = datetime(2026, 1, 1, 14, 5, 9)
-        self.assertEqual(bl.ok_message(checked, 3, [], True),
-                         "Best laps: 3 logs read at 14:05:09 (next check about 14:15)")
-        self.assertEqual(bl.ok_message(checked, 3, [("a.log", "OSError")], False),
-                         "Best laps: 3 logs read at 14:05:09 (next check about 14:15), "
+        self.assertEqual(bl.ok_message(checked, 3, 0, [], True),
+                         "Best laps: 3 logs, 0 re-read, checked at 14:05:09 (next check about 14:15)")
+        self.assertEqual(bl.ok_message(checked, 3, 2, [("a.log", "OSError")], False),
+                         "Best laps: 3 logs, 2 re-read, checked at 14:05:09 (next check about 14:15), "
                          "1 unreadable, id map not found: all laps unmatched")
 
 

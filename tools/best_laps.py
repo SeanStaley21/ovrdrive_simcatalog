@@ -2,7 +2,6 @@
 
 The logic behind the Best Laps tab.
 """
-import json
 import os
 from dataclasses import dataclass
 from datetime import timedelta
@@ -15,7 +14,11 @@ INTERVAL = 600
 
 
 class LogsFolderError(Exception):
-    pass
+    """The logs folder cannot be scanned; kind is "not_found" or "unreachable"."""
+
+    def __init__(self, kind, detail):
+        super().__init__(detail)
+        self.kind = kind
 
 
 @dataclass
@@ -31,19 +34,19 @@ class BestLap:
 
 def _probe(logs_dir):
     if not os.path.isdir(logs_dir):
-        raise LogsFolderError("not found")
+        raise LogsFolderError("not_found", "not found")
     try:
         with os.scandir(logs_dir):
             pass
     except OSError as exc:
-        raise LogsFolderError(f"unreachable ({type(exc).__name__})") from exc
+        raise LogsFolderError("unreachable", f"({type(exc).__name__})") from exc
 
 
 def scan(logs_dir, cache):
     """Read the logs in logs_dir that changed since the last scan and return all their laps.
 
     cache is {log name: (signature, laps)} and is updated in place. Returns
-    (laps, number of logs read, [(log name, exception type name)] for unreadable logs).
+    (laps, number of logs re-read, [(log name, exception type name)] for unreadable logs).
     A log that cannot be read keeps the laps cached from its last good read.
     """
     logs_dir = Path(logs_dir)
@@ -64,18 +67,22 @@ def scan(logs_dir, cache):
     return [lap for name in sorted(cache) for lap in cache[name][1]], len(changed), unreadable
 
 
-def load_catalog_tracks(records_path):
-    try:
-        tracks_file = Path(records_path).parent.parent / "data" / "tracks.json"
-        return set(json.loads(tracks_file.read_text(encoding="utf-8-sig"))["tracks"])
-    except Exception:
-        return set()
-
-
 def load_editor_id_map(records_path):
     try:
-        return lbl.load_id_map(Path(records_path).parent.parent / "tools" / "ac_id_map.json")
-    except (OSError, ValueError):
+        id_map = lbl.load_id_map(Path(records_path).parent.parent / "tools" / "ac_id_map.json")
+        tracks, cars = id_map["tracks"], id_map["cars"]
+        if not (isinstance(tracks, dict) and isinstance(cars, dict)):
+            return None
+        if not all(isinstance(car, str) for car in cars.values()):
+            return None
+        for track in tracks.values():
+            if not isinstance(track, dict) or not isinstance(track.get("name", ""), str):
+                return None
+            layouts = track.get("layouts", {})
+            if not (isinstance(layouts, dict) and all(isinstance(name, str) for name in layouts.values())):
+                return None
+        return id_map
+    except Exception:
         return None
 
 
@@ -117,20 +124,20 @@ def marker(row, data):
     return "ties" if row.ms == fastest else "trails"
 
 
-def error_message(logs_dir, error):
-    """Status text for a failed scan; error is the text of the LogsFolderError or other failure."""
+def error_message(logs_dir, kind, detail):
+    """Status text for a failed scan; kind is a LogsFolderError kind or "failed"."""
     retry = f"Retrying every {INTERVAL // 60} min."
-    if error == "not found":
+    if kind == "not_found":
         return f"Best laps: logs folder not found: {logs_dir}. {retry}"
-    if error.startswith("unreachable "):
-        return f"Best laps: cannot read logs folder {logs_dir} {error[len('unreachable '):]}. {retry}"
-    return f"Best laps: {error}. {retry}"
+    if kind == "unreachable":
+        return f"Best laps: cannot read logs folder {logs_dir} {detail}. {retry}"
+    return f"Best laps: {detail}. {retry}"
 
 
-def ok_message(checked, files, unreadable, id_map_found):
+def ok_message(checked, total, reread, unreadable, id_map_found):
     """Status text for a finished scan; checked is the datetime the scan finished."""
     next_check = checked + timedelta(seconds=INTERVAL)
-    text = f"Best laps: {files} logs read at {checked:%H:%M:%S} (next check about {next_check:%H:%M})"
+    text = f"Best laps: {total} logs, {reread} re-read, checked at {checked:%H:%M:%S} (next check about {next_check:%H:%M})"
     if unreadable:
         text += f", {len(unreadable)} unreadable"
     if not id_map_found:
