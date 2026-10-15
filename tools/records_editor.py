@@ -124,7 +124,7 @@ class App:
         tab = ttk.Frame(notebook, padding=6)
         notebook.add(tab, text="Records")
         self.build_records_tab(tab)
-        self.best_laps = BestLapsTab(self.root, notebook, panes)
+        self.best_laps = BestLapsTab(self.root, notebook, panes, self.add_from_best_laps)
 
     def make_listbox(self, parent, height):
         frame = ttk.Frame(parent)
@@ -503,25 +503,31 @@ class App:
         if self.loaded.reformats and not self.reformat_confirmed:
             if not messagebox.askokcancel(
                     TITLE, "Saving will reformat the file; review the diff before committing. Continue?"):
-                return
+                return False
             self.reformat_confirmed = True
         try:
             loaded = save(self.loaded.path, apply)
         except ConflictError as err:
             messagebox.showerror(TITLE, str(err))
             self.reload_from_disk()
-            return
+            return False
         except SavedButUnreadableError as err:
             messagebox.showerror(TITLE, str(err))
             self.reset_form()
             self.reload_from_disk()
-            return
+            return True
         except RecordsFileError as err:
             messagebox.showerror(TITLE, str(err))
-            return
+            return False
         self.reset_form()
         self.apply_loaded(loaded, keep_reformat_confirmed=True)
         self.set_status(SAVED_MESSAGE)
+        return True
+
+    def add_from_best_laps(self, items):
+        if not self.confirm_discard():
+            return False
+        return self.write(lambda data: [add(data, t, l, r) for t, l, r in items])
 
     def start_best_laps(self):
         path = read_logs_dir()
