@@ -48,7 +48,7 @@ The Records page in the top bar reads `db/userSetRecords.json`. It lists every t
 { "class": "GT", "car": "Porsche 911 GT3 R", "driver": "Sean", "time": "1:42.315" }
 ```
 
-`class` is one of `Formula`, `Prototype`, `GT`, `Stock car` (shown on the page as Formula 1, LMP, GT, NASCAR). `time` is `m:ss.mmm`. An optional `year` is shown next to the car. Entries are ranked fastest first within each class. Blank records are ignored, and a half-filled record fails the check. See `db/README.md` for a second record, the other fields and the VS Code fold shortcuts. Then run the check:
+`class` is one of `Formula`, `Prototype`, `GT`, `Stock car` (shown on the page as Formula 1, LMP, GT, NASCAR). `time` is `m:ss.mmm`. An optional `year` is shown next to the car; an optional `date` (`YYYY-MM-DD`) is shown in its place when present. Entries are ranked fastest first within each class. Blank records are ignored, and a half-filled record fails the check. See `db/README.md` for a second record, the other fields and the VS Code fold shortcuts. Then run the check:
 
 ```
 python tools/check_track_records.py

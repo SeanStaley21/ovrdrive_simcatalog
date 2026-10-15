@@ -221,7 +221,7 @@ def load(path):
     return Loaded(Path(path), data, eol, bom, final_newline, warnings, reformats)
 
 
-def build_record(cls, car, driver, time, year_text, base=None):
+def build_record(cls, car, driver, time, year_text, date_text, base=None):
     rec = dict(base) if base is not None else {}
     for key, value in (("class", cls), ("car", car), ("driver", driver), ("time", time)):
         rec[key] = value.strip()
@@ -233,6 +233,11 @@ def build_record(cls, car, driver, time, year_text, base=None):
         if not re.fullmatch(r"[0-9]+", year_text) or not 1900 <= int(year_text) <= top:
             raise RecordsFileError(f"Year must be a whole number from 1900 to {top}, or left empty.")
         rec["year"] = int(year_text)
+    date_text = date_text.strip()
+    if date_text:
+        rec["date"] = date_text
+    else:
+        rec.pop("date", None)
     problems = []
     check_record(rec, "record", problems, {})
     if problems:

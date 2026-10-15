@@ -39,7 +39,7 @@ function entries(list){
   return list.filter(function(e){return !blank(e);}).map(function(e){
     e=e&&typeof e==='object'?e:{};
     var t=S(e.time).trim();
-    return {driver:S(e.driver).trim(),car:S(e.car).trim(),cls:S(e.class).trim(),time:t,year:S(e.year).trim(),ms:ms(t)};
+    return {driver:S(e.driver).trim(),car:S(e.car).trim(),cls:S(e.class).trim(),time:t,year:S(e.year).trim(),date:S(e.date).trim(),ms:ms(t)};
   }).sort(function(a,b){return a.ms<b.ms?-1:a.ms>b.ms?1:0;});
 }
 function load(){
@@ -76,7 +76,7 @@ function detail(r){
     var es=r.ents.filter(function(e){return e.cls===c;});
     if(!es.length||(cf!=='all'&&cf!==c))return;
     h+='<div class="rp-cls" style="--rc:'+(COL[c]||OTHER_COL)+'"><h3>'+esc(lbl(c)||'Other')+'</h3>';
-    es.forEach(function(e,i){h+='<div class="rp-ent"><span class="rp-rank">'+(i+1)+'</span><span class="rp-who">'+esc(e.driver)+'</span><span class="rp-time">'+esc(e.time)+'</span><span class="rp-car">'+esc(e.car)+(e.year?' · '+esc(e.year):'')+'</span></div>';});
+    es.forEach(function(e,i){h+='<div class="rp-ent"><span class="rp-rank">'+(i+1)+'</span><span class="rp-who">'+esc(e.driver)+'</span><span class="rp-time">'+esc(e.time)+'</span><span class="rp-car">'+esc(e.car)+(e.date||e.year?' · '+esc(e.date||e.year):'')+'</span></div>';});
     h+='</div>';
   });
   if(!h)h='<div class="rp-none">No rig times for this selection</div>';
