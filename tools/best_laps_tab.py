@@ -298,7 +298,7 @@ class BestLapsTab:
                 return
             items.append((row.track, row.layout, rec))
         if self.add_records(items):
-            self.remember(rows)
+            self.remember(rows, added=True)
 
     def dismiss_selected(self):
         rows = self.selected_rows()
@@ -332,14 +332,18 @@ class BestLapsTab:
                                           self.catalog_cars, old_matches, self.matches)
         try:
             bl.write_matches(self.matches)
-            bl.write_handled(self.handled)
         except OSError:
             self.status.config(text="Could not save the match; it may be lost after a restart.")
+        else:
+            try:
+                bl.write_handled(self.handled)
+            except OSError:
+                self.status.config(text="The match was saved, but earlier dismissals may reappear after a restart.")
         self.shown = None
         self.render()
 
-    def remember(self, rows):
-        self.handled.extend((row.track, row.layout, row.car, row.ms) for row in rows)
+    def remember(self, rows, added=False):
+        self.handled.extend((row.track, row.layout, row.car, row.ms) + ((True,) if added else ()) for row in rows)
         try:
             bl.write_handled(self.handled)
         except OSError:

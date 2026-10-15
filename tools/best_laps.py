@@ -191,7 +191,7 @@ def handled_path():
 
 
 def read_handled():
-    """The (track, layout, car, ms) of every added or dismissed lap; unusable data gives []."""
+    """Every added or dismissed lap as (track, layout, car, ms), plus a trailing True for an added one; unusable data gives []."""
     try:
         value = json.loads(handled_path().read_text(encoding="utf-8"))
     except Exception:
@@ -204,21 +204,25 @@ def read_handled():
         if (isinstance(entry, dict)
                 and all(isinstance(entry.get(key), str) for key in ("track", "layout", "car"))
                 and isinstance(entry.get("ms"), int) and not isinstance(entry["ms"], bool)):
-            handled.append((entry["track"], entry["layout"], entry["car"], entry["ms"]))
+            added = (True,) if entry.get("added") is True else ()
+            handled.append((entry["track"], entry["layout"], entry["car"], entry["ms"]) + added)
     return handled
 
 
 def write_handled(handled):
     target = handled_path()
     target.parent.mkdir(parents=True, exist_ok=True)
-    entries = [{"track": t, "layout": l, "car": c, "ms": ms} for t, l, c, ms in handled]
+    entries = []
+    for t, l, c, ms, *added in handled:
+        entries.append({"track": t, "layout": l, "car": c, "ms": ms, **({"added": True} if added else {})})
     target.write_text(json.dumps({"handled": entries}), encoding="utf-8")
 
 
 def migrate_handled(handled, laps, id_map, catalog_tracks, catalog_cars, old_matches, new_matches):
-    """handled with the entries of laps whose names changed from old_matches to new_matches moved to the new names.
+    """handled with the dismissed entries of laps whose names changed from old_matches to new_matches moved to the new names.
 
-    An entry that an unchanged lap also uses is kept and the moved lap's new entry is added beside it.
+    Entries of added laps never move. A dismissed entry that an unchanged lap also uses is kept and the
+    moved laps' new entries are added beside it.
     """
     moves, stays = {}, set()
     for track_id, layout_id, car_id, _, ms, _ in laps:
@@ -227,13 +231,14 @@ def migrate_handled(handled, laps, id_map, catalog_tracks, catalog_cars, old_mat
         new = resolve_lap(id_map, catalog_tracks, catalog_cars, new_matches, *ids)[:3] + (ms,)
         if old == new:
             stays.add(old)
-        else:
-            moves[old] = new
+        elif new not in moves.setdefault(old, []):
+            moves[old].append(new)
     migrated = []
     for entry in handled:
-        results = [entry] if entry not in moves or entry in stays else []
-        if entry in moves:
-            results.append(moves[entry])
+        if len(entry) > 4 or entry not in moves:
+            results = [entry]
+        else:
+            results = ([entry] if entry in stays else []) + moves[entry]
         for result in results:
             if result not in migrated:
                 migrated.append(result)
@@ -242,7 +247,8 @@ def migrate_handled(handled, laps, id_map, catalog_tracks, catalog_cars, old_mat
 
 def is_handled(row, handled):
     """True when this exact lap time for the same car was already added or dismissed."""
-    return (row.track, row.layout, row.car, row.ms) in handled
+    key = (row.track, row.layout, row.car, row.ms)
+    return any(entry[:4] == key for entry in handled)
 
 
 def matches_path():

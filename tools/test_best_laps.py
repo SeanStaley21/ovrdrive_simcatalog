@@ -279,6 +279,17 @@ class HandledTests(unittest.TestCase):
         bl.handled_path().write_text(json.dumps({"handled": bad + [good]}), encoding="utf-8")
         self.assertEqual(bl.read_handled(), [("T", "L", "C", 5)])
 
+    def test_added_flag_round_trips_and_old_files_load_as_dismissed(self):
+        bl.write_handled([("T", "L", "A", 1, True), ("T", "L", "B", 2)])
+        self.assertEqual(bl.read_handled(), [("T", "L", "A", 1, True), ("T", "L", "B", 2)])
+        entry = {"track": "T", "layout": "L", "car": "C", "ms": 5}
+        bl.handled_path().write_text(json.dumps({"handled": [entry, {**entry, "ms": 6, "added": "yes"},
+                                                             {**entry, "ms": 7, "added": True}]}), encoding="utf-8")
+        self.assertEqual(bl.read_handled(), [("T", "L", "C", 5), ("T", "L", "C", 6), ("T", "L", "C", 7, True)])
+
+    def test_is_handled_ignores_the_added_flag(self):
+        self.assertTrue(bl.is_handled(row(80000), [(INDI, INDI, "Car A", 80000, True)]))
+
     def test_is_handled_matches_the_exact_lap_only(self):
         handled = [(INDI, INDI, "Car A", 80000)]
         self.assertTrue(bl.is_handled(row(80000), handled))
@@ -515,6 +526,22 @@ class ManualMatchTests(unittest.TestCase):
         rows = bl.best_laps(same_time, ID_MAP, CATALOG_TRACKS, CATALOG_CARS, after)
         migrated = self.migrate(handled[:1], same_time, before, after)
         self.assertTrue(all(bl.is_handled(r, migrated) for r in rows))
+
+    def test_migrate_handled_never_moves_added_entries(self):
+        laps = [lap(5, car="car_z")]
+        before = self.matches(cars={"car_z": "Car A"})
+        after = self.matches(cars={"car_z": "Car B"})
+        handled = [(INDI, INDI, "Car A", 5, True)]
+        self.assertEqual(self.migrate(handled, laps, before, after), handled)
+
+    def test_migrate_handled_follows_every_lap_that_shared_an_old_name(self):
+        id_map = {"tracks": {"p": {"name": "P", "layouts": {"x": "Main", "y": "Main"}}}, "cars": {}}
+        laps = [lap(5, track="p", layout="x", car="car_z"), lap(5, track="p", layout="y", car="car_z")]
+        after = self.matches({"p": {"x": {"track": "T1", "layout": "L1"}, "y": {"track": "T2", "layout": "L2"}}},
+                             {"car_z": "Car A"})
+        handled = [("P", "Main", "car_z", 5)]
+        migrated = bl.migrate_handled(handled, laps, id_map, CATALOG_TRACKS, CATALOG_CARS, self.matches(), after)
+        self.assertEqual(migrated, [("T1", "L1", "Car A", 5), ("T2", "L2", "Car A", 5)])
 
     def test_unmapped_ids_are_unmatched_even_when_the_fallback_names_are_in_the_catalog(self):
         id_map = {"tracks": {}, "cars": {}}

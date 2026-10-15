@@ -139,7 +139,7 @@ class AddDismissTests(unittest.TestCase):
         fake.handled = []
         fake.selected_rows.return_value = list(rows)
         fake.add_records.return_value = True
-        fake.remember = lambda picked: tab.BestLapsTab.remember(fake, picked)
+        fake.remember = lambda picked, added=False: tab.BestLapsTab.remember(fake, picked, added)
         return fake
 
     def test_unmatched_row_is_refused_before_any_prompt(self):
@@ -194,8 +194,8 @@ class AddDismissTests(unittest.TestCase):
         with mock.patch.object(tab, "ask_lap", side_effect=recs):
             tab.BestLapsTab.add_selected(fake)
         fake.add_records.assert_called_once_with([("Track A", "Full", recs[0]), ("Track A", "Full", recs[1])])
-        self.assertEqual(bl.read_handled(), [("Track A", "Full", "Car A", 80000),
-                                             ("Track A", "Full", "Car B", 90000)])
+        self.assertEqual(bl.read_handled(), [("Track A", "Full", "Car A", 80000, True),
+                                             ("Track A", "Full", "Car B", 90000, True)])
         self.assertIsNone(fake.shown)
         fake.render.assert_called_once()
 
@@ -389,6 +389,39 @@ class MatchTests(unittest.TestCase):
         self.assertEqual(fake.matches["cars"], {"car_z": "Car A"})
         fake.render.assert_called_once()
 
+    def test_failed_handled_write_keeps_the_saved_match_and_says_so(self):
+        fake = self.make_tab(self.unmatched_row())
+        with mock.patch.object(bl, "write_handled", side_effect=OSError("denied")):
+            self.match(fake, (None, "Car A"))
+        self.assertIn("match was saved", fake.status.config.call_args.kwargs["text"])
+        self.assertEqual(bl.read_matches(), fake.matches)
+        fake.render.assert_called_once()
+
+    def test_added_lap_stays_under_its_names_when_the_match_is_corrected(self):
+        fake = self.make_tab(self.unmatched_row())
+        fake.id_map = self.ID_MAP
+        fake.laps = self.laps(("ta", "car_z", 80000), ("ta", "car_z", 90000))
+        fake.add_records.return_value = True
+        fake.remember = lambda picked, added=False: tab.BestLapsTab.remember(fake, picked, added)
+        fake.data = {"Track A": {"Full": {"records": []}}}
+        self.match(fake, (None, "Car A"))
+        [shown] = [r for r in bl.best_laps(fake.laps, fake.id_map, fake.catalog_tracks, fake.catalog_cars,
+                                           fake.matches) if r.ms == 80000]
+        fake.selected_rows.return_value = [shown]
+        with mock.patch.object(tab, "ask_lap", return_value={"car": "Car A"}):
+            tab.BestLapsTab.add_selected(fake)
+        dismissed = [r for r in bl.best_laps(fake.laps, fake.id_map, fake.catalog_tracks, fake.catalog_cars,
+                                             fake.matches) if r.ms == 90000]
+        fake.selected_rows.return_value = dismissed
+        tab.BestLapsTab.dismiss_selected(fake)
+        self.assertEqual(self.visible(fake), [])
+        fake.selected_rows.return_value = [shown]
+        self.match(fake, (None, "Car B"))
+        self.assertEqual(self.visible(fake), [("Track A", "Car B", 80000)])
+        self.assertIn(("Track A", "Full", "Car A", 80000, True), fake.handled)
+        self.assertIn(("Track A", "Full", "Car B", 90000), fake.handled)
+        self.assertEqual(bl.read_handled(), fake.handled)
+
     def test_manually_matched_row_is_added(self):
         row = self.unmatched_row(car="Car A", matched=True)
         fake = mock.Mock()
@@ -396,7 +429,7 @@ class MatchTests(unittest.TestCase):
         fake.handled = []
         fake.selected_rows.return_value = [row]
         fake.add_records.return_value = True
-        fake.remember = lambda picked: tab.BestLapsTab.remember(fake, picked)
+        fake.remember = lambda picked, added=False: tab.BestLapsTab.remember(fake, picked, added)
         with mock.patch.object(tab, "ask_lap", return_value={"car": "Car A"}):
             tab.BestLapsTab.add_selected(fake)
         fake.add_records.assert_called_once_with([("Track A", "Full", {"car": "Car A"})])
