@@ -1,0 +1,307 @@
+Assetto Corsa Dedicated Server v1.15
+Protocol version: 202
+2025-07-18 23:34:12.8874699 -0400 EDT m=+0.012848200
+Num CPU: 4
+Car list:
+_ks_audi_r8_lms_
+Client interval HZ: 60
+WARNING: pitstop window needs a valid range
+WARNING: RACE_OVER_TIME was less of 30secs or not found, setting to default: 30secs
+WARNING: MAX_CONTACTS_PER_KM disabled
+AUTH_PLUGIN_ADDRESS 
+Initialising UDP Plugin with target: 127.0.0.1:31632 on the local port 31631
+TRACK=csp/2000/../D/../gingerman
+CARS=["ks_audi_r8_lms"]
+SESSION: Race
+TYPE=RACE
+TIME=0
+LAPS=100
+OPEN=1
+WAIT TIME=20
+
+DynamicTrack: first session, resetting grip
+Trying to load DRS zones from: content/tracks/csp/2000/../D/../gingerman/data/drs_zones.ini
+open content/tracks/csp/2000/../D/../gingerman/data/drs_zones.ini: The system cannot find the path specified.
+Weather update. Ambient: 18.982853 Road: 25.792221 Graphics: 3_clear_type=19_time=115200
+Wind update. Speed: 0 Direction: 0
+CHECKSUM: system/data/surfaces.ini=41949b9f7045cad2af3f5eb951d170a9
+WARNING: Cannot open file  content/tracks/csp/2000/../D/../gingerman/data/surfaces.ini  for checksum, the client check will be disabled for this file
+ACD CHECKSUM:a9f98640f04916b8227a00d3f069351c
+Loading blacklist
+Found car  CAR_0
+CAR: 0 ks_audi_r8_lms (0) [Pod 3 [3]] Pod 3 [3] 3 Ballast: 0 kg
+CAR: 0 ks_audi_r8_lms (0) [Pod 3 [3]] Pod 3 [3] 3 Restrictor: 0
+open setups/ks_audi_r8_lms.ini: The system cannot find the file specified.
+Found car  CAR_1
+CAR: 1 ks_audi_r8_lms (1) [Pod 4 [4]] Pod 4 [4] 4 Ballast: 0 kg
+CAR: 1 ks_audi_r8_lms (1) [Pod 4 [4]] Pod 4 [4] 4 Restrictor: 0
+open setups/ks_audi_r8_lms.ini: The system cannot find the file specified.
+Found car  CAR_2
+CAR: 2 ks_audi_r8_lms (2) [Pod 5 [5]] Pod 5 [5] 5 Ballast: 0 kg
+CAR: 2 ks_audi_r8_lms (2) [Pod 5 [5]] Pod 5 [5] 5 Restrictor: 0
+open setups/ks_audi_r8_lms.ini: The system cannot find the file specified.
+Found car  CAR_3
+CAR: 3 ks_audi_r8_lms (3) [Spectator []] Spectator [] 348872a7-fe9c-44db-b0de-76c60eca603f Ballast: 0 kg
+CAR: 3 ks_audi_r8_lms (3) [Spectator []] Spectator [] 348872a7-fe9c-44db-b0de-76c60eca603f Restrictor: 0
+open setups/ks_audi_r8_lms.ini: The system cannot find the file specified.
+Random seed: 2362231783
+Starting TCP listener at port 9599
+Session has 0 laps, will not save json
+NextSession
+SESSION: Race
+TYPE=RACE
+TIME=0
+LAPS=100
+OPEN=1
+WAIT TIME=20
+
+RACE, WaitTime: 20000 START TIME: 20099
+DynamicTrack: first session, resetting grip
+Weather update. Ambient: 19.039936 Road: 25.40438 Graphics: 3_clear_type=19_time=115200
+Wind update. Speed: 0 Direction: 0
+No laptime available, use car index for grids
+POS: 1, SessionID:0
+POS: 2, SessionID:1
+POS: 3, SessionID:2
+POS: 4, SessionID:3
+SENDING session name : Race
+SENDING session index : 0
+SENDING session type : 3
+SENDING session time : 0
+SENDING session laps : 100
+SENDING session Timed Race: false
+Starting HTTP server on port  8079
+Server started
+UDP_PLUGIN: Realtime pos interval now set to: 100 ms
+New connection from &{{2271622400}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.43:56905
+VERSION 202
+Pod 3
+REQUESTED CAR: ks_audi_r8_lms*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 3
+Slot found by name at index 0
+DRIVER ACCEPTED FOR CAR 0
+DRIVER ACCEPTED FOR CAR Pod 3
+Tyre blankets: true
+Sending SESSION ID : 0
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19290
+Sending 1 checksum requests
+SERVER TIME: 809
+DRIVER: Pod 3 [3]
+New connection from &{{2270060500}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.44:58089
+VERSION 202
+Pod 4
+REQUESTED CAR: ks_audi_r8_lms*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 4
+Slot found by name at index 1
+DRIVER ACCEPTED FOR CAR 1
+DRIVER ACCEPTED FOR CAR Pod 4
+Tyre blankets: true
+Sending SESSION ID : 1
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19277
+Sending 1 checksum requests
+SERVER TIME: 822
+DRIVER: Pod 4 [4]
+New connection from &{{2270061200}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.127:54755
+VERSION 202
+Spectator
+REQUESTED CAR: ks_audi_r8_lms*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 348872a7-fe9c-44db-b0de-76c60eca603f
+Slot found by name at index 3
+DRIVER ACCEPTED FOR CAR 3
+DRIVER ACCEPTED FOR CAR Spectator
+Tyre blankets: true
+Sending SESSION ID : 3
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-18882
+Sending 1 checksum requests
+SERVER TIME: 1217
+DRIVER: Spectator []
+TCP packet 63
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Sending car list from index:0
+New connection from &{{2271623100}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.45:51667
+VERSION 202
+Pod 5
+REQUESTED CAR: ks_audi_r8_lms*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 5
+Slot found by name at index 2
+DRIVER ACCEPTED FOR CAR 2
+DRIVER ACCEPTED FOR CAR Pod 5
+Tyre blankets: true
+Sending SESSION ID : 2
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-17962
+Sending 1 checksum requests
+SERVER TIME: 2137
+DRIVER: Pod 5 [5]
+TCP packet 63
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Sending car list from index:0
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Pod 4 [4] changed tyres to M
+Sending weather  19.039936 25.40438
+Sending wind  0 0
+Sending first leaderboard to car: ks_audi_r8_lms (1) [Pod 4 [4]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Pod 4 [4] changed tyres to M
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Recieved P2P Count: 0
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 1 MESSAGE: Hello there, Pod 4, your team: 4
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+Pod 3 [3] changed tyres to M
+Sending weather  19.039936 25.40438
+Sending wind  0 0
+Sending first leaderboard to car: ks_audi_r8_lms (0) [Pod 3 [3]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+Pod 3 [3] changed tyres to M
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 0 MESSAGE: Hello there, Pod 3, your team: 3
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+Recieved P2P Count: 0
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+Spectator [] changed tyres to M
+Sending weather  19.039936 25.40438
+Sending wind  0 0
+Sending first leaderboard to car: ks_audi_r8_lms (3) [Spectator []]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+UDP_PLUGIN: Send chat to car 3 MESSAGE: Hello there, Spectator, your team: 
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+Spectator [] changed tyres to M
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+Recieved P2P Count: 0
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+Recieved P2P Count: 0
+TCP packet 68
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Checksums received from  Pod 4 [4]
+system/data/surfaces.ini  ok
+Car checksum  ks_audi_r8_lms true
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Pod 5 [5] changed tyres to M
+Sending weather  19.039936 25.40438
+Sending wind  0 0
+Sending first leaderboard to car: ks_audi_r8_lms (2) [Pod 5 [5]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Pod 5 [5] changed tyres to M
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Recieved P2P Count: 0
+TCP packet 13
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 2 MESSAGE: Hello there, Pod 5, your team: 5
+TCP packet 68
+Dispatching TCP message to ks_audi_r8_lms (0) [Pod 3 [3]]
+Checksums received from  Pod 3 [3]
+system/data/surfaces.ini  ok
+Car checksum  ks_audi_r8_lms true
+TCP packet 68
+Dispatching TCP message to ks_audi_r8_lms (3) [Spectator []]
+Checksums received from  Spectator []
+system/data/surfaces.ini  ok
+Car checksum  ks_audi_r8_lms true
+TCP packet 68
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Checksums received from  Pod 5 [5]
+system/data/surfaces.ini  ok
+Car checksum  ks_audi_r8_lms true
+TCP packet 88
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 0 54185
+TCP packet 88
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 1 33818
+TCP packet 88
+Dispatching TCP message to ks_audi_r8_lms (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 0 108065
+TCP packet 73
+Dispatching TCP message to ks_audi_r8_lms (2) [Pod 5 [5]]
+Car.onLapCompleted

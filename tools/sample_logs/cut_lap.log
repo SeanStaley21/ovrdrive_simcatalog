@@ -1,0 +1,384 @@
+Assetto Corsa Dedicated Server v1.15
+Protocol version: 202
+2025-07-18 23:41:28.2050627 -0400 EDT m=+0.010971600
+Num CPU: 4
+Car list:
+_2019_ford_mustang_nascar_
+Client interval HZ: 60
+WARNING: pitstop window needs a valid range
+WARNING: RACE_OVER_TIME was less of 30secs or not found, setting to default: 30secs
+WARNING: MAX_CONTACTS_PER_KM disabled
+AUTH_PLUGIN_ADDRESS 
+Initialising UDP Plugin with target: 127.0.0.1:31632 on the local port 31631
+TRACK=csp/2000/../D/../daytona_2017
+CARS=["2019_ford_mustang_nascar"]
+SESSION: Race
+TYPE=RACE
+TIME=0
+LAPS=100
+OPEN=1
+WAIT TIME=20
+
+DynamicTrack: first session, resetting grip
+Trying to load DRS zones from: content/tracks/csp/2000/../D/../daytona_2017/oval/data/drs_zones.ini
+open content/tracks/csp/2000/../D/../daytona_2017/oval/data/drs_zones.ini: The system cannot find the file specified.
+Weather update. Ambient: 16.868458 Road: 22.924105 Graphics: 3_clear_type=19_time=115200
+Wind update. Speed: 0 Direction: 0
+CHECKSUM: system/data/surfaces.ini=41949b9f7045cad2af3f5eb951d170a9
+Initializing checksum for track config oval
+CHECKSUM: content/tracks/csp/2000/../D/../daytona_2017/oval/data/surfaces.ini=2d17f5268ead7a981aac9a689310fd7a
+ACD CHECKSUM:144486c9c0da2149b61768adde93bf31
+Loading blacklist
+Found car  CAR_0
+CAR: 0 2019_ford_mustang_nascar (0) [Pod 3 [3]] Pod 3 [3] 3 Ballast: 0 kg
+CAR: 0 2019_ford_mustang_nascar (0) [Pod 3 [3]] Pod 3 [3] 3 Restrictor: 0
+open setups/2019_ford_mustang_nascar.ini: The system cannot find the file specified.
+Found car  CAR_1
+CAR: 1 2019_ford_mustang_nascar (1) [Pod 4 [4]] Pod 4 [4] 4 Ballast: 0 kg
+CAR: 1 2019_ford_mustang_nascar (1) [Pod 4 [4]] Pod 4 [4] 4 Restrictor: 0
+open setups/2019_ford_mustang_nascar.ini: The system cannot find the file specified.
+Found car  CAR_2
+CAR: 2 2019_ford_mustang_nascar (2) [Pod 5 [5]] Pod 5 [5] 5 Ballast: 0 kg
+CAR: 2 2019_ford_mustang_nascar (2) [Pod 5 [5]] Pod 5 [5] 5 Restrictor: 0
+open setups/2019_ford_mustang_nascar.ini: The system cannot find the file specified.
+Found car  CAR_3
+CAR: 3 2019_ford_mustang_nascar (3) [Spectator []] Spectator [] 348872a7-fe9c-44db-b0de-76c60eca603f Ballast: 0 kg
+CAR: 3 2019_ford_mustang_nascar (3) [Spectator []] Spectator [] 348872a7-fe9c-44db-b0de-76c60eca603f Restrictor: 0
+open setups/2019_ford_mustang_nascar.ini: The system cannot find the file specified.
+Random seed: 1048579360
+Starting TCP listener at port 9599
+Session has 0 laps, will not save json
+NextSession
+SESSION: Race
+TYPE=RACE
+TIME=0
+LAPS=100
+OPEN=1
+WAIT TIME=20
+
+RACE, WaitTime: 20000 START TIME: 20113
+DynamicTrack: first session, resetting grip
+Weather update. Ambient: 17.0721 Road: 23.712519 Graphics: 3_clear_type=19_time=115200
+Wind update. Speed: 0 Direction: 0
+No laptime available, use car index for grids
+POS: 1, SessionID:0
+POS: 2, SessionID:1
+POS: 3, SessionID:2
+POS: 4, SessionID:3
+SENDING session name : Race
+SENDING session index : 0
+SENDING session type : 3
+SENDING session time : 0
+SENDING session laps : 100
+SENDING session Timed Race: false
+Starting HTTP server on port  8079
+Server started
+UDP_PLUGIN: Realtime pos interval now set to: 100 ms
+New connection from &{{2271601700}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.43:52941
+VERSION 202
+Pod 3
+REQUESTED CAR: 2019_ford_mustang_nascar*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 3
+Slot found by name at index 0
+DRIVER ACCEPTED FOR CAR 0
+DRIVER ACCEPTED FOR CAR Pod 3
+Tyre blankets: true
+Sending SESSION ID : 0
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19292
+Sending 2 checksum requests
+SERVER TIME: 821
+DRIVER: Pod 3 [3]
+New connection from &{{2270061200}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.44:58507
+VERSION 202
+Pod 4
+REQUESTED CAR: 2019_ford_mustang_nascar*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 4
+Slot found by name at index 1
+DRIVER ACCEPTED FOR CAR 1
+DRIVER ACCEPTED FOR CAR Pod 4
+Tyre blankets: true
+Sending SESSION ID : 1
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19263
+Sending 2 checksum requests
+SERVER TIME: 850
+DRIVER: Pod 4 [4]
+New connection from &{{2270061700}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.45:52081
+VERSION 202
+Pod 5
+REQUESTED CAR: 2019_ford_mustang_nascar*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 5
+Slot found by name at index 2
+DRIVER ACCEPTED FOR CAR 2
+DRIVER ACCEPTED FOR CAR Pod 5
+Tyre blankets: true
+Sending SESSION ID : 2
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-19125
+Sending 2 checksum requests
+SERVER TIME: 988
+DRIVER: Pod 5 [5]
+New connection from &{{2270062400}}
+SOCKET NO DELAY SET
+TCP packet 61
+ACP_REQUEST_CONNECTION via TCP
+
+NEW PICKUP CONNECTION from  20.20.10.127:55169
+VERSION 202
+Spectator
+REQUESTED CAR: 2019_ford_mustang_nascar*
+ENTRY LIST OPEN MODE 1
+Getting slot by GUID 348872a7-fe9c-44db-b0de-76c60eca603f
+Slot found by name at index 3
+DRIVER ACCEPTED FOR CAR 3
+DRIVER ACCEPTED FOR CAR Spectator
+Tyre blankets: true
+Sending SESSION ID : 3
+Sending type 3
+Sending ID : 0
+Sending type 3
+FIND AND SEND PLAYER'S POSITION
+ELAPSED=-18495
+Sending 2 checksum requests
+SERVER TIME: 1618
+DRIVER: Spectator []
+TCP packet 63
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Sending car list from index:0
+TCP packet 63
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+Sending car list from index:0
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Pod 3 [3] changed tyres to GY19
+Sending weather  17.0721 23.712519
+Sending wind  0 0
+Sending first leaderboard to car: 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+UDP_PLUGIN: Send chat to car 0 MESSAGE: Hello there, Pod 3, your team: 3
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Pod 3 [3] changed tyres to GY19
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Recieved P2P Count: 0
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Recieved P2P Count: 0
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Pod 5 [5] changed tyres to GY19
+Sending weather  17.0721 23.712519
+Sending wind  0 0
+Sending first leaderboard to car: 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Pod 5 [5] changed tyres to GY19
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 2 MESSAGE: Hello there, Pod 5, your team: 5
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Recieved P2P Count: 0
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Pod 4 [4] changed tyres to GY19
+Sending weather  17.0721 23.712519
+Sending wind  0 0
+Sending first leaderboard to car: 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Pod 4 [4] changed tyres to GY19
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Recieved P2P Count: 0
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 1 MESSAGE: Hello there, Pod 4, your team: 4
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+Spectator [] changed tyres to GY19
+Sending weather  17.0721 23.712519
+Sending wind  0 0
+Sending first leaderboard to car: 2019_ford_mustang_nascar (3) [Spectator []]
+SendLapCompletedMessage
+1) Pod 3 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:0 HasFinished:false
+2) Pod 4 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:1 HasFinished:false
+3) Pod 5 BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:2 HasFinished:false
+4) Spectator BEST: 16666:39:999 TOTAL: 0:00:000 Laps:0 SesID:3 HasFinished:false
+TCP packet 80
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+Spectator [] changed tyres to GY19
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+Recieved P2P Count: 0
+UDP_PLUGIN: Send chat to car 3 MESSAGE: Hello there, Spectator, your team: 
+TCP packet 13
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+Recieved P2P Count: 0
+TCP packet 68
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Checksums received from  Pod 3 [3]
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../daytona_2017/oval/data/surfaces.ini  ok
+Car checksum  2019_ford_mustang_nascar true
+TCP packet 68
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Checksums received from  Pod 5 [5]
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../daytona_2017/oval/data/surfaces.ini  ok
+Car checksum  2019_ford_mustang_nascar true
+TCP packet 68
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Checksums received from  Pod 4 [4]
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../daytona_2017/oval/data/surfaces.ini  ok
+Car checksum  2019_ford_mustang_nascar true
+TCP packet 68
+Dispatching TCP message to 2019_ford_mustang_nascar (3) [Spectator []]
+Checksums received from  Spectator []
+system/data/surfaces.ini  ok
+content/tracks/csp/2000/../D/../daytona_2017/oval/data/surfaces.ini  ok
+Car checksum  2019_ford_mustang_nascar true
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 0 22871
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Car.onSplitCompleted 0 0 25078
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 0 25414
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 3 [3] AND ENVIRONMENT SPEED: 925.6503 WORLD POS: [728.415527,5.007324,-260.800201] REL POS: [-0.730268,0.113127,1.837327]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 5 [5] AND ENVIRONMENT SPEED: 900.177 WORLD POS: [706.620728,3.724299,-240.575363] REL POS: [-0.720425,-0.162634,1.893330]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 4 [4] AND ENVIRONMENT SPEED: 640.98755 WORLD POS: [776.708008,6.268751,-323.721130] REL POS: [0.116253,0.076683,1.921235]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+RECEIVED 2 CLIENT EVENTS
+COLLISION BETWEEN: Pod 3 [3] AND ENVIRONMENT SPEED: 109.65335 WORLD POS: [763.796204,5.959105,-303.259949] REL POS: [0.637942,0.567869,-0.008182]
+COLLISION BETWEEN: Pod 3 [3] AND Pod 5 [5] SPEED: 230.38982 WORLD POS: [770.198486,6.568869,-316.484802] REL POS: [0.256203,-0.456787,1.979193]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 5 [5] AND ENVIRONMENT SPEED: 25.138092 WORLD POS: [739.314941,4.930491,-272.078094] REL POS: [0.679651,0.399606,-2.156869]
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 0 56442
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+Car.onSplitCompleted 2 0 57022
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+Car.onSplitCompleted 0 0 57113
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 3 [3] AND Pod 5 [5] SPEED: 555.3873 WORLD POS: [564.486206,0.412271,-175.601395] REL POS: [0.152142,-0.425319,-2.616911]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 5 [5] AND Pod 3 [3] SPEED: 563.3844 WORLD POS: [564.615417,0.637257,-175.736115] REL POS: [0.788449,-0.173916,1.903837]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 3 [3] AND ENVIRONMENT SPEED: 97.187195 WORLD POS: [691.987732,0.066408,-330.836395] REL POS: [0.871512,-0.456768,1.878260]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (2) [Pod 5 [5]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 5 [5] AND ENVIRONMENT SPEED: 306.18622 WORLD POS: [461.905212,1.695456,-809.817505] REL POS: [-0.889325,-0.069608,1.578955]
+TCP packet 130
+Dispatching TCP message to 2019_ford_mustang_nascar (0) [Pod 3 [3]]
+RECEIVED 1 CLIENT EVENTS
+COLLISION BETWEEN: Pod 3 [3] AND ENVIRONMENT SPEED: 37.248913 WORLD POS: [366.095581,1.111298,-88.209023] REL POS: [-0.904664,-0.087804,1.553084]
+TCP packet 88
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Car.onSplitCompleted 1 1 39154
+TCP packet 73
+Dispatching TCP message to 2019_ford_mustang_nascar (1) [Pod 4 [4]]
+Car.onLapCompleted
+LAP Pod 4 1:43:885
+SPLIT COUNT: 3
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 4 1:17:144
+SPLIT COUNT: 3
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 4 1:14:595
+SPLIT COUNT: 3
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 0
+Car.onLapCompleted
+LAP Pod 3 1:10:000
+SPLIT COUNT: 3
+Dynamic track ok
+Result.OnLapCompleted. Cuts: 2
