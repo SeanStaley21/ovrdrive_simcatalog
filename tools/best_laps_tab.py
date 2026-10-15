@@ -328,12 +328,14 @@ class BestLapsTab:
                 "track": track_layout[0], "layout": track_layout[1]}
         if car:
             self.matches["cars"][car_id] = car
+        old_handled = self.handled
         self.handled = bl.migrate_handled(self.handled, self.laps, self.id_map or NO_ID_MAP, self.catalog_tracks,
                                           self.catalog_cars, old_matches, self.matches)
         try:
             bl.write_matches(self.matches)
         except OSError:
-            self.status.config(text="Could not save the match; it may be lost after a restart.")
+            self.matches, self.handled = old_matches, old_handled
+            self.status.config(text="Could not save the match.")
         else:
             try:
                 bl.write_handled(self.handled)

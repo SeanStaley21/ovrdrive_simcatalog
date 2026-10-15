@@ -381,13 +381,24 @@ class MatchTests(unittest.TestCase):
         self.assertFalse(bl.handled_path().exists())
         fake.render.assert_not_called()
 
-    def test_failed_write_is_reported_and_kept_in_memory(self):
+    def test_failed_write_is_reported_and_rolled_back(self):
         fake = self.make_tab(self.unmatched_row())
+        fake.id_map = self.ID_MAP
+        fake.laps = self.laps(("ta", "car_z", 80000), ("ta", "car_z", 90000))
+        fake.handled = [("Track A", "Full", "car_z", 80000)]
         with mock.patch.object(bl, "write_matches", side_effect=OSError("denied")):
             self.match(fake, (None, "Car A"))
-        self.assertIn("Could not save", fake.status.config.call_args.kwargs["text"])
-        self.assertEqual(fake.matches["cars"], {"car_z": "Car A"})
+        self.assertEqual(fake.status.config.call_args.kwargs["text"], "Could not save the match.")
+        self.assertEqual(fake.matches, {"tracks": {}, "cars": {}})
+        self.assertEqual(fake.handled, [("Track A", "Full", "car_z", 80000)])
+        self.assertFalse(bl.handled_path().exists())
         fake.render.assert_called_once()
+        rows = bl.best_laps(fake.laps, fake.id_map, fake.catalog_tracks, fake.catalog_cars, fake.matches)
+        self.assertFalse(any(row.matched for row in rows))
+        fake.selected_rows.return_value = [rows[0]]
+        fake.remember = lambda picked, added=False: tab.BestLapsTab.remember(fake, picked, added)
+        tab.BestLapsTab.dismiss_selected(fake)
+        self.assertNotIn(("Track A", "Full", "Car A", 80000), bl.read_handled())
 
     def test_failed_handled_write_keeps_the_saved_match_and_says_so(self):
         fake = self.make_tab(self.unmatched_row())
