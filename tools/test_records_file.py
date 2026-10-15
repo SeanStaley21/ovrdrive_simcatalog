@@ -600,6 +600,13 @@ class Load(TempFileCase):
         self.assertEqual(rf.load_catalog_cars(self.path), {"Alpha"})
         self.assertEqual(rf.load_catalog_cars(self.root / "data" / "x" / "y.json"), set())
 
+    def test_load_catalog_tracks_reads_the_catalog(self):
+        (self.root / "data").mkdir()
+        (self.root / "data" / "tracks.json").write_text(
+            json.dumps({"tracks": {"T::L": {}}}), encoding="utf-8")
+        self.assertEqual(rf.load_catalog_tracks(self.path), {"T::L"})
+        self.assertEqual(rf.load_catalog_tracks(self.root / "data" / "x" / "y.json"), set())
+
     def test_load_cars_fallback_when_missing(self):
         self.assertEqual(rf.load_cars(self.path, sample_data()), ["Car A"])
 
@@ -612,6 +619,31 @@ class Config(unittest.TestCase):
             self.assertEqual(rf.read_saved_path(), "C:/x/y.json")
             rf.config_path().write_text("not json", encoding="utf-8")
             self.assertIsNone(rf.read_saved_path())
+
+    def test_logs_dir_and_records_path_keep_each_other(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {"APPDATA": tmp}):
+            self.assertIsNone(rf.read_logs_dir())
+            rf.write_logs_dir("C:/logs")
+            rf.write_saved_path("C:/x/y.json")
+            self.assertEqual(rf.read_logs_dir(), "C:/logs")
+            self.assertEqual(rf.read_saved_path(), "C:/x/y.json")
+            rf.write_logs_dir("C:/other")
+            self.assertEqual(rf.read_logs_dir(), "C:/other")
+            self.assertEqual(rf.read_saved_path(), "C:/x/y.json")
+
+    def test_old_format_file_has_no_logs_dir(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {"APPDATA": tmp}):
+            rf.config_path().parent.mkdir(parents=True)
+            rf.config_path().write_text(json.dumps({"records_path": "C:/x/y.json"}), encoding="utf-8")
+            self.assertIsNone(rf.read_logs_dir())
+            self.assertEqual(rf.read_saved_path(), "C:/x/y.json")
+
+    def test_non_dict_config_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {"APPDATA": tmp}):
+            rf.config_path().parent.mkdir(parents=True)
+            rf.config_path().write_text(json.dumps(["C:/logs"]), encoding="utf-8")
+            self.assertIsNone(rf.read_logs_dir())
+            self.assertEqual(rf.read_config(), {})
 
 
 if __name__ == "__main__":
