@@ -1,1 +1,6 @@
 asset_data/
+build/
+dist/
+*.spec
+*.records-editor.tmp
+__pycache__/
