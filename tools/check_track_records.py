@@ -132,6 +132,8 @@ def check_record(rec, label, problems, duplicates):
         problems.append(f"{label}: 'year' must be a whole number")
     if "date" in rec and not is_real_date(rec["date"]):
         problems.append(f"{label}: 'date' must be a real date written YYYY-MM-DD (e.g. 2026-10-12)")
+    if isinstance(rec.get("year"), int) and is_real_date(rec.get("date")) and rec["date"][:4] != str(rec["year"]):
+        problems.append(f"{label}: 'year' does not match the year in 'date'")
     if "speed_mph" in rec and not is_number(rec["speed_mph"]):
         problems.append(f"{label}: 'speed_mph' must be a number")
     for field in ("source", "note"):

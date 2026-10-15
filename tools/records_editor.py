@@ -181,7 +181,7 @@ class App:
         year_row.grid(row=4, column=1, sticky="ew", pady=2)
         ttk.Spinbox(year_row, textvariable=self.year, from_=1900, to=date.today().year + 1,
                     width=8).pack(side="left")
-        ttk.Label(year_row, text="Year (only the year is saved)").pack(side="left", padx=6)
+        ttk.Label(year_row, text="Year (must match Date, if set)").pack(side="left", padx=6)
         ttk.Label(form, text="Date").grid(row=5, column=0, sticky="w")
         date_row = ttk.Frame(form)
         date_row.grid(row=5, column=1, sticky="ew", pady=2)

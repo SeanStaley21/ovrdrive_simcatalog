@@ -244,6 +244,12 @@ class CheckRecordDate(unittest.TestCase):
     def test_year_and_date_together_pass(self):
         self.assertEqual(self.problems_for(year=2026, date="2026-10-12"), [])
 
+    def test_year_not_matching_date_is_a_problem(self):
+        self.assertEqual(
+            self.problems_for(year=2020, date="2026-10-12"),
+            ["r: 'year' does not match the year in 'date'"],
+        )
+
     def test_bad_dates_refused_with_message(self):
         bad_values = (
             "2026-13-40", "2025-02-29", "2026-00-10", "10/12/2026", "2026-1-5",
@@ -284,6 +290,15 @@ class BuildRecord(unittest.TestCase):
         rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", " 2026-10-12 ")
         self.assertEqual(rec["date"], "2026-10-12")
 
+    def test_year_not_matching_date_refused(self):
+        with self.assertRaises(rf.RecordsFileError) as caught:
+            rf.build_record("GT", "Car A", "Ann", "1:20.942", "2020", "2026-10-12")
+        self.assertIn("Year must match the year of the Date", str(caught.exception))
+
+    def test_year_matching_date_accepted(self):
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "2026", "2026-10-12")
+        self.assertEqual((rec["year"], rec["date"]), (2026, "2026-10-12"))
+
     def test_empty_date_removes_existing_date(self):
         rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "", "  ", base=dict(REC, date="2026-10-12"))
         self.assertNotIn("date", rec)
@@ -296,7 +311,7 @@ class BuildRecord(unittest.TestCase):
                 self.assertIn("'date' must be a real date", str(caught.exception))
 
     def test_new_date_is_appended_after_existing_keys(self):
-        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "2020", "2026-10-12", base=dict(REC, year=2020, verified=True))
+        rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "2026", "2026-10-12", base=dict(REC, year=2026, verified=True))
         self.assertEqual(list(rec), ["class", "car", "driver", "time", "year", "verified", "date"])
 
     def test_edit_keeps_date_position(self):
