@@ -34,6 +34,9 @@ class BestLap:
     raw: str
     matched: bool
     date: str = ""
+    ids: tuple = ()
+    map_track: bool = False
+    map_car: bool = False
 
 
 def _probe(logs_dir):
@@ -53,7 +56,7 @@ def _modified_date(signature):
 def scan(logs_dir, cache):
     """Read the logs in logs_dir that changed since the last scan and return all their laps.
 
-    Each lap is the parsed lap plus the log file's modified date as YYYY-MM-DD. cache is {log name: (signature, laps)} and is updated in place. Returns
+    Each lap is the parsed lap plus the log file's modified date as YYYY-MM-DD and the log name. cache is {log name: (signature, laps)} and is updated in place. Returns
     (laps, number of logs re-read, [(log name, exception type name)] for unreadable logs).
     A log that cannot be read keeps the laps cached from its last good read.
     """
@@ -72,7 +75,7 @@ def scan(logs_dir, cache):
             fresh[name] = cache[name]
     cache.clear()
     cache.update(fresh)
-    laps = [lap + (_modified_date(cache[name][0]),) for name in sorted(cache) for lap in cache[name][1]]
+    laps = [lap + (_modified_date(cache[name][0]), name) for name in sorted(cache) for lap in cache[name][1]]
     return laps, len(changed), unreadable
 
 
@@ -95,24 +98,75 @@ def load_editor_id_map(records_path):
         return None
 
 
-def best_laps(laps, id_map, catalog_tracks, catalog_cars):
-    """Up to TOP_LAPS BestLap rows per (track, layout, car): the fastest distinct times, the first lap on a tie."""
+def resolve_lap(id_map, catalog_tracks, catalog_cars, matches, track_id, layout_id, car_id):
+    """(track, layout, car, matched, map_track, map_car) for one lap's raw ids.
+
+    The id map names a track, layout or car when it resolves into the catalog; otherwise a remembered
+    manual match fills in. A part the id map does not know is matched only by a remembered match.
+    """
+    track, layout, car = lbl.resolve_names(id_map, track_id, layout_id, car_id, set())
+    mapped_track = id_map["tracks"].get(track_id)
+    map_track = (mapped_track is not None and layout_id in mapped_track.get("layouts", {})
+                 and f"{track}::{layout}" in catalog_tracks)
+    map_car = car_id in id_map["cars"] and car in catalog_cars
+    manual_track = None if map_track else matches["tracks"].get(track_id, {}).get(layout_id)
+    if manual_track:
+        track, layout = manual_track["track"], manual_track["layout"]
+    manual_car = None if map_car else matches["cars"].get(car_id)
+    if manual_car is not None:
+        car = manual_car
+    matched = ((map_track or (manual_track is not None and f"{track}::{layout}" in catalog_tracks))
+               and (map_car or (manual_car is not None and car in catalog_cars)))
+    return track, layout, car, matched, map_track, map_car
+
+
+def best_laps(laps, id_map, catalog_tracks, catalog_cars, matches=None):
+    """Up to TOP_LAPS BestLap rows per (track, layout, car): the fastest distinct times, the first lap on a tie.
+
+    Each log is one race and each driver counts only with their fastest lap in it.
+    """
+    matches = matches or {"tracks": {}, "cars": {}}
+    fastest = {}
+    for index, (track_id, layout_id, car_id, driver, ms, date, log_name) in enumerate(laps):
+        track, layout, car, matched, map_track, map_car = resolve_lap(
+            id_map, catalog_tracks, catalog_cars, matches, track_id, layout_id, car_id)
+        key = (log_name, driver, track, layout, car)
+        if key not in fastest or ms < fastest[key][1].ms:
+            fastest[key] = (index, BestLap(
+                track, layout, car, driver, ms, f"{track_id} / {layout_id} / {car_id}", matched, date,
+                (track_id, layout_id, car_id), map_track, map_car))
     found = {}
-    for track_id, layout_id, car_id, driver, ms, date in laps:
-        unmapped = set()
-        track, layout, car = lbl.resolve_names(id_map, track_id, layout_id, car_id, unmapped)
-        matched = (not unmapped and f"{track}::{layout}" in catalog_tracks
-                   and car in catalog_cars)
-        key = (track, layout, car)
-        if all(row.ms != ms for row in found.get(key, [])):
-            found.setdefault(key, []).append(BestLap(
-                track, layout, car, driver, ms, f"{track_id} / {layout_id} / {car_id}", matched, date))
+    for _, best in sorted(fastest.values(), key=lambda item: item[0]):
+        key = (best.track, best.layout, best.car)
+        if all(row.ms != best.ms for row in found.get(key, [])):
+            found.setdefault(key, []).append(best)
     rows = []
     for key_rows in found.values():
         rows.extend(sorted(key_rows, key=lambda row: row.ms)[:TOP_LAPS])
     rows.sort(key=lambda row: (not row.matched, row.track.casefold(), row.layout.casefold(), row.ms))
     return rows
 
+
+def catalog_layouts(catalog_tracks):
+    """{track: sorted layouts} from the "track::layout" catalog keys."""
+    layouts = {}
+    for key in catalog_tracks:
+        track, _, layout = key.partition("::")
+        layouts.setdefault(track, []).append(layout)
+    return {track: sorted(names) for track, names in layouts.items()}
+
+
+def check_match(catalog_tracks, catalog_cars, track, layout, car):
+    """The reason a manual match is not allowed, else None; track and layout, or car, may be None to skip them."""
+    if track is not None:
+        layouts = catalog_layouts(catalog_tracks)
+        if track not in layouts:
+            return "Choose a track from the catalog."
+        if layout not in layouts[track]:
+            return f"Choose a layout of {track} from the catalog."
+    if car is not None and car not in catalog_cars:
+        return "Choose a car from the catalog."
+    return None
 
 def marker(row, data):
     """How row compares with the fastest record for the same car on the same layout."""
@@ -145,7 +199,7 @@ def handled_path():
 
 
 def read_handled():
-    """The (track, layout, car, ms) of every added or dismissed lap; unusable data gives []."""
+    """Every added or dismissed lap as (track, layout, car, ms), plus a trailing True for an added one; unusable data gives []."""
     try:
         value = json.loads(handled_path().read_text(encoding="utf-8"))
     except Exception:
@@ -158,20 +212,83 @@ def read_handled():
         if (isinstance(entry, dict)
                 and all(isinstance(entry.get(key), str) for key in ("track", "layout", "car"))
                 and isinstance(entry.get("ms"), int) and not isinstance(entry["ms"], bool)):
-            handled.append((entry["track"], entry["layout"], entry["car"], entry["ms"]))
+            added = (True,) if entry.get("added") is True else ()
+            handled.append((entry["track"], entry["layout"], entry["car"], entry["ms"]) + added)
     return handled
 
 
 def write_handled(handled):
     target = handled_path()
     target.parent.mkdir(parents=True, exist_ok=True)
-    entries = [{"track": t, "layout": l, "car": c, "ms": ms} for t, l, c, ms in handled]
+    entries = []
+    for t, l, c, ms, *added in handled:
+        entries.append({"track": t, "layout": l, "car": c, "ms": ms, **({"added": True} if added else {})})
     target.write_text(json.dumps({"handled": entries}), encoding="utf-8")
+
+
+def migrate_handled(handled, laps, id_map, catalog_tracks, catalog_cars, old_matches, new_matches):
+    """handled with the dismissed entries of laps whose names changed from old_matches to new_matches moved to the new names.
+
+    Entries of added laps never move. A dismissed entry that an unchanged lap also uses is kept and the
+    moved laps' new entries are added beside it.
+    """
+    moves, stays = {}, set()
+    for track_id, layout_id, car_id, _, ms, *_ in laps:
+        ids = (track_id, layout_id, car_id)
+        old = resolve_lap(id_map, catalog_tracks, catalog_cars, old_matches, *ids)[:3] + (ms,)
+        new = resolve_lap(id_map, catalog_tracks, catalog_cars, new_matches, *ids)[:3] + (ms,)
+        if old == new:
+            stays.add(old)
+        elif new not in moves.setdefault(old, []):
+            moves[old].append(new)
+    migrated = []
+    for entry in handled:
+        if len(entry) > 4 or entry not in moves:
+            results = [entry]
+        else:
+            results = ([entry] if entry in stays else []) + moves[entry]
+        for result in results:
+            if result not in migrated:
+                migrated.append(result)
+    return migrated
 
 
 def is_handled(row, handled):
     """True when this exact lap time for the same car was already added or dismissed."""
-    return (row.track, row.layout, row.car, row.ms) in handled
+    key = (row.track, row.layout, row.car, row.ms)
+    return any(entry[:4] == key for entry in handled)
+
+
+def matches_path():
+    return config_path().with_name("best_laps_matches.json")
+
+
+def read_matches():
+    """The remembered manual matches {"tracks": {track id: {layout id: {"track", "layout"}}}, "cars": {car id: name}}; unusable data gives none."""
+    matches = {"tracks": {}, "cars": {}}
+    try:
+        value = json.loads(matches_path().read_text(encoding="utf-8"))
+    except Exception:
+        return matches
+    if not isinstance(value, dict):
+        return matches
+    tracks, cars = value.get("tracks"), value.get("cars")
+    for track_id, layouts in (tracks.items() if isinstance(tracks, dict) else ()):
+        for layout_id, entry in (layouts.items() if isinstance(layouts, dict) else ()):
+            if (isinstance(entry, dict) and isinstance(entry.get("track"), str)
+                    and isinstance(entry.get("layout"), str)):
+                matches["tracks"].setdefault(track_id, {})[layout_id] = {
+                    "track": entry["track"], "layout": entry["layout"]}
+    for car_id, name in (cars.items() if isinstance(cars, dict) else ()):
+        if isinstance(name, str):
+            matches["cars"][car_id] = name
+    return matches
+
+
+def write_matches(matches):
+    target = matches_path()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(matches), encoding="utf-8")
 
 
 def lap_record(row, name, cls, date_text):
@@ -200,5 +317,5 @@ def ok_message(checked, total, reread, unreadable, id_map_found):
     if unreadable:
         text += f", {len(unreadable)} unreadable"
     if not id_map_found:
-        text += ", id map missing or unusable: all laps unmatched"
+        text += ", id map missing or unusable: laps are unmatched unless matched manually"
     return text

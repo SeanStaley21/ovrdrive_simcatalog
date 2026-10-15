@@ -27,8 +27,8 @@ CATALOG_TRACKS = {f"{INDI}::{INDI}"}
 CATALOG_CARS = {"Car A", "Car B"}
 
 
-def lap(ms, track="indi", layout="", car="car_a", driver="Pod 1", date="2026-01-01"):
-    return (track, layout, car, driver, ms, date)
+def lap(ms, track="indi", layout="", car="car_a", driver="Pod 1", date="2026-01-01", log=None):
+    return (track, layout, car, driver, ms, date, log or f"{ms}.log")
 
 
 def rows_for(laps, id_map=ID_MAP, tracks=CATALOG_TRACKS, cars=CATALOG_CARS):
@@ -144,7 +144,7 @@ class RealDataTests(unittest.TestCase):
         id_map = bl.load_editor_id_map(records_path)
         tracks = rf.load_catalog_tracks(records_path)
         cars = set(json.loads((ROOT / "data" / "cars.json").read_text(encoding="utf-8-sig"))["cars"])
-        laps = [item + ("2026-01-01",) for item in
+        laps = [item + ("2026-01-01", "two_sessions.log") for item in
                 lbl.parse_log((HERE / "sample_logs" / "two_sessions.log").read_text(encoding="utf-8"))]
         best = bl.best_laps(laps, id_map, tracks, cars)[0]
         self.assertEqual((best.track, best.layout, best.car), (INDI, INDI, FORMULA))
@@ -220,6 +220,43 @@ class BestLapsTests(unittest.TestCase):
         rows = rows_for([lap(60000, driver="Pod 1"), lap(60000, driver="Pod 2"), lap(61000)])
         self.assertEqual([(r.ms, r.driver) for r in rows], [(60000, "Pod 1"), (61000, "Pod 1")])
 
+    def test_a_pod_counts_once_per_race_with_its_fastest_lap(self):
+        rows = rows_for([lap(62000, log="a.log"), lap(60000, log="a.log"), lap(61000, log="a.log")])
+        self.assertEqual([r.ms for r in rows], [60000])
+
+    def test_a_tie_between_pods_goes_to_the_pod_that_set_the_time_first(self):
+        rows = rows_for([lap(62000, log="a.log"), lap(60000, driver="Pod 2", log="a.log"),
+                         lap(60000, log="a.log")])
+        self.assertEqual([(r.driver, r.ms) for r in rows], [("Pod 2", 60000)])
+
+    def test_each_pod_in_a_race_gets_a_row(self):
+        rows = rows_for([lap(60000, log="a.log"), lap(61000, driver="Pod 2", log="a.log"),
+                         lap(62000, driver="Pod 2", log="a.log")])
+        self.assertEqual([(r.driver, r.ms) for r in rows], [("Pod 1", 60000), ("Pod 2", 61000)])
+
+    def test_the_same_pod_in_two_races_gets_two_rows(self):
+        rows = rows_for([lap(60000, log="a.log"), lap(61000, log="b.log"), lap(59000, log="b.log")])
+        self.assertEqual([r.ms for r in rows], [59000, 60000])
+
+    def test_top_three_is_chosen_among_the_race_bests(self):
+        laps = [lap(50000, log="a.log"), lap(50100, log="a.log"), lap(50200, log="a.log"),
+                lap(60000, driver="Pod 2", log="a.log"), lap(61000, log="b.log"),
+                lap(62000, log="c.log"), lap(63000, log="d.log")]
+        self.assertEqual([r.ms for r in rows_for(laps)], [50000, 60000, 61000])
+
+    def test_best_per_key_matches_the_best_of_the_per_race_pod_bests(self):
+        laps = [("Pod 1", "a", 61000), ("Pod 1", "a", 60000), ("Pod 2", "a", 62000), ("Pod 1", "b", 63000),
+                ("Pod 2", "b", 59000), ("Pod 2", "b", 58000)]
+        everything, reduced = {}, {}
+        for driver, log_name, ms in laps:
+            lbl.merge_lap(everything, "T", "L", "C", driver, ms)
+        bests = {}
+        for driver, log_name, ms in laps:
+            bests[(driver, log_name)] = min(ms, bests.get((driver, log_name), ms))
+        for (driver, _), ms in bests.items():
+            lbl.merge_lap(reduced, "T", "L", "C", driver, ms)
+        self.assertEqual(everything, reduced)
+
     def test_each_row_keeps_its_own_date_and_driver(self):
         rows = rows_for([lap(60000, date="2026-01-01"), lap(59000, driver="Pod 2", date="2026-02-02"),
                          lap(59000, date="2026-03-03")])
@@ -278,6 +315,17 @@ class HandledTests(unittest.TestCase):
         bl.handled_path().parent.mkdir(parents=True)
         bl.handled_path().write_text(json.dumps({"handled": bad + [good]}), encoding="utf-8")
         self.assertEqual(bl.read_handled(), [("T", "L", "C", 5)])
+
+    def test_added_flag_round_trips_and_old_files_load_as_dismissed(self):
+        bl.write_handled([("T", "L", "A", 1, True), ("T", "L", "B", 2)])
+        self.assertEqual(bl.read_handled(), [("T", "L", "A", 1, True), ("T", "L", "B", 2)])
+        entry = {"track": "T", "layout": "L", "car": "C", "ms": 5}
+        bl.handled_path().write_text(json.dumps({"handled": [entry, {**entry, "ms": 6, "added": "yes"},
+                                                             {**entry, "ms": 7, "added": True}]}), encoding="utf-8")
+        self.assertEqual(bl.read_handled(), [("T", "L", "C", 5), ("T", "L", "C", 6), ("T", "L", "C", 7, True)])
+
+    def test_is_handled_ignores_the_added_flag(self):
+        self.assertTrue(bl.is_handled(row(80000), [(INDI, INDI, "Car A", 80000, True)]))
 
     def test_is_handled_matches_the_exact_lap_only(self):
         handled = [(INDI, INDI, "Car A", 80000)]
@@ -388,6 +436,161 @@ class MarkerTests(unittest.TestCase):
         self.assertEqual(bl.marker(row(80000), data), "no record")
 
 
+class ManualMatchTests(unittest.TestCase):
+    CAR_ID_MAP = {"tracks": ID_MAP["tracks"], "cars": {}}
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        patch = mock.patch.dict(os.environ, {"APPDATA": tmp.name})
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def matches(self, tracks=None, cars=None):
+        return {"tracks": tracks or {}, "cars": cars or {}}
+
+    def best(self, laps, matches, id_map=ID_MAP, tracks=CATALOG_TRACKS, cars=CATALOG_CARS):
+        return bl.best_laps(laps, id_map, tracks, cars, matches)
+
+    def test_round_trip(self):
+        matches = self.matches({"t": {"": {"track": "A", "layout": "B"}, "gp": {"track": "C", "layout": "D"}}},
+                               {"c": "Car A"})
+        bl.write_matches(matches)
+        self.assertEqual(bl.read_matches(), matches)
+        self.assertEqual(bl.matches_path().name, "best_laps_matches.json")
+
+    def test_missing_or_bad_files_read_as_empty(self):
+        self.assertEqual(bl.read_matches(), self.matches())
+        bl.matches_path().parent.mkdir(parents=True)
+        for text in ("not json", "[]", '{"tracks": 5, "cars": []}', '{"other": 1}'):
+            with self.subTest(text):
+                bl.matches_path().write_text(text, encoding="utf-8")
+                self.assertEqual(bl.read_matches(), self.matches())
+
+    def test_bad_entries_are_skipped(self):
+        good = {"track": "T", "layout": "L"}
+        value = {"tracks": {"a": {"": good, "x": {"track": 1, "layout": "L"}, "y": {"track": "T"}, "z": 5},
+                            "b": 5, "c": {"": {"track": "T", "layout": None}}},
+                 "cars": {"p": "Car", "q": 5, "r": None}}
+        bl.matches_path().parent.mkdir(parents=True)
+        bl.matches_path().write_text(json.dumps(value), encoding="utf-8")
+        self.assertEqual(bl.read_matches(), self.matches({"a": {"": good}}, {"p": "Car"}))
+
+    def test_car_match_makes_the_row_matched(self):
+        [best] = self.best([lap(60000, car="car_z")], self.matches(cars={"car_z": "Car A"}))
+        self.assertEqual((best.car, best.matched, best.map_track, best.map_car), ("Car A", True, True, False))
+        self.assertEqual(best.ids, ("indi", "", "car_z"))
+        self.assertEqual(best.raw, "indi /  / car_z")
+
+    def test_track_and_layout_match(self):
+        [best] = self.best([lap(60000, track="other", layout="gp")],
+                           self.matches({"other": {"gp": {"track": INDI, "layout": INDI}}}))
+        self.assertEqual((best.track, best.layout, best.matched, best.map_track, best.map_car),
+                         (INDI, INDI, True, False, True))
+
+    def test_empty_layout_id_and_both_parts_together(self):
+        matches = self.matches({"other": {"": {"track": INDI, "layout": INDI}}}, {"car_z": "Car B"})
+        [best] = self.best([lap(60000, track="other", car="car_z")], matches)
+        self.assertEqual((best.track, best.layout, best.car, best.matched, best.map_track, best.map_car),
+                         (INDI, INDI, "Car B", True, False, False))
+
+    def test_id_map_wins_over_a_remembered_match(self):
+        matches = self.matches({"indi": {"": {"track": "Other", "layout": "Other"}}}, {"car_a": "Car B"})
+        [best] = self.best([lap(60000)], matches)
+        self.assertEqual((best.track, best.layout, best.car, best.matched), (INDI, INDI, "Car A", True))
+        self.assertEqual((best.map_track, best.map_car), (True, True))
+
+    def test_remembered_match_fills_in_when_the_id_map_name_is_not_in_the_catalog(self):
+        [best] = self.best([lap(60000, car="car_x")], self.matches(cars={"car_x": "Car B"}))
+        self.assertEqual((best.car, best.matched, best.map_car), ("Car B", True, False))
+
+    def test_match_to_a_name_not_in_the_catalog_stays_unmatched(self):
+        [best] = self.best([lap(60000, car="car_z")], self.matches(cars={"car_z": "Gone"}))
+        self.assertEqual((best.car, best.matched), ("Gone", False))
+        [best] = self.best([lap(60000, track="other")],
+                           self.matches({"other": {"": {"track": "Gone", "layout": "Gone"}}}))
+        self.assertFalse(best.matched)
+
+    def test_unlisted_ids_without_a_match_are_unmapped(self):
+        [best] = self.best([lap(60000, track="other", car="car_z")], self.matches(), id_map=self.CAR_ID_MAP)
+        self.assertEqual((best.matched, best.map_track, best.map_car), (False, False, False))
+
+    def test_two_raw_cars_matched_to_one_car_share_a_top_three(self):
+        matches = self.matches(cars={"car_y": "Car A", "car_z": "Car A"})
+        rows = self.best([lap(60000, car="car_y"), lap(60000, car="car_z"), lap(61000, car="car_z"),
+                          lap(59000, car="car_a")], matches)
+        self.assertEqual([(r.car, r.ms) for r in rows],
+                         [("Car A", 59000), ("Car A", 60000), ("Car A", 61000)])
+
+    def test_catalog_layouts(self):
+        tracks = {"B::z", "B::a", "A::x", "C::"}
+        self.assertEqual(bl.catalog_layouts(tracks), {"A": ["x"], "B": ["a", "z"], "C": [""]})
+        self.assertEqual(bl.catalog_layouts(set()), {})
+
+    def test_check_match(self):
+        tracks, cars = {"T::L", "T::M"}, {"Car A"}
+        self.assertIsNone(bl.check_match(tracks, cars, "T", "L", "Car A"))
+        self.assertIsNone(bl.check_match(tracks, cars, "T", "M", None))
+        self.assertIsNone(bl.check_match(tracks, cars, None, None, "Car A"))
+        self.assertIsNotNone(bl.check_match(tracks, cars, "X", "L", "Car A"))
+        self.assertIsNotNone(bl.check_match(tracks, cars, "T", "Z", "Car A"))
+        self.assertIsNotNone(bl.check_match(tracks, cars, "T", "L", "Car Z"))
+        self.assertIsNotNone(bl.check_match(tracks, cars, "T", "L", ""))
+
+    def migrate(self, handled, laps, before, after):
+        return bl.migrate_handled(handled, laps, ID_MAP, CATALOG_TRACKS, CATALOG_CARS, before, after)
+
+    def test_migrate_handled_moves_entries_of_laps_whose_names_changed(self):
+        laps = [lap(5, car="car_z"), lap(6, car="car_z"), lap(7)]
+        handled = [(INDI, INDI, "car_z", 5), (INDI, INDI, "car_z", 6), (INDI, INDI, "Car A", 6),
+                   (INDI, INDI, "car_z", 99), (INDI, INDI, "Car A", 7)]
+        after = self.matches(cars={"car_z": "Car A"})
+        self.assertEqual(self.migrate(handled, laps, self.matches(), after),
+                         [(INDI, INDI, "Car A", 5), (INDI, INDI, "Car A", 6), (INDI, INDI, "car_z", 99),
+                          (INDI, INDI, "Car A", 7)])
+        self.assertEqual(self.migrate(handled, laps, after, after), handled)
+
+    def test_migrate_handled_leaves_an_entry_an_unchanged_lap_uses(self):
+        before = self.matches(cars={"car_z": "Car A"})
+        after = self.matches(cars={"car_z": "Car B"})
+        laps = [lap(5, car="car_a"), lap(6, car="car_z")]
+        handled = [(INDI, INDI, "Car A", 5), (INDI, INDI, "Car A", 6)]
+        self.assertEqual(self.migrate(handled, laps, before, after),
+                         [(INDI, INDI, "Car A", 5), (INDI, INDI, "Car B", 6)])
+        same_time = [lap(5, car="car_a"), lap(5, car="car_z")]
+        self.assertEqual(self.migrate(handled[:1], same_time, before, after),
+                         [(INDI, INDI, "Car A", 5), (INDI, INDI, "Car B", 5)])
+        rows = bl.best_laps(same_time, ID_MAP, CATALOG_TRACKS, CATALOG_CARS, after)
+        migrated = self.migrate(handled[:1], same_time, before, after)
+        self.assertTrue(all(bl.is_handled(r, migrated) for r in rows))
+
+    def test_migrate_handled_never_moves_added_entries(self):
+        laps = [lap(5, car="car_z")]
+        before = self.matches(cars={"car_z": "Car A"})
+        after = self.matches(cars={"car_z": "Car B"})
+        handled = [(INDI, INDI, "Car A", 5, True)]
+        self.assertEqual(self.migrate(handled, laps, before, after), handled)
+
+    def test_migrate_handled_follows_every_lap_that_shared_an_old_name(self):
+        id_map = {"tracks": {"p": {"name": "P", "layouts": {"x": "Main", "y": "Main"}}}, "cars": {}}
+        laps = [lap(5, track="p", layout="x", car="car_z"), lap(5, track="p", layout="y", car="car_z")]
+        after = self.matches({"p": {"x": {"track": "T1", "layout": "L1"}, "y": {"track": "T2", "layout": "L2"}}},
+                             {"car_z": "Car A"})
+        handled = [("P", "Main", "car_z", 5)]
+        migrated = bl.migrate_handled(handled, laps, id_map, CATALOG_TRACKS, CATALOG_CARS, self.matches(), after)
+        self.assertEqual(migrated, [("T1", "L1", "Car A", 5), ("T2", "L2", "Car A", 5)])
+
+    def test_unmapped_ids_are_unmatched_even_when_the_fallback_names_are_in_the_catalog(self):
+        id_map = {"tracks": {}, "cars": {}}
+        tracks, cars = {"ks_highlands::ks_highlands"}, {"car_q"}
+        [best] = bl.best_laps([lap(5, track="ks_highlands", car="car_q")], id_map, tracks, cars)
+        self.assertEqual((best.matched, best.map_track, best.map_car), (False, False, False))
+        matches = self.matches({"ks_highlands": {"": {"track": "ks_highlands", "layout": "ks_highlands"}}},
+                               {"car_q": "car_q"})
+        [best] = bl.best_laps([lap(5, track="ks_highlands", car="car_q")], id_map, tracks, cars, matches)
+        self.assertTrue(best.matched)
+
+
 class StatusMessageTests(unittest.TestCase):
     def test_error_messages(self):
         self.assertEqual(bl.error_message("D:/logs", "not_found", "not found"),
@@ -403,7 +606,7 @@ class StatusMessageTests(unittest.TestCase):
                          "Best laps: 3 readable logs, 0 re-read, checked at 14:05:09 (next check about 14:15)")
         self.assertEqual(bl.ok_message(checked, 3, 2, [("a.log", "OSError")], False),
                          "Best laps: 3 readable logs, 2 re-read, checked at 14:05:09 (next check about 14:15), "
-                         "1 unreadable, id map missing or unusable: all laps unmatched")
+                         "1 unreadable, id map missing or unusable: laps are unmatched unless matched manually")
 
 
 if __name__ == "__main__":
