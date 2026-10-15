@@ -250,6 +250,12 @@ class CheckRecordDate(unittest.TestCase):
             ["r: 'year' does not match the year in 'date'"],
         )
 
+    def test_boolean_year_is_only_a_whole_number_problem(self):
+        self.assertEqual(
+            self.problems_for(year=True, date="2026-10-12"),
+            ["r: 'year' must be a whole number"],
+        )
+
     def test_bad_dates_refused_with_message(self):
         bad_values = (
             "2026-13-40", "2025-02-29", "2026-00-10", "10/12/2026", "2026-1-5",
@@ -293,7 +299,14 @@ class BuildRecord(unittest.TestCase):
     def test_year_not_matching_date_refused(self):
         with self.assertRaises(rf.RecordsFileError) as caught:
             rf.build_record("GT", "Car A", "Ann", "1:20.942", "2020", "2026-10-12")
-        self.assertIn("Year must match the year of the Date", str(caught.exception))
+        self.assertIn("'year' does not match the year in 'date'", str(caught.exception))
+
+    def test_bad_time_and_year_mismatch_both_reported(self):
+        with self.assertRaises(rf.RecordsFileError) as caught:
+            rf.build_record("GT", "Car A", "Ann", "bad", "2020", "2026-10-12")
+        message = str(caught.exception)
+        self.assertIn("must look like m:ss.mmm", message)
+        self.assertIn("'year' does not match the year in 'date'", message)
 
     def test_year_matching_date_accepted(self):
         rec = rf.build_record("GT", "Car A", "Ann", "1:20.942", "2026", "2026-10-12")

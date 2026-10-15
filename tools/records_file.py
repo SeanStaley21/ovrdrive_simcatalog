@@ -13,7 +13,6 @@ from check_track_records import (
     reject_constant,
     NonStandardNumber,
     check_record,
-    is_real_date,
     is_blank,
 )
 
@@ -239,8 +238,6 @@ def build_record(cls, car, driver, time, year_text, date_text, base=None):
         rec["date"] = date_text
     else:
         rec.pop("date", None)
-    if "year" in rec and is_real_date(rec.get("date")) and rec["date"][:4] != str(rec["year"]):
-        raise RecordsFileError("Year must match the year of the Date.")
     problems = []
     check_record(rec, "record", problems, {})
     if problems:
