@@ -1,3 +1,7 @@
 asset_data/
-tools/__pycache__/
+build/
+dist/
+*.spec
+*.records-editor.tmp
+__pycache__/
 tools/bestLapsTest.json*

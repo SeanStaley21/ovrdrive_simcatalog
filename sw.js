@@ -1,4 +1,4 @@
-var VERSION = '20261013c';
+var VERSION = '20261013d';
 var CACHE_PREFIX = 'simcatalog-';
 var SHELL = CACHE_PREFIX + 'shell-' + VERSION;
 var IMG = CACHE_PREFIX + 'img-' + VERSION;

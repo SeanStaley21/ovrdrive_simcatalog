@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/mobile.css?v=20261010">
   <link rel="stylesheet" href="css/popups.css?v=20261010">
   <link rel="stylesheet" href="css/tiles.css?v=20261010">
-  <link rel="stylesheet" href="css/records.css?v=20261013c">
+  <link rel="stylesheet" href="css/records.css?v=20261013d">
 </head>
 <body>
 <nav>
@@ -366,12 +366,12 @@
 </div></div>
 <div class="pop-actions"><button type="button" class="cmp-popup-btn"></button><button type="button" class="copy-link-btn">Copy link</button></div></div></div>
 
-<script src="rigRecords/records.js?v=20261013c"></script>
+<script src="rigRecords/records.js?v=20261013d"></script>
 <script>
 // Data loader: fetches data/cars.json and data/tracks.json, renders the card grids,
 // then runs the page scripts (<script type="text/app">) in document order, once the data and cards exist.
 (function(){
-  var V='?v=20261013c';
+  var V='?v=20261013d';
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function carCard(name,brand){
     return '<div class="ce" data-car="'+esc(name)+'"'+(brand?' data-brand="'+esc(brand)+'"':'')+' data-has-stats="1"><span class="cn">'+esc(name)+'</span></div>';
@@ -1273,6 +1273,7 @@ function _sortGrid(grid,key,getVal,dir){
   kids.forEach(function(k){grid.appendChild(k);});
   if(msg)grid.appendChild(msg);
 }
+function tqText(tq){return tq===0?'N/A':(+tq).toLocaleString();}
 function _carSortVal(el,key){
   if(key==='name')return el.dataset.car;
   var s=carStats[el.dataset.car];
@@ -1593,7 +1594,7 @@ function fillStats(pfx, name, d) {
   document.getElementById(pfx+'hp-bar').style.width = Math.min(d.hp/HP_MAX*100,100)+'%';
   document.getElementById(pfx+'hp-val').textContent = d.hp.toLocaleString();
   document.getElementById(pfx+'tq-bar').style.width = Math.min(d.tq/TQ_MAX*100,100)+'%';
-  document.getElementById(pfx+'tq-val').textContent = d.tq.toLocaleString();
+  document.getElementById(pfx+'tq-val').textContent = tqText(d.tq);
   document.getElementById(pfx+'drive').textContent = d.drive;
   var imgEl=document.getElementById(pfx+'img');
   if(imgEl){if(d.img){setPopupImg(imgEl,d.img,name);}else{imgEl.dataset.full='';imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';}}
@@ -1685,7 +1686,7 @@ function buildCarCards(){
     var hp=d.hp||0;
     var diff=carDiffInfo(d);
     function cs(v,l){return '<div class="cs"><b>'+v+'</b> <i>'+l+'</i></div>';}
-    var statsHtml=(hp>0?cs(hp.toLocaleString('en-US'),'HP'):'')+cs((+d.tq).toLocaleString('en-US'),'FT-LB')+cs(d.drive,'Drive');
+    var statsHtml=(hp>0?cs(hp.toLocaleString('en-US'),'HP'):'')+(d.tq>0?cs((+d.tq).toLocaleString('en-US'),'FT-LB'):'')+cs(d.drive,'Drive');
     el.innerHTML=[
       '<div class="car-card-img-wrap"><img class="car-card-img" src="'+thumbSrc(d.img)+'" alt="" loading="lazy"></div>',
       '<div class="car-card-info">',
@@ -2351,7 +2352,7 @@ function raceCardCarHtml(name){
   return '<img class="rc-photo" src="'+qEsc(d.img)+'" alt="">'+
     '<div class="rc-name">'+qEsc(name)+'</div>'+
     '<div class="rc-tags"><span class="rc-tag">'+di.label+'</span><span class="rc-tag">'+qEsc(d.drive)+'</span></div>'+
-    '<div class="rc-stats"><div><b>'+d.hp+'</b> HP</div><div><b>'+d.tq+'</b> TQ (ft-lbs)</div></div>'+
+    '<div class="rc-stats"><div><b>'+d.hp+'</b> HP</div><div><b>'+tqText(d.tq)+'</b> TQ (ft-lbs)</div></div>'+
     cardBar('Grip',d.df)+cardBar('Top Speed',d.ts)+cardBar('Braking',d.br);
 }
 function raceCardTrackHtml(t){
