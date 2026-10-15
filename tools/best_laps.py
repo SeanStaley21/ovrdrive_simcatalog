@@ -137,9 +137,9 @@ def error_message(logs_dir, kind, detail):
 def ok_message(checked, total, reread, unreadable, id_map_found):
     """Status text for a finished scan; checked is the datetime the scan finished."""
     next_check = checked + timedelta(seconds=INTERVAL)
-    text = f"Best laps: {total} logs, {reread} re-read, checked at {checked:%H:%M:%S} (next check about {next_check:%H:%M})"
+    text = f"Best laps: {total} readable logs, {reread} re-read, checked at {checked:%H:%M:%S} (next check about {next_check:%H:%M})"
     if unreadable:
         text += f", {len(unreadable)} unreadable"
     if not id_map_found:
-        text += ", id map not found: all laps unmatched"
+        text += ", id map missing or unusable: all laps unmatched"
     return text

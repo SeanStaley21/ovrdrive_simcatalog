@@ -268,10 +268,10 @@ class StatusMessageTests(unittest.TestCase):
     def test_ok_messages(self):
         checked = datetime(2026, 1, 1, 14, 5, 9)
         self.assertEqual(bl.ok_message(checked, 3, 0, [], True),
-                         "Best laps: 3 logs, 0 re-read, checked at 14:05:09 (next check about 14:15)")
+                         "Best laps: 3 readable logs, 0 re-read, checked at 14:05:09 (next check about 14:15)")
         self.assertEqual(bl.ok_message(checked, 3, 2, [("a.log", "OSError")], False),
-                         "Best laps: 3 logs, 2 re-read, checked at 14:05:09 (next check about 14:15), "
-                         "1 unreadable, id map not found: all laps unmatched")
+                         "Best laps: 3 readable logs, 2 re-read, checked at 14:05:09 (next check about 14:15), "
+                         "1 unreadable, id map missing or unusable: all laps unmatched")
 
 
 if __name__ == "__main__":
